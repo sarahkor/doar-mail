@@ -2,6 +2,7 @@
     "files.associations": {
         "array": "cpp",
         "atomic": "cpp",
+<<<<<<< HEAD
         "bit": "cpp",
         "*.tcc": "cpp",
         "cctype": "cpp",
@@ -10,16 +11,28 @@
         "cmath": "cpp",
         "compare": "cpp",
         "concepts": "cpp",
+=======
+        "*.tcc": "cpp",
+        "cctype": "cpp",
+        "clocale": "cpp",
+        "cmath": "cpp",
+>>>>>>> b0edfed37f94532f08b2d02252e75f80b7e77e7c
         "cstdarg": "cpp",
         "cstddef": "cpp",
         "cstdint": "cpp",
         "cstdio": "cpp",
         "cstdlib": "cpp",
+<<<<<<< HEAD
         "ctime": "cpp",
         "cwchar": "cpp",
         "cwctype": "cpp",
         "deque": "cpp",
         "string": "cpp",
+=======
+        "cwchar": "cpp",
+        "cwctype": "cpp",
+        "deque": "cpp",
+>>>>>>> b0edfed37f94532f08b2d02252e75f80b7e77e7c
         "unordered_map": "cpp",
         "vector": "cpp",
         "exception": "cpp",
@@ -29,13 +42,19 @@
         "memory": "cpp",
         "memory_resource": "cpp",
         "numeric": "cpp",
+<<<<<<< HEAD
         "optional": "cpp",
         "random": "cpp",
         "string_view": "cpp",
+=======
+        "random": "cpp",
+        "string": "cpp",
+>>>>>>> b0edfed37f94532f08b2d02252e75f80b7e77e7c
         "system_error": "cpp",
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
+<<<<<<< HEAD
         "format": "cpp",
         "initializer_list": "cpp",
         "iosfwd": "cpp",
@@ -49,5 +68,19 @@
         "text_encoding": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp"
+=======
+        "fstream": "cpp",
+        "initializer_list": "cpp",
+        "iosfwd": "cpp",
+        "istream": "cpp",
+        "limits": "cpp",
+        "new": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "stdexcept": "cpp",
+        "streambuf": "cpp",
+        "typeinfo": "cpp",
+        "iostream": "cpp"
+>>>>>>> b0edfed37f94532f08b2d02252e75f80b7e77e7c
     }
 }
