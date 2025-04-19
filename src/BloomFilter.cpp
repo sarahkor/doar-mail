@@ -38,6 +38,19 @@ void BloomFilter::add(const std::string& url) {
         size_t index = hashValue % bitArray.size();
         bitArray[index] = true;
     }
+
+    // Check to avoid calling for saving if there is no storage mechanism
+    if (m_storage) {
+        // Create a new array of bytes (unsigned char) the same size as our filter.
+        vector<unsigned char> rawBits(bitArray.size());
+
+        // Converts any bool to unsigned char
+        for (size_t i = 0; i < bitArray.size(); ++i)
+            rawBits[i] = bitArray[i] ? 1u : 0u;
+
+        // We are trying to save the bits to disk, via the save() function of the m_storage object.
+        m_storage->save(rawBits);     
+    }
 }
 
 
