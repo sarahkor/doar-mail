@@ -4,17 +4,16 @@
 ConfigurableHash::ConfigurableHash(const std::string& type, int repeat)
     : type(type), repeat(repeat) {}
 
-size_t ConfigurableHash::hash(const std::string& input) const {
-    std::string current = input;
-    size_t result = 0;
-
-    for (int i = 0; i < repeat; ++i) {
-        if (type == "std") {
-            result = std::hash<std::string>{}(current);
-            current = std::to_string(result);  // feed into next round
+    size_t ConfigurableHash::hash(const std::string& input) const {
+        std::hash<std::string> hasher;
+        std::string current = input;
+        size_t result = hasher(current);
+    
+        for (int i = 1; i < repeat; ++i) {
+            current += std::to_string(result);  // mix in previous result
+            result = hasher(current);
         }
-        // Future: add more types like "mod", "reversed", etc.
+    
+        return result;
     }
-
-    return result;
-}
+    
