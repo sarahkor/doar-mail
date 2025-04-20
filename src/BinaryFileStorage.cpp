@@ -16,10 +16,8 @@ BinaryFileStorage::BinaryFileStorage(const std::string& path)
 // The function is invoked from the object BinaryFileStorage
 // In which the path of the Bloom filter file is stored.
 bool BinaryFileStorage::load(vector<unsigned char>& bits) {
-
     // Opens the file for binary reading (not textual) according to the path saved in the class.
     ifstream in(m_path, ios::binary);
-
 
     // Checks if the file was opened successfully. If not, returns false.
     if (!in.is_open()) {
@@ -49,7 +47,21 @@ bool BinaryFileStorage::load(vector<unsigned char>& bits) {
 }
 
 // (optional for now – not implemented)
-bool BinaryFileStorage::save(const vector<unsigned char>& bits) {
-    // Not implemented in this task
-    return false;
+bool BinaryFileStorage::save(const vector<unsigned char>& bits) {    
+    // Creates a write stream to file-m_path.
+    // Write to file in binary form.
+    // If the file already exists, delete the old content before starting to write.
+    // If the file does not exist at all – it will be automatically created by ofstream.
+    ofstream out(m_path, ios::binary | ios::trunc);
+
+    // If the file was NOT opened successfully
+    if (!out.is_open()) {
+        return false;
+    }
+    // Writes the entire contents of the vector to the file in raw bitwise format.
+    // and returns a pointer to the beginning of the array.
+    if (!out.write(reinterpret_cast<const char*>(bits.data()), bits.size())) {
+        return false;
+    }
+    return true;
 }
