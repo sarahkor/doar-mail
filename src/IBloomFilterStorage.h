@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <string>
 
  // Interface for Bloom filter storage mechanism.
  // Defines how to load and save the bit array from/to persistent storage.
@@ -12,6 +13,8 @@ public:
     // Saves the Bloom filter bit array to persistent storage.
     // return true if saving was successful, false otherwise.
     virtual bool save(const std::vector<unsigned char>& bits) = 0;
+
+    virtual void setExpectedSize(size_t expectedSize) = 0;
 
     virtual ~IBloomFilterStorage() = default;
 };
