@@ -23,9 +23,9 @@ add_library(CreateOurGmail_lib
 # Tests for Bloom Filter Core
 enable_testing()
 add_executable(tests
-    src/tests/testMain.cpp
-    src/tests/testBloomFilter.cpp
-    src/tests/testHashClass.cpp
+    src/tests/bloom_hash_tests/testMain.cpp
+    src/tests/bloom_hash_tests/testBloomFilter.cpp
+    src/tests/bloom_hash_tests/testHashClass.cpp
     src/tests/storage_test/bloom_filter_storage_test.cpp 
 )
 
