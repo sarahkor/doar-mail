@@ -15,7 +15,7 @@ private:
     // The pointer owns an object that implements the IBloomFilterStorage interface.
     // It allows BloomFilter to load and save its bit array via that object.
     std::unique_ptr<IBloomFilterStorage> m_storage;
-
+    std::vector<unsigned char> m_bits;
 
 public:
     // constructor- If no storage is sent, the storage will receive a default value (nullptr)
@@ -26,8 +26,16 @@ public:
 
     // Add a URL to the filter
     void add(const std::string& url);
-
     // Check if URL might be in the filter
     bool contains(const std::string& url) const;
 
+    // A function designed for tests
+    // Get pointer to storage (e.g. for testing)
+    IBloomFilterStorage* getStorage() const;
+    // A function designed for tests
+    // Get the current bit array
+    std::vector<unsigned char> getBitArray() const;
+    // A function designed for tests
+    // Set the bit array
+    void setBitArray(const std::vector<unsigned char>& bits);
 };

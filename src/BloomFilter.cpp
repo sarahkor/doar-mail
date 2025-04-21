@@ -2,7 +2,6 @@
 #include <utility>
 #include <memory>
 #include <vector>
-
 using namespace std;
 
 // Constructor: initializes the bit array to the given size (all false- zero) 
@@ -12,23 +11,14 @@ BloomFilter::BloomFilter(size_t size,
                         unique_ptr<IBloomFilterStorage> storage)
     : bitArray(size, false),
       hashFunctions(functions),
-      m_storage(std::move(storage)) { // Move ownership of the storage object into the class member.
-        // If a storage mechanism was provided, attempt to load existing filter data from it.
-        if (m_storage) {
-            // Temporary byte buffer to hold the raw binary contents loaded from the file (or other source).
-            vector<unsigned char> rawBits;
-
-            // Try to load the raw bit data from the storage.
-            // Only proceed if the load was successful AND the loaded size matches the expected filter size.
-            if (m_storage->load(rawBits) && rawBits.size() == bitArray.size()) {
-                // Convert each byte in rawBits to a boolean value in bitArray.
-                for (size_t i = 0; i < rawBits.size(); ++i)
-                    bitArray[i] = (rawBits[i] != 0);
-            }
-
-        }
+      m_storage(std::move(storage)) {
+    // Initialize m_bits with the same size as bitArray
+    m_bits.resize(size, 0);
+    if (m_storage) {
+        // Ensure file size matches bit array size
+        m_storage->setExpectedSize(size);
+    }
 }
-
 
 // Adds a URL to the Bloom filter by hashing it with each hash function
 // and setting the corresponding bits in the bit array to true.    
@@ -37,22 +27,13 @@ void BloomFilter::add(const std::string& url) {
         size_t hashValue = hashFunc->hash(url);
         size_t index = hashValue % bitArray.size();
         bitArray[index] = true;
+        m_bits[index] = 1;
     }
-
-    // Check to avoid calling for saving if there is no storage mechanism
+    // Only try to save if we have storage
     if (m_storage) {
-        // Create a new array of bytes (unsigned char) the same size as our filter.
-        vector<unsigned char> rawBits(bitArray.size());
-
-        // Converts any bool to unsigned char
-        for (size_t i = 0; i < bitArray.size(); ++i)
-            rawBits[i] = bitArray[i] ? 1u : 0u;
-
-        // We are trying to save the bits to disk, via the save() function of the m_storage object.
-        m_storage->save(rawBits);     
+        m_storage->save(m_bits);
     }
 }
-
 
 //Checks whether a URL might be in the Bloom filter.
 // Returns true if all bits for the hashed values are set,
@@ -62,10 +43,41 @@ bool BloomFilter::contains(const std::string& url) const {
         size_t hashValue = hashFunc->hash(url);
         size_t index = hashValue % bitArray.size();
         if (!bitArray[index]) {
-            return false; // definitely NOT in the set
+            return false;
         }
     }
-    return true; 
+    return true;
+}
+
+// Get pointer to storage (e.g. for testing)
+IBloomFilterStorage* BloomFilter::getStorage() const {
+    if (!m_storage) {
+        // Static dummy storage that safely fails any load/save calls
+        static struct NullStorage : IBloomFilterStorage {
+            bool load(std::vector<unsigned char>&) override { return false; }
+            bool save(const std::vector<unsigned char>&) override { return false; }
+            void setExpectedSize(size_t) override { /* no-op */ }
+        } nullStorage;
+        return &nullStorage;
+    }
+    return m_storage.get();
+}
+
+// Returns the current bit array as unsigned char
+vector<unsigned char> BloomFilter::getBitArray() const {
+    return m_bits;
+}
+
+// Receives a bit array and converts it to an internal boolean
+void BloomFilter::setBitArray(const vector<unsigned char>& bits) {
+    if (bits.size() != bitArray.size()) {
+        return;
+    }
+    
+    m_bits = bits;
+    for (size_t i = 0; i < bits.size(); ++i) {
+        bitArray[i] = (bits[i] != 0);
+    }
 }
 
 

@@ -15,18 +15,23 @@ FetchContent_MakeAvailable(googletest)
 add_library(CreateOurGmail_lib
     src/BloomFilter.cpp
     src/ConfigurableHash.cpp
-    src/FileManager.cpp
     src/IBloomFilterStorage.cpp
+    src/BinaryFileStorage.cpp
 )
 
 
-# Tests
+# Tests for Bloom Filter Core
 enable_testing()
 add_executable(tests
     src/tests/testMain.cpp
     src/tests/testBloomFilter.cpp
+    src/tests/testHashClass.cpp
+    src/tests/storage_test/bloom_filter_storage_test.cpp 
 )
+
 target_include_directories(tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(tests PRIVATE CreateOurGmail_lib GTest::gtest_main)
+
 include(GoogleTest)
 gtest_discover_tests(tests)
+
