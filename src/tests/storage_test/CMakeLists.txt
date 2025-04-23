@@ -1,6 +1,7 @@
 # Build the storage_tests binary and link it against the core library
 add_executable(storage_tests
   bloom_filter_storage_test.cpp
+  black_list_storage_test.cpp
 )
 
 # Make sure storage_tests can find all of your headers (pointing at src/)
