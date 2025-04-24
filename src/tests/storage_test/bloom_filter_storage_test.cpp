@@ -1,7 +1,70 @@
 #include "bloom_filter_storage_test.h"
 #include <limits>
 #include <fstream>
-#include <filesystem>
+#include <iostream>
+#include <ctime>
+#include <string>
+#include <cstdlib> // For system function
+
+// Helper function to check if a file exists using fstream
+bool fileExistsBF(const std::string& path) {
+    std::ifstream infile(path);
+    return infile.good();
+}
+
+// Helper function to check if a directory exists using standard C++
+bool directoryExistsBF(const std::string& path) {
+    // Try to create a temporary file in the directory
+    std::string testFile = path + "/test.tmp";
+    std::ofstream test(testFile);
+    bool exists = test.is_open();
+    test.close();
+    if (exists) {
+        // Clean up the test file
+        std::remove(testFile.c_str());
+    }
+    return exists;
+}
+
+// Helper function to create a directory using standard C++ system calls
+bool createDirectoryBF(const std::string& path) {
+    if (directoryExistsBF(path)) {
+        return true; // Directory already exists
+    }
+    
+    // Use appropriate command based on platform
+    #ifdef _WIN32
+    std::string command = "mkdir \"" + path + "\" 2> nul";
+    #else
+    std::string command = "mkdir -p \"" + path + "\" 2>/dev/null";
+    #endif
+    
+    int result = std::system(command.c_str());
+    
+    // Check if directory was created successfully
+    return directoryExistsBF(path);
+}
+
+// Helper function to delete a file (replaces std::remove)
+void deleteFileBF(const std::string& path) {
+    // Use standard C++ remove function
+    std::remove(path.c_str());
+}
+
+// Helper function to get a guaranteed non-existent file path for testing
+std::string getNonExistentFilePathBF() {
+    // Use a unique path that we can be sure doesn't exist
+    static int counter = 0;
+    std::string path = "non_existent_test_file_bf_" + std::to_string(++counter) + "_" + 
+                       std::to_string(std::time(nullptr)) + ".bf";
+    
+    // Make extra sure it doesn't exist
+    if (fileExistsBF(path)) {
+        std::remove(path.c_str());
+    }
+    
+    return path;
+}
 
 // ============= SANITY TESTS =============
 TEST_F(BloomFilterStorageTest, SaveAndLoadBasic) {
@@ -263,7 +326,7 @@ TEST_F(BloomFilterStorageTest, LongFilenameSupport) {
     std::vector<std::shared_ptr<IHashFunction>> hashFunctions;
     hashFunctions.push_back(std::make_shared<ConfigurableHash>("std", 1));
 
-    std::filesystem::create_directory("bf");
+    createDirectoryBF("bf");
     std::string longName = "bf/" + std::string(180, 'a') + ".bf";
 
     auto storage = std::make_unique<BinaryFileStorage>(longName);
@@ -273,7 +336,7 @@ TEST_F(BloomFilterStorageTest, LongFilenameSupport) {
     std::vector<unsigned char> bits = filter.getBitArray();
     ASSERT_TRUE(filter.getStorage()->save(bits));
 
-    std::filesystem::remove(longName);
+    deleteFileBF(longName);
 }
 
 TEST_F(BloomFilterStorageTest, SaveAndLoadWithMaxHashFunctions) {
