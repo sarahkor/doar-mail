@@ -5,14 +5,23 @@
 #include "Blacklist.h"
 #include "App.h"
 #include "BloomFilter.h"
-
+#include <memory>
 #include <map>
 #include <string>
 
 int main() {
     // Step 1: Create shared components
     ConsoleMenu* menu = new ConsoleMenu();
-    Blacklist* blacklist = new Blacklist();
+    
+    // Blacklist* blacklist = new Blacklist();
+
+    // Step 2: Prepare URL storage and Blacklist
+    // Use FileLineStorage to load/save urls.txt
+    auto urlStorage = std::make_unique<FileLineStorage>("urls.txt");
+    Blacklist* blacklist = new Blacklist(std::move(urlStorage));
+
+
+
 
     BloomFilter* bloomFilter = nullptr;  // declared but not constructed yet
 
@@ -27,7 +36,7 @@ int main() {
 
     CommandParser* parser = new CommandParser(commands);
 
-    // Step 2: Create App and run
+    // Step 3: Create App and run
     App app(menu, parser, commands, blacklist, &bloomFilter);
     app.run();
 
