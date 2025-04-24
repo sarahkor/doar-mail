@@ -47,8 +47,9 @@ TEST(HashNegative, EmptyInputStillReturnsHash) {
 // Unsupported strategy should still work or fallback
 TEST(HashNegative, UnsupportedStrategyDoesNotCrash) {
     ConfigurableHash hash("fake_strategy", 1);
-    size_t result = hash.hash("test.com");
-    EXPECT_GE(result, 0);  // Should return something valid
+    EXPECT_THROW({
+        hash.hash("test.com");
+    }, std::invalid_argument);
 }
 
 // ========== BOUNDARY TESTS ==========

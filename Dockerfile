@@ -1,4 +1,4 @@
-FROM gcc:latest
+FROM gcc:13
 
 # Install required packages
 RUN apt-get update && apt-get install -y \
@@ -20,4 +20,5 @@ WORKDIR /app/build
 RUN cmake .. && make
 
 # Command to run the tests
-CMD ["./src/tests/storage_test/storage_tests"]
+CMD ["./tests"]
+
