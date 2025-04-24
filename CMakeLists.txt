@@ -17,6 +17,9 @@ add_library(CreateOurGmail_lib
     src/ConfigurableHash.cpp
     src/IBloomFilterStorage.cpp
     src/BinaryFileStorage.cpp
+    src/Blacklist.cpp
+    src/FileLineStorage.cpp
+    src/IUrlStorage.cpp
 )
 
 
@@ -27,6 +30,7 @@ add_executable(tests
     src/tests/bloom_hash_tests/testBloomFilter.cpp
     src/tests/bloom_hash_tests/testHashClass.cpp
     src/tests/storage_test/bloom_filter_storage_test.cpp 
+    src/tests/storage_test/black_list_storage_test.cpp
 )
 
 target_include_directories(tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)

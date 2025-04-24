@@ -2,8 +2,8 @@
 #define BLACK_LIST_STORAGE_TEST_H
 
 #include <gtest/gtest.h>
-#include "../../src/Blacklist.h"
-#include "../../src/FileLineStorage.h"
+#include "../../Blacklist.h"
+#include "../../FileLineStorage.h"
 #include <filesystem>
 #include <vector>
 
