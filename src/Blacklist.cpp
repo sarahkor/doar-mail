@@ -1,5 +1,6 @@
 #include "Blacklist.h"
 #include <fstream>
+#include <algorithm>
 
 // Constructor: loads existing URLs from storage into memory
 // Parameters: std::unique_ptr<IUrlStorage> storage
@@ -10,8 +11,9 @@ Blacklist::Blacklist(std::unique_ptr<IUrlStorage> storage)
         m_storage->load(list);
     }
 }
+
 // Add a URL to the blacklist and save the updated list
- // Parameters: const std::string& url
+// Parameters: const std::string& url
 void Blacklist::add(const std::string& url) {
     // append to in-memory list
     list.push_back(url);
@@ -29,4 +31,10 @@ bool Blacklist::check(const std::string& url) const {
         if (u == url) return true;
     }
     return false;
+}
+// destructor
+Blacklist::~Blacklist() {
+    if (m_storage) {
+        m_storage->save(list);
+    }
 }

@@ -15,6 +15,8 @@ public:
     // Constructor: accepts a storage implementation for loading & saving URLs
     // Parameters: std::unique_ptr<IUrlStorage> storage
     Blacklist(std::unique_ptr<IUrlStorage> storage);
+    // destructor
+    ~Blacklist();
     // Add a new URL to in-memory list and persist immediately
     // Parameters: const std::string& url
     void add(const std::string& url);
