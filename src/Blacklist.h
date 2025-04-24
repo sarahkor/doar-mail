@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <memory>
 #include "IUrlStorage.h"
 
 class Blacklist {
