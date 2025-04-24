@@ -1,41 +1,26 @@
-// #include "ConfigurableHash.h"
-// #include <functional>
-
-// ConfigurableHash::ConfigurableHash(const std::string& type, int repeat)
-//     : type(type), repeat(repeat) {}
-
-
-
-// size_t ConfigurableHash::hash(const std::string& input) const {
-//     std::hash<std::string> hasher;
-//     std::string current = input;
-//     size_t result = hasher(current);
-
-//     for (int i = 1; i < repeat; ++i) {
-//         current += std::to_string(result);  // mix in previous result
-//         result = hasher(current);
-
-//     }
-
-//     return result;
-   
-// }
-    
 #include "ConfigurableHash.h"
-#include <functional>
+#include <stdexcept>    
+#include <functional>   
+#include <string>       
 
 ConfigurableHash::ConfigurableHash(const std::string& type, int repeat)
-    : type(type), repeat(repeat) {}
+    : type(type), repeat(repeat) {
+    if (repeat <= 0) {
+        throw std::invalid_argument("Repeat must be positive");
+    }
+}
 
 size_t ConfigurableHash::hash(const std::string& input) const {
-    std::hash<std::string> hasher;
-    size_t result = hasher(input);
-    
-    // Apply repeat logic
-    for (int i = 1; i < repeat; ++i) {
-        // Use the previous result as part of the input
-        result = hasher(input + std::to_string(result));
+    if (type == "std") {
+        std::hash<std::string> hasher;
+        size_t result = hasher(input);
+
+        for (int i = 1; i < repeat; ++i) {
+            result = hasher(input + std::to_string(result));
+        }
+
+        return result;
+    } else {
+        throw std::invalid_argument("Unsupported hash type: " + type);
     }
-    
-    return result;
 }
