@@ -9,7 +9,17 @@ FileLineStorage::FileLineStorage(const std::string& path)
  // Load URLs from the file at m_path
 bool FileLineStorage::load(std::vector<std::string>& urls) {
     std::ifstream ifs(m_path);
-    if (!ifs.is_open()) return false;
+    if (!ifs.is_open()) {
+        // File doesn't exist or can't be opened - don't modify the urls vector
+        return false;
+    }
+    
+    // Verify the file is readable and not a directory
+    if (!ifs.good()) {
+        return false;
+    }
+    
+    // Only clear the urls vector if we successfully opened the file
     urls.clear();
     std::string line;
     while (std::getline(ifs, line)) {
