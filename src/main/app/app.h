@@ -26,6 +26,6 @@ public:
     Blacklist* blacklist,
     BloomFilter** bloomFilterRef);
 
-    // method to run the application
+    // method to run the application.
     void run();
 };

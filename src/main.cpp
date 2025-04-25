@@ -32,7 +32,7 @@ int main() {
     ICommand* addUrl = new AddURLCommand(bloomFilter, blacklist, *outStream);
     ICommand* checkUrl = new CheckURLCommand(bloomFilter, blacklist, *outStream);
 
-    //mapping the commands
+    //mapping the commands.
     commands["1"] = addUrl;
     commands["2"] = checkUrl;
 
