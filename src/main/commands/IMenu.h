@@ -1,5 +1,8 @@
+#pragma once
 #include <string>
 
+// IMenu is an interface for menu-like components that handle user input/output.
+// It abstracts user interaction to allow flexible frontends
 class IMenu {
 public:
     virtual std::string nextCommand() = 0;
