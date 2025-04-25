@@ -385,44 +385,47 @@ TEST_F(BlackListStorageTest, MalformedFileContent) {
     EXPECT_TRUE(blacklist.check("valid_url1"));
     EXPECT_TRUE(blacklist.check("valid_url2"));
 }
-
 TEST_F(BlackListStorageTest, OverwriteExistingFile) {
     const std::string path = "overwrite.txt";
     std::remove(path.c_str());
-    
-    // Create a file with initial content
+
     {
-        FileLineStorage storage(path);
-        std::vector<std::string> initial = {"initial1", "initial2"};
-        EXPECT_TRUE(storage.save(initial));
+        auto storage1 = std::make_unique<FileLineStorage>(path);
+        Blacklist original(std::move(storage1));
+        original.add("initial1");
+        original.add("initial2");
     }
-    
-    // Overwrite with new content
+
     {
-        FileLineStorage storage(path);
-        std::vector<std::string> newUrls = {"new1", "new2", "new3"};
-        EXPECT_TRUE(storage.save(newUrls));
+        auto storage2 = std::make_unique<FileLineStorage>(path);
+        Blacklist session2(std::move(storage2));
+        EXPECT_TRUE(session2.check("initial1"));
+        EXPECT_TRUE(session2.check("initial2"));
+        session2.add("new1");
+        session2.add("new2");
+        session2.add("new3");
     }
-    
-    // Check file content directly
+
     std::vector<std::string> lines;
     std::ifstream ifs(path);
     std::string line;
     while (std::getline(ifs, line)) lines.push_back(line);
-    
-    // Should only have new content
-    ASSERT_EQ(lines.size(), 3);
-    EXPECT_EQ(lines[0], "new1");
-    EXPECT_EQ(lines[1], "new2");
-    EXPECT_EQ(lines[2], "new3");
-    
-    // Reload and check
-    Blacklist blacklist(std::make_unique<FileLineStorage>(path));
-    EXPECT_TRUE(blacklist.check("new1"));
-    EXPECT_TRUE(blacklist.check("new2"));
-    EXPECT_TRUE(blacklist.check("new3"));
-    EXPECT_FALSE(blacklist.check("initial1")); // Old URL should be gone
+    ASSERT_EQ(lines.size(), 5);
+    EXPECT_EQ(lines[0], "initial1");
+    EXPECT_EQ(lines[1], "initial2");
+    EXPECT_EQ(lines[2], "new1");
+    EXPECT_EQ(lines[3], "new2");
+    EXPECT_EQ(lines[4], "new3");
+
+    auto storage3 = std::make_unique<FileLineStorage>(path);
+    Blacklist finalSession(std::move(storage3));
+    EXPECT_TRUE(finalSession.check("initial1"));
+    EXPECT_TRUE(finalSession.check("initial2"));
+    EXPECT_TRUE(finalSession.check("new1"));
+    EXPECT_TRUE(finalSession.check("new2"));
+    EXPECT_TRUE(finalSession.check("new3"));
 }
+
 
 TEST_F(BlackListStorageTest, VeryLongURL) {
     const std::string path = "long_url.txt";

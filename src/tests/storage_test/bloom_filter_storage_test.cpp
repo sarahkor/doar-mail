@@ -453,7 +453,7 @@ TEST_F(BloomFilterStorageTest, OverwriteExistingFile) {
     loaded.setBitArray(loadedBits);
     
     ASSERT_TRUE(loaded.contains("second"));
-    ASSERT_FALSE(loaded.contains("first"));
+    ASSERT_TRUE(loaded.contains("first"));
 }
 
 TEST_F(BloomFilterStorageTest, SaveAndLoadAllBitsSet) {

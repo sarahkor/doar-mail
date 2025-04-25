@@ -17,6 +17,10 @@ BloomFilter::BloomFilter(size_t size,
     if (m_storage) {
         // Ensure file size matches bit array size
         m_storage->setExpectedSize(size);
+        // Load from disk and update bitArray
+        if (m_storage->load(m_bits)) {
+            setBitArray(m_bits);
+        }
     }
 }
 
@@ -31,6 +35,8 @@ void BloomFilter::add(const std::string& url) {
     }
     // Only try to save if we have storage
     if (m_storage) {
+        //Flag "there was an update" = 1
+        m_dirty = true;
         m_storage->save(m_bits);
     }
 }
@@ -79,5 +85,12 @@ void BloomFilter::setBitArray(const vector<unsigned char>& bits) {
         bitArray[i] = (bits[i] != 0);
     }
 }
-
+// destructor
+// This way even if add() was NOT called the changes will be saved
+BloomFilter::~BloomFilter() {
+    // We will only save if any add() occurred
+    if (m_storage && m_dirty) {
+        m_storage->save(m_bits);
+    }
+}
 

@@ -15,6 +15,8 @@ private:
     // It allows BloomFilter to load and save its bit array via that object.
     std::unique_ptr<IBloomFilterStorage> m_storage;
     std::vector<unsigned char> m_bits;
+    // Flag "there was an update" (add)
+    bool m_dirty = false;
 
 public:
     // constructor- If no storage is sent, the storage will receive a default value (nullptr)
@@ -22,7 +24,8 @@ public:
     BloomFilter(size_t size,
                 const std::vector<std::shared_ptr<IHashFunction>>& functions,
                 std::unique_ptr<IBloomFilterStorage> storage = nullptr);
-
+    // destructor
+    ~BloomFilter(); 
     // Add a URL to the filter
     void add(const std::string& url);
     // Check if URL might be in the filter
