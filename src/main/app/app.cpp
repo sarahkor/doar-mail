@@ -27,7 +27,7 @@ void App::run() {
         first infinite loop that stop only if a bloom filter setup line was recieved (somthimg like 8 2 1)
         if the line is empty we ignore it, if the line doesnt match the bloom filter setup format we ignore as well
         if the line is the bloom filter set up we break the infinite loop, set up the bloom filter
-        and move on to add and check urls
+        and move on to add and check urls.
     */
     while (true) {
         std::string input = menu->nextCommand();

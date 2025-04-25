@@ -7,6 +7,6 @@ class ICommand {
 public:
     // Pure virtual function to execute the command logic using the given input string.
     virtual void execute(const std::string& input) = 0;
-    // Virtual destructor to ensure proper cleanup of derived classes via base pointers
+    // Virtual destructor to ensure proper cleanup of derived classes via base pointers.
     virtual ~ICommand() = default;
 };

@@ -5,7 +5,7 @@
 ConsoleMenu::ConsoleMenu(std::istream& inStream, std::ostream& outStream)
     : in(inStream), out(outStream) {}
 
-// Reads the next command from the input stream
+// Reads the next command from the input stream.
 // Waits for a full line of input and returns it as a string.
 std::string ConsoleMenu::nextCommand() {
     std::string input;

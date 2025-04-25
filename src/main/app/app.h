@@ -19,7 +19,7 @@ private:
     BloomFilter** bloomFilter;
 
 public:
-    // constructor
+    // constructor.
     App(IMenu* menu,
     CommandParser* parser,
     std::map<std::string, ICommand*>& commands,

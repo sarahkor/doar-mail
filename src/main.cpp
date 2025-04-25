@@ -19,7 +19,7 @@ int main() {
 
     IMenu* menu = new ConsoleMenu(*inStream, *outStream);
 
-    // Use FileLineStorage to load/save urls.txt
+    // Use FileLineStorage to load/save urls.txt.
     auto urlStorage = std::make_unique<FileLineStorage>("data/urlsdata.txt");
     Blacklist* blacklist = new Blacklist(std::move(urlStorage));
 

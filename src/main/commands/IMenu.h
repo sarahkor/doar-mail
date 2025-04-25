@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 
 // IMenu is an interface for menu-like components that handle user input/output.
