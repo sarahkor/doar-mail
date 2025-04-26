@@ -1,15 +1,16 @@
 #pragma once
-
 #include "ICommand.h"
-#include "BloomFilter.h"
-#include "Blacklist.h"
+#include <ostream>
+#include "core/BloomFilter.h"
+#include "core/Blacklist.h"
 
 class CheckURLCommand : public ICommand {
 private:
-    BloomFilter*& bloom;      // Reference to the shared pointer
+    BloomFilter*& bloom; 
     Blacklist* blacklist;
+    std::ostream& out;
 
 public:
-    CheckURLCommand(BloomFilter*& bloomRef, Blacklist* blacklist);
+    CheckURLCommand(BloomFilter*& bf, Blacklist* bl, std::ostream& outputStream);
     void execute(const std::string& url) override;
 };
