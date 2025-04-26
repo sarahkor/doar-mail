@@ -1,4 +1,4 @@
-#include "main/app/App.h"
+#include "App.h"
 #include "main/commands/CommandParser.h"
 #include "main/commands/ICommand.h"
 #include "core/BloomFilter.h"
