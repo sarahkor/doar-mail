@@ -1,46 +1,46 @@
-#include "ConsoleMenu.h"
-#include "CommandParser.h"
-#include "AddURLCommand.h"
-#include "CheckURLCommand.h"
-#include "Blacklist.h"
-#include "App.h"
-#include "BloomFilter.h"
-#include <memory>
+#include "main/commands/ConsoleMenu.h"
+#include "main/commands/CommandParser.h"
+#include "main/commands/AddURLCommand.h"
+#include "main/commands/CheckURLCommand.h"
+#include "main/app/App.h"
+#include "core/Blacklist.h"
+#include "core/BloomFilter.h"
+#include "core/FileLineStorage.h"
+
 #include <map>
 #include <string>
+#include <memory>
+#include <iostream>
+
 
 int main() {
-    // Step 1: Create shared components
-    ConsoleMenu* menu = new ConsoleMenu();
-    
-    // Blacklist* blacklist = new Blacklist();
+    std::istream* inStream = &std::cin;
+    std::ostream* outStream = &std::cout;
 
-    // Step 2: Prepare URL storage and Blacklist
-    // Use FileLineStorage to load/save urls.txt
-    auto urlStorage = std::make_unique<FileLineStorage>("urls.txt");
+    IMenu* menu = new ConsoleMenu(*inStream, *outStream);
+
+    // Use FileLineStorage to load/save urls.txt.
+    auto urlStorage = std::make_unique<FileLineStorage>("data/urlsdata.txt");
     Blacklist* blacklist = new Blacklist(std::move(urlStorage));
 
-
-
-
-    BloomFilter* bloomFilter = nullptr;  // declared but not constructed yet
-
+    // the bloom filter is declared but not constructed yet because we need
+    // the bloom filter setup line that we will get only in app.run()
+    BloomFilter* bloomFilter = nullptr; 
     std::map<std::string, ICommand*> commands;
 
-    // Pass bloomFilter by reference so that later assignment is visible
-    ICommand* addUrl = new AddURLCommand(bloomFilter, blacklist);
-    ICommand* checkUrl = new CheckURLCommand(bloomFilter, blacklist);
+    //the types of commands used in the program
+    ICommand* addUrl = new AddURLCommand(bloomFilter, blacklist, *outStream);
+    ICommand* checkUrl = new CheckURLCommand(bloomFilter, blacklist, *outStream);
 
+    //mapping the commands.
     commands["1"] = addUrl;
     commands["2"] = checkUrl;
 
     CommandParser* parser = new CommandParser(commands);
 
-    // Step 3: Create App and run
     App app(menu, parser, commands, blacklist, &bloomFilter);
     app.run();
 
-    // Cleanup (optional)
     delete menu;
     delete parser;
     delete blacklist;

@@ -1,13 +1,14 @@
 #pragma once
 
-#include "IMenu.h"
-#include "ICommand.h"
-#include "CommandParser.h"
-#include "Blacklist.h"
-#include "BloomFilter.h"
-#include <map>
+#include "main/commands/IMenu.h"
+#include "main/commands/ICommand.h"
+#include "main/commands/CommandParser.h"
+#include "core/Blacklist.h"
+#include "core/BloomFilter.h"
+
 #include <string>
 #include <vector>
+#include <map>
 
 class App {
 private:
@@ -17,14 +18,14 @@ private:
     Blacklist* blacklist;
     BloomFilter** bloomFilter;
 
-    bool parseBloomFilterSetup(const std::string& input, int& sizeOut, std::vector<int>& hashIdsOut);
-
 public:
+    // constructor.
     App(IMenu* menu,
     CommandParser* parser,
     std::map<std::string, ICommand*>& commands,
     Blacklist* blacklist,
     BloomFilter** bloomFilterRef);
 
+    // method to run the application.
     void run();
 };
