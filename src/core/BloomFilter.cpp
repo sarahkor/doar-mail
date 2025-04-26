@@ -32,6 +32,7 @@ void BloomFilter::add(const std::string& url) {
         size_t index = hashValue % bitArray.size();
         bitArray[index] = true;
         m_bits[index] = 1;
+    
     }
     // Only try to save if we have storage
     if (m_storage) {
