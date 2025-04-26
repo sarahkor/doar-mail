@@ -13,13 +13,13 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 # Your project sources
 add_library(CreateOurGmail_lib
-    src/BloomFilter.cpp
-    src/ConfigurableHash.cpp
-    src/IBloomFilterStorage.cpp
-    src/BinaryFileStorage.cpp
-    src/Blacklist.cpp
-    src/FileLineStorage.cpp
-    src/IUrlStorage.cpp
+    src/core/BloomFilter.cpp
+    src/core/ConfigurableHash.cpp
+    src/core/IBloomFilterStorage.cpp
+    src/core/BinaryFileStorage.cpp
+    src/core/Blacklist.cpp
+    src/core/FileLineStorage.cpp
+    src/core/IUrlStorage.cpp
 )
 
 
@@ -33,7 +33,10 @@ add_executable(tests
     src/tests/storage_test/black_list_storage_test.cpp
 )
 
-target_include_directories(tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(tests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core
+)
 target_link_libraries(tests PRIVATE CreateOurGmail_lib GTest::gtest_main)
 
 include(GoogleTest)
