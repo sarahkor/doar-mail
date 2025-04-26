@@ -20,10 +20,15 @@ add_library(CreateOurGmail_lib
     src/core/Blacklist.cpp
     src/core/FileLineStorage.cpp
     src/core/IUrlStorage.cpp
+    src/main/commands/AddURLCommand.cpp
+    src/main/commands/CheckURLCommand.cpp
+    src/main/commands/CommandParser.cpp
+)
+target_include_directories(CreateOurGmail_lib PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-
-# Tests for Bloom Filter Core
+# tests
 enable_testing()
 add_executable(tests
     src/tests/bloom_hash_tests/testMain.cpp
@@ -31,14 +36,18 @@ add_executable(tests
     src/tests/bloom_hash_tests/testHashClass.cpp
     src/tests/storage_test/bloom_filter_storage_test.cpp 
     src/tests/storage_test/black_list_storage_test.cpp
+    src/tests/commands_tests/AddURLCommandTests.cpp
+    src/tests/commands_tests/CheckURLCommandTests.cpp
+    src/tests/commands_tests/BlacklistTests.cpp
+    src/tests/commands_tests/CommandParserTests.cpp
 )
 
 target_include_directories(tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/main/commands
 )
 target_link_libraries(tests PRIVATE CreateOurGmail_lib GTest::gtest_main)
 
 include(GoogleTest)
 gtest_discover_tests(tests)
-

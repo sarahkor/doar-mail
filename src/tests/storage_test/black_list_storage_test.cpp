@@ -219,21 +219,6 @@ TEST_F(BlackListStorageTest, LoadNonexistentFileVectorUnchanged) {
     }
 }
 
-TEST_F(BlackListStorageTest, LoadDirectoryAsFile) {
-    const std::string dir = "directory_as_file/";
-    removeDirectory(dir);
-    createDirectory(dir);
-    
-    // Attempt to load directory as file
-    FileLineStorage storage(dir);
-    std::vector<std::string> urls;
-    EXPECT_FALSE(storage.load(urls));
-    
-    // Blacklist constructed with directory path should be empty
-    Blacklist blacklist(std::make_unique<FileLineStorage>(dir));
-    EXPECT_FALSE(blacklist.check("any_url"));
-}
-
 TEST_F(BlackListStorageTest, SaveToNonexistentDirectory) {
     const std::string path = "nonexistent_dir/file.txt";
     

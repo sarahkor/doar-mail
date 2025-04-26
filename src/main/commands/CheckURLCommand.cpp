@@ -9,8 +9,7 @@ CheckURLCommand::CheckURLCommand(BloomFilter*& bf, Blacklist* bl, std::ostream& 
     the actuals blacklisted urls, if the url is not in the blacklist then its not in system and if it is then its in the system.
 */ 
 void CheckURLCommand::execute(const std::string& url) {
-    if (!bloom) {
-        out << "Bloom filter is not initialized yet." << std::endl;
+    if (!bloom || !blacklist || url.empty()) { 
         return;
     }
     // we check if the bloom filter contains the url, if not we return false

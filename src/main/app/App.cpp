@@ -24,17 +24,17 @@ void App::run() {
     std::vector<int> hashRepeats;
  
     /*  
-        first infinite loop that stop only if a bloom filter setup line was recieved (somthimg like 8 2 1)
-        if the line is empty we ignore it, if the line doesnt match the bloom filter setup format we ignore as well
-        if the line is the bloom filter set up we break the infinite loop, set up the bloom filter
-        and move on to add and check urls.
-    */
+     * first infinite loop that stop only if a bloom filter setup line was recieved (somthimg like 8 2 1)
+     * if the line is empty we ignore it, if the line doesnt match the bloom filter setup format we ignore as well
+     * if the line is the bloom filter set up we break the infinite loop, set up the bloom filter
+     * and move on to add and check urls.
+     */
     while (true) {
         std::string input = menu->nextCommand();
         if (input.empty()) continue;
 
         // the parser checks if the line is bloom filter set up line, if so it returns true and fill the bloomSize 
-        // and the hashReaoeats with the right values
+        // and the hashRepeats with the right values
         if (parser->parseBloomFilterSetup(input, bloomSize, hashRepeats)) {
             break;
         }
@@ -54,12 +54,12 @@ void App::run() {
     *bloomFilter = new BloomFilter(bloomSize, hashFunctions, std::move(bloomStorage));
 
     /*
-        in this loop we parse one line each time, if the line is empty we ignore, if the line is not empty
-        we check using the parser if the line is in the format <number> [URL] if so the parser will return true
-        and we check if the command number exsits in the comaands map if it is, we execute the command,
-        o.w we will go to catch and ignore. if the line is not in the right format the parser will return false 
-        and we will ignore.
-    */
+     * in this loop we parse one line each time, if the line is empty we ignore, if the line is not empty
+     * we check using the parser if the line is in the format <number> [URL] if so the parser will return true
+     * and we check if the command number exsits in the comaands map if it is, we execute the command,
+     * o.w we will go to catch and ignore. if the line is not in the right format the parser will return false 
+     * and we will ignore.
+     */
     while (true) {
 
         std::string input = menu->nextCommand();

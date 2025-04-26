@@ -32,7 +32,7 @@ bool CommandParser::parseBloomFilterSetup(const std::string& input, int& sizeOut
     if (sizeOut <= 0) {
         return false;
     }
-    // put the rest of the tokens into hashOut (all the tokens exsept the first one that is meant to be the bloom size)
+    // put the rest of the tokens into hashOut (all the tokens except the first one that is meant to be the bloom size)
     hashOut.assign(values.begin() + 1, values.end());
     // check that each hash repeat is positive
     for (int repeat : hashOut) {
@@ -84,7 +84,10 @@ bool CommandParser::parse(const std::string& input, std::string& keyOut, std::st
     for (char ch : key) {
         if (ch < '0' || ch > '9') return false;
     }
-
+    // key must be positive
+    if (std::stoi(key) <= 0) {
+        return false;
+    }
     // check that the url is in URL format using regex
     std::regex urlRegex(R"(^(https?:\/\/)?(www\.)?[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}[a-zA-Z0-9\/\.\-\=\?\&\%]*$)");
     if (!std::regex_match(url, urlRegex)) return false;
