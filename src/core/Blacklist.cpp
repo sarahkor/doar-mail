@@ -15,19 +15,20 @@ Blacklist::Blacklist(std::unique_ptr<IUrlStorage> storage)
 // Add a URL to the blacklist and save the updated list
 // Parameters: const std::string& url
 void Blacklist::add(const std::string& url) {
-    // append to in-memory list
-    list.push_back(url);
-    if (m_storage) {
+    if (std::find(list.begin(), list.end(), url) == list.end()) {
+        // append to in-memory list
+        list.push_back(url);
         // persist updated list right away
-        m_storage->save(list);
+        if (m_storage) m_storage->save(list);
     }
 }
+
 
 // Check if a URL is present in the blacklist
 // Parameters: const std::string& url
 bool Blacklist::check(const std::string& url) const {
     // scan in-memory list for a match
-    for (const auto& u : list) {
+    for (const std::string& u : list) {
         if (u == url) return true;
     }
     return false;
