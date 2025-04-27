@@ -18,5 +18,7 @@ RUN rm -rf /app/build/*
 # Build the whole project (library + tests + app)
 RUN cmake .. && make
 
+WORKDIR /app
+
 # Set the default command to run the application
-CMD ["./app"]
+CMD ["./build/app"] 

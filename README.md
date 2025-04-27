@@ -44,28 +44,27 @@ Run the unit tests:
 
 # How to Run Using Docker
 
-### Build the Docker Image
-docker build --no-cache -f Dockerfile.app -t gmail-app .
+### Build the Docker Image, build volume and run: (after that tou will be in a container)
+./script.sh  
 
-### Run the Application inside Docker
-docker run --rm -it gmail-app ./app
+### Run the Application inside the container
+./build/app
 
-### Run the Unit Tests inside Docker
-docker run --rm -it gmail-app ./tests
+### Run the tests inside the container
+./build/tests
 
-### OPTIONAL: Enter the Docker container manually
-docker run -it --name gmail-app-container -v ${PWD}/data:/app/data gmail-app /bin/bash
-
-### Inside the container:
-cd /app/build
-./app    # or ./tests
+### Exit the Application:
+command c
 
 ### Exit the container:
 exit
+(command d)
+### Remove the image (if needed):
+docker rm gmail_app
 
-### Remove the container (if needed)
-docker rm gmail-app-container
-
+### Delete data:
+Exit the application (command c), cd data, rm urlsdata.txt, rm bloomfilterdata.bin 
+o.w the data will be kept because it is inside a volume
 ---
 
 # 🧩 How It Works

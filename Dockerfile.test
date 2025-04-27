@@ -21,6 +21,7 @@ RUN rm -rf /app/build/*
 # Build the project
 RUN cmake .. && make tests
 
-# Command to run the tests
-CMD ["./tests"]
+WORKDIR /app
 
+# Command to run the tests
+CMD ["./build/tests"]
