@@ -32,7 +32,7 @@ Run the Application:
 
 # How to Run Unit Tests
 
-## Compile Unit Tests (Locally)
+###Compile Unit Tests (Locally)
 
 Compile the unit tests:
 g++ -std=c++17 -I src src/tests/bloom_hash_tests/*.cpp src/tests/storage_test/*.cpp src/tests/commands_tests/*.cpp src/main/commands/*.cpp src/core/*.cpp src/main/app/*.cpp src/main.cpp -o tests
@@ -44,14 +44,36 @@ Run the unit tests:
 
 # How to Run Using Docker
 
-## Build the Docker Image
-docker build -t gmail-app .
+### Build the Docker Image
+docker build --no-cache -f Dockerfile.app -t gmail-app .
 
-## Run the Application inside Docker
-docker run --rm -it gmail-app ./app.exe
+### Run the Application inside Docker
+docker run --rm -it gmail-app ./app
 
-## Run the Unit Tests inside Docker
-docker-compose up --build
+### Run the Unit Tests inside Docker
+docker run --rm -it gmail-app ./tests
+
+### Build the Docker image
+docker build --no-cache -f Dockerfile.app -t gmail-app .
+
+### Run the Application inside Docker
+docker run --rm -it gmail-app ./app
+
+### Run the Unit Tests inside Docker
+docker run --rm -it gmail-app ./tests
+
+### OPTIONAL: Enter the Docker container manually
+docker run -it --name gmail-app-container -v ${PWD}/data:/app/data gmail-app /bin/bash
+
+### Inside the container:
+cd /app/build
+./app    # or ./tests
+
+### Exit the container:
+exit
+
+### Remove the container (if needed)
+docker rm gmail-app-container
 
 ---
 
@@ -110,7 +132,8 @@ Adding and Checking URLs
 ---
 
 # Project Structure
-![image](https://github.com/user-attachments/assets/73db929f-1e5c-43c7-be8b-a843be9b3e6a)
+![image](https://github.com/user-attachments/assets/6b50be83-358f-4d41-9e06-5dffe97738ad)
+
 
 
 
