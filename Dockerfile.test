@@ -16,8 +16,10 @@ COPY . .
 RUN mkdir -p build
 WORKDIR /app/build
 
+RUN rm -rf /app/build/*
+
 # Build the project
-RUN cmake .. && make
+RUN cmake .. && make tests
 
 # Command to run the tests
 CMD ["./tests"]
