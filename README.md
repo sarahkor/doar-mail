@@ -20,7 +20,7 @@ The application was developed using **Test-Driven Development (TDD)** methodolog
 
 # How to Compile and Run
 
-## Compile and Run the Application (Locally)
+### Compile and Run the Application (Locally)
 
 Compile:
 g++ -std=c++17 -I src src/main.cpp src/main/app/*.cpp src/main/commands/*.cpp src/core/*.cpp -o app.exe
@@ -32,7 +32,7 @@ Run the Application:
 
 # How to Run Unit Tests
 
-###Compile Unit Tests (Locally)
+### Compile Unit Tests (Locally)
 
 Compile the unit tests:
 g++ -std=c++17 -I src src/tests/bloom_hash_tests/*.cpp src/tests/storage_test/*.cpp src/tests/commands_tests/*.cpp src/main/commands/*.cpp src/core/*.cpp src/main/app/*.cpp src/main.cpp -o tests
@@ -45,15 +45,6 @@ Run the unit tests:
 # How to Run Using Docker
 
 ### Build the Docker Image
-docker build --no-cache -f Dockerfile.app -t gmail-app .
-
-### Run the Application inside Docker
-docker run --rm -it gmail-app ./app
-
-### Run the Unit Tests inside Docker
-docker run --rm -it gmail-app ./tests
-
-### Build the Docker image
 docker build --no-cache -f Dockerfile.app -t gmail-app .
 
 ### Run the Application inside Docker
