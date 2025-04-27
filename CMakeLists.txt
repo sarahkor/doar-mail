@@ -23,6 +23,8 @@ add_library(CreateOurGmail_lib
     src/main/commands/AddURLCommand.cpp
     src/main/commands/CheckURLCommand.cpp
     src/main/commands/CommandParser.cpp
+    src/main/commands/ConsoleMenu.cpp     
+    src/main/app/App.cpp 
 )
 target_include_directories(CreateOurGmail_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -51,3 +53,9 @@ target_link_libraries(tests PRIVATE CreateOurGmail_lib GTest::gtest_main)
 
 include(GoogleTest)
 gtest_discover_tests(tests)
+
+# app
+add_executable(app
+    src/main.cpp
+)
+target_link_libraries(app PRIVATE CreateOurGmail_lib)
