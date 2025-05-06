@@ -27,26 +27,11 @@ The application was developed using Test-Driven Development (TDD) methodology.
 ### Compile and Run the Application (Locally)
 
 Compile:
-g++ -std=c++17 -I src src/main.cpp src/main/app/.cpp src/main/commands/.cpp src/core/*.cpp -o app.exe
+g++ -std=c++17 -I src src/main.cpp src/main/app/\*.cpp src/main/commands/\*.cpp src/core/\*.cpp -o app.exe
+
 
 Run the Application:
 ./app.exe
-
----
-
-# How to Run Unit Tests
-
-### Tools nedded: 
-•⁠  ⁠same compiler tool-chain as above (C++17)
-•⁠  ⁠GoogleTest 
-
-### Compile Unit Tests (Locally)
-
-Compile the unit tests:
-g++ -std=c++17 -I src src/tests/bloom_hash_tests/.cpp src/tests/storage_test/.cpp src/tests/commands_tests/.cpp src/main/commands/.cpp src/core/.cpp src/main/app/.cpp src/main.cpp -o tests
-
-Run the unit tests:
-./tests
 
 ---
 
@@ -60,7 +45,7 @@ Run the unit tests:
 ./script.sh  (Windows users can do this commands instead installing Git Bash:
  1. docker build -f Dockerfile.app -t gmail_app .
  2. docker volume create bloomdata  
- 3. docker run -it -v bloomdata:/app/data gmail_app bash )
+ 3. docker run -it -v bloomdata:/app/data gmail_app bash 
 
 ### Run the Application inside the container
 ./build/app
