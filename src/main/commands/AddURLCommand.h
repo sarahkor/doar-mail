@@ -6,10 +6,10 @@
 
 class AddURLCommand : public ICommand {
 private:
-    BloomFilter*& bloom;
+    BloomFilter* bloom;
     Blacklist* blacklist;
 
 public:
-    AddURLCommand(BloomFilter*& bf, Blacklist* bl);
+    AddURLCommand(BloomFilter* bf, Blacklist* bl);
     std::string execute(const std::string& url) override;
 };

@@ -1,7 +1,7 @@
 #include "DeleteURLCommand.h"
 #include "main/commands/StatusMessages.h"
 
-DeleteURLCommand::DeleteURLCommand(BloomFilter*& bf, Blacklist* bl)
+DeleteURLCommand::DeleteURLCommand(BloomFilter* bf, Blacklist* bl)
     : bloom(bf), blacklist(bl) {}
 
 std::string DeleteURLCommand::execute(const std::string& url) {
