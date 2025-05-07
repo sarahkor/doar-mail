@@ -17,43 +17,10 @@ App::App(IMenu* menu,
          CommandParser* parser,
          std::map<std::string, ICommand*>& commands,
          Blacklist* blacklist,
-         BloomFilter** bloomFilterRef)
+         BloomFilter* bloomFilterRef)
     : menu(menu), parser(parser), commands(commands), blacklist(blacklist), bloomFilter(bloomFilterRef) {}
 
 void App::run() {
-    int bloomSize;
-    std::vector<int> hashRepeats;
- 
-    /*  
-     * first infinite loop that stop only if a bloom filter setup line was recieved (somthimg like 8 2 1)
-     * if the line is empty we ignore it, if the line doesnt match the bloom filter setup format we ignore as well
-     * if the line is the bloom filter set up we break the infinite loop, set up the bloom filter
-     * and move on to add and check urls.
-     */
-    while (true) {
-        std::string input = menu->nextCommand();
-        if (input.empty()) continue;
-
-        // the parser checks if the line is bloom filter set up line, if so it returns true and fill the bloomSize 
-        // and the hashRepeats with the right values
-        if (parser->parseBloomFilterSetup(input, bloomSize, hashRepeats)) {
-            break;
-        }
-    }
-
-    std::vector<std::shared_ptr<IHashFunction>> hashFunctions;
-    try {
-        for (int repeat : hashRepeats) {
-            hashFunctions.push_back(std::make_shared<ConfigurableHash>("std", repeat));
-        }
-    } catch (const std::invalid_argument& err) {
-        std::cerr << "" << err.what() << std::endl;
-    }
-
-     // setting up the bloom filter and the data to be saved
-    auto bloomStorage = std::make_unique<BinaryFileStorage>("data/bloomfilterdata.bin");
-    *bloomFilter = new BloomFilter(bloomSize, hashFunctions, std::move(bloomStorage));
-
     /*
      * in this loop we parse one line each time, if the line is empty we ignore, if the line is not empty
      * we check using the parser if the line is in the format <number> [URL] if so the parser will return true

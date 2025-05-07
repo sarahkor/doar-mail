@@ -6,10 +6,10 @@
 
 class DeleteURLCommand : public ICommand {
 private:
-    BloomFilter*& bloom;
+    BloomFilter* bloom;
     Blacklist* blacklist;
 
 public:
-    DeleteURLCommand(BloomFilter*& bf, Blacklist* bl);
+    DeleteURLCommand(BloomFilter* bf, Blacklist* bl);
     std::string execute(const std::string& url) override;
 };

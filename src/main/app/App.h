@@ -16,7 +16,7 @@ private:
     CommandParser* parser;
     std::map<std::string, ICommand*>& commands;
     Blacklist* blacklist;
-    BloomFilter** bloomFilter;
+    BloomFilter* bloomFilter;
 
 public:
     // constructor.
@@ -24,7 +24,7 @@ public:
     CommandParser* parser,
     std::map<std::string, ICommand*>& commands,
     Blacklist* blacklist,
-    BloomFilter** bloomFilterRef);
+    BloomFilter* bloomFilterRef);
 
     // method to run the application.
     void run();
