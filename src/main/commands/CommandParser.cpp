@@ -7,39 +7,6 @@
 //constructor
 CommandParser::CommandParser(const std::map<std::string, ICommand*>& commands)
     : commands(commands) {}
-
-// this method parse the blooom filter setup line, returns true if the inputed line is in valid format:
-// size followed by at least one repeat count (all numeric and positive)
-bool CommandParser::parseBloomFilterSetup(const std::string& input, int& sizeOut, std::vector<int>& hashOut) {
-    std::istringstream iss(input);
-    std::string token;
-    std::vector<int> values;
-
-    // split the input by whitespaces and for each splited token we check that all of it's chars are numbers
-    while (iss >> token) {
-        for (char ch : token) {
-            if (ch < '0' || ch > '9') return false;
-        }
-        // enter the splited tokens into a values array
-        values.push_back(std::stoi(token));
-    }
-    // the bloom filter setup line must have a size and at least one hash
-    if (values.size() < 2) return false;
-
-    // we fill the sizeOut var with the first token that was in the bloom setup line
-    sizeOut = values[0];
-    // check that the size of the bloom filter is positive
-    if (sizeOut <= 0) {
-        return false;
-    }
-    // put the rest of the tokens into hashOut (all the tokens except the first one that is meant to be the bloom size)
-    hashOut.assign(values.begin() + 1, values.end());
-    // check that each hash repeat is positive
-    for (int repeat : hashOut) {
-        if (repeat <= 0) return false;
-    }
-    return true;
-}
 // this method parses commands in the format: <nunber> [URL].
 // extracts the command key and URL, and validates format and key
 bool CommandParser::parse(const std::string& input, std::string& keyOut, std::string& urlOut) {
