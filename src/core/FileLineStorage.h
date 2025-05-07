@@ -2,7 +2,7 @@
 #pragma once
 #include "IUrlStorage.h"
 #include <string>
-#include <vector>
+#include <set>
 
 class FileLineStorage : public IUrlStorage {
 private:
@@ -13,8 +13,8 @@ public:
     explicit FileLineStorage(const std::string& path);
     // Load URLs from text file, one URL per line
     // Parameters: std::vector<std::string>& urls
-    bool load(std::vector<std::string>& urls) override;
+    bool load(std::set<std::string>& urls) override;
     // Save URLs to text file, one URL per line
     // Parameters: const std::vector<std::string>& urls
-    bool save(const std::vector<std::string>& urls) override;
+    bool save(const std::set<std::string>& urls) override;
 };

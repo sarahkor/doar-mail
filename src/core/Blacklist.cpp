@@ -15,11 +15,11 @@ Blacklist::Blacklist(std::unique_ptr<IUrlStorage> storage)
 // Add a URL to the blacklist and save the updated list
 // Parameters: const std::string& url
 void Blacklist::add(const std::string& url) {
-    if (std::find(list.begin(), list.end(), url) == list.end()) {
-        // append to in-memory list
-        list.push_back(url);
+    // insert returns a pair: iterator and bool (true if inserted)
+    std::pair<std::set<std::string>::iterator, bool> result = list.insert(url);
+    if (result.second && m_storage) {
         // persist updated list right away
-        if (m_storage) m_storage->save(list);
+        m_storage->save(list);
     }
 }
 
@@ -27,9 +27,22 @@ void Blacklist::add(const std::string& url) {
 // Check if a URL is present in the blacklist
 // Parameters: const std::string& url
 bool Blacklist::check(const std::string& url) const {
-    // scan in-memory list for a match
-    for (const std::string& u : list) {
-        if (u == url) return true;
+    return list.count(url) > 0;
+}
+
+// remove a url from the blacklist
+bool Blacklist::remove(const std::string& url) {
+    // iterate over all urls in the list to dind the url
+    std::set<std::string>::iterator iter = list.find(url);
+    // if the url was not found we will reach the end of the list 
+    // (one past the last element) o.w we found it and it can be earased
+    if (iter != list.end()) {
+        list.erase(iter);
+        if (m_storage) {
+            // persist updated list right away
+            m_storage->save(list);
+        }
+        return true;
     }
     return false;
 }

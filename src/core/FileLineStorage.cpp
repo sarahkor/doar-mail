@@ -7,7 +7,7 @@ FileLineStorage::FileLineStorage(const std::string& path)
   : m_path(path) {}
 
  // Load URLs from the file at m_path
-bool FileLineStorage::load(std::vector<std::string>& urls) {
+bool FileLineStorage::load(std::set<std::string>& urls) {
     std::ifstream ifs(m_path);
     if (!ifs.is_open()) {
         // File doesn't exist or can't be opened - don't modify the urls vector
@@ -25,14 +25,14 @@ bool FileLineStorage::load(std::vector<std::string>& urls) {
     while (std::getline(ifs, line)) {
         if (!line.empty()) {
             // add each non-empty line
-            urls.push_back(line);
+            urls.insert(line);
         }
     }
     return true;
 }
 
 // Save URLs into the file at m_path
-bool FileLineStorage::save(const std::vector<std::string>& urls) {
+bool FileLineStorage::save(const std::set<std::string>& urls) {
     std::ofstream ofs(m_path, std::ios::trunc);
     if (!ofs.is_open()) {
         // cannot open file for writing
