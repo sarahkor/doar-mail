@@ -2,6 +2,7 @@
 #include "main/commands/CommandParser.h"
 #include "main/commands/AddURLCommand.h"
 #include "main/commands/CheckURLCommand.h"
+#include "main/commands/DeleteURLCommand.h"
 #include "main/app/App.h"
 #include "core/Blacklist.h"
 #include "core/BloomFilter.h"
@@ -29,12 +30,14 @@ int main() {
     std::map<std::string, ICommand*> commands;
 
     //the types of commands used in the program
-    ICommand* addUrl = new AddURLCommand(bloomFilter, blacklist, *outStream);
-    ICommand* checkUrl = new CheckURLCommand(bloomFilter, blacklist, *outStream);
+    ICommand* addUrl = new AddURLCommand(bloomFilter, blacklist);
+    ICommand* checkUrl = new CheckURLCommand(bloomFilter, blacklist);
+    ICommand* deleteUrl = new DeleteURLCommand(bloomFilter, blacklist);
 
     //mapping the commands.
-    commands["1"] = addUrl;
-    commands["2"] = checkUrl;
+    commands["POST"] = addUrl;
+    commands["GET"] = checkUrl;
+    commands["DELETE"] = deleteUrl;
 
     CommandParser* parser = new CommandParser(commands);
 
@@ -47,6 +50,7 @@ int main() {
     delete bloomFilter;
     delete addUrl;
     delete checkUrl;
+    delete deleteUrl;
 
     return 0;
 }
