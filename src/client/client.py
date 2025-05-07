@@ -4,8 +4,7 @@ import sys
 def main():
     # Checking that the number of arguments is correct
     if len(sys.argv) != 3:
-        print("Usage: python client.py <server_ip> <server_port>")
-        return
+        sys.exit(1)
     # Extracting the arguments
     server_ip = sys.argv[1]
     server_port = int(sys.argv[2])
