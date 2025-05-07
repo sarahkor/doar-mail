@@ -90,6 +90,13 @@ the data will be kept even after deleting the container and the image, you can e
 make the run command again and the data will persiste, the only way the data can be deleted is manually
 ---
 
+# How to Run the TCP Client Using Docker
+### Build the Docker image (run this from the project root directory)
+docker build -t tcp-client ./src/client
+### Run the client and connect to the server (replace <server_ip> and <server_port>)
+docker run -it tcp-client <server_ip> <server_port>
+---
+
 # 🧩 How It Works
 1.⁠ ⁠Initialization:
    - User specifies the Bloom filter size and hash function configuration.
