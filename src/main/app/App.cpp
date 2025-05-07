@@ -5,6 +5,7 @@
 #include "core/ConfigurableHash.h"
 #include "core/IHashFunction.h"
 #include "core/BinaryFileStorage.h"
+#include "main/commands/StatusMessages.h"
 
 #include <string>
 #include <sstream>
@@ -67,14 +68,16 @@ void App::run() {
 
         std::string key, url;
         if (!parser->parse(input, key, url)) {
+            std::cout << StatusMessages::get(400);
             continue;
         }
 
         try {
             ICommand* command = commands.at(key);
-            command->execute(url);
+            std::string result = command->execute(url);
+            std::cout << result;
         } catch (...) {
-            menu->displayError("");
+           std::cout << StatusMessages::get(400);
         }
     }
 }

@@ -80,16 +80,8 @@ bool CommandParser::parse(const std::string& input, std::string& keyOut, std::st
 
     if (key.empty() || url.empty()) return false;
 
-    // check key is numeric
-    for (char ch : key) {
-        if (ch < '0' || ch > '9') return false;
-    }
-    // key must be positive
-    if (std::stoi(key) <= 0) {
-        return false;
-    }
     // check that the url is in URL format using regex
-    std::regex urlRegex(R"(^(https?:\/\/)?(www\.)?[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}[a-zA-Z0-9\/\.\-\=\?\&\%]*$)");
+    std::regex urlRegex(R"(^((https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z0-9]{2,})(\/\S*)?$)");
     if (!std::regex_match(url, urlRegex)) return false;
 
     keyOut = key;
