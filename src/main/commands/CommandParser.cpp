@@ -55,3 +55,21 @@ bool CommandParser::parse(const std::string& input, std::string& keyOut, std::st
     urlOut = url;
     return true;
 }
+ICommand* CommandParser::parse(const std::string& input) {
+    std::string key, url;
+    if (!parse(input, key, url)) {
+        throw std::invalid_argument("400");
+    }
+
+    auto it = commands.find(key);
+    if (it == commands.end()) {
+        throw std::invalid_argument("404");
+    }
+
+    lastParsedUrl = url;
+    return it->second;
+}
+
+const std::string& CommandParser::getLastParsedUrl() const {
+    return lastParsedUrl;
+}

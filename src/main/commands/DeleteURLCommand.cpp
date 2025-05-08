@@ -1,5 +1,5 @@
 #include "DeleteURLCommand.h"
-#include "main/commands/StatusMessages.h"
+#include "utils/StatusMessages.h"
 
 DeleteURLCommand::DeleteURLCommand(BloomFilter* bf, Blacklist* bl)
     : bloom(bf), blacklist(bl) {}

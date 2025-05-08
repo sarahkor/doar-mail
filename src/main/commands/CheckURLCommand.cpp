@@ -1,5 +1,5 @@
 #include "CheckURLCommand.h"
-#include "main/commands/StatusMessages.h"
+#include "utils/StatusMessages.h"
 
 CheckURLCommand::CheckURLCommand(BloomFilter* bf, Blacklist* bl)
     : bloom(bf), blacklist(bl) {}

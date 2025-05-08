@@ -1,5 +1,5 @@
 #include "AddURLCommand.h"
-#include "main/commands/StatusMessages.h"
+#include "utils/StatusMessages.h"
 
 AddURLCommand::AddURLCommand(BloomFilter* bf, Blacklist* bl)
     : bloom(bf), blacklist(bl) {}

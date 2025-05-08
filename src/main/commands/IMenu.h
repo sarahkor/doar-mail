@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IMENU_H
+#define IMENU_H
 
 #include <string>
 
@@ -10,3 +11,5 @@ public:
     virtual void displayError(const std::string& error) = 0;
     virtual ~IMenu() = default;
 };
+
+#endif

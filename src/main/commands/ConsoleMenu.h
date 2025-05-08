@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef CONSOLE_MENU_H
+#define CONSOLE_MENU_H
 #include "IMenu.h"
 #include <iostream>
 #include <string>
@@ -15,3 +15,4 @@ public:
     std::string nextCommand() override;
     void displayError(const std::string& error) override;
 };
+#endif

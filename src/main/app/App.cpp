@@ -5,7 +5,7 @@
 #include "core/ConfigurableHash.h"
 #include "core/IHashFunction.h"
 #include "core/BinaryFileStorage.h"
-#include "main/commands/StatusMessages.h"
+#include "utils/StatusMessages.h"
 
 #include <string>
 #include <sstream>
@@ -31,7 +31,10 @@ void App::run() {
     while (true) {
 
         std::string input = menu->nextCommand();
-        if (input.empty()) continue;
+        if (input.empty()) {
+            std::cout << StatusMessages::get(400);
+            continue;
+        }
 
         std::string key, url;
         if (!parser->parse(input, key, url)) {

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IBLOOM_FILTER_STORAGE_H
+#define IBLOOM_FILTER_STORAGE_H
 #include <vector>
 #include <string>
 
@@ -18,3 +19,4 @@ public:
 
     virtual ~IBloomFilterStorage() = default;
 };
+#endif
