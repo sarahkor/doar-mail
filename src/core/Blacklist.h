@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BLACKLIST_H
+#define BLACKLIST_H
 #include <string>
 #include <set>
 #include <memory>
@@ -26,3 +27,4 @@ public:
     // Removes a URL from the blacklist and saves the change
     bool remove(const std::string& url);
 };
+#endif

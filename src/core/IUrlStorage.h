@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef IURL_STORAGE_H
+#define IURL_STORAGE_H
 #include <set>
 #include <string>
 
@@ -10,3 +10,4 @@ public:
     virtual bool save(const std::set<std::string>& urls) = 0;
     virtual ~IUrlStorage() = default;
 };
+#endif

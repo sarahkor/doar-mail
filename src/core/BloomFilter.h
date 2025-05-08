@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BLOOM_FILTER_H
+#define BLOOM_FILTER_H
 #include <string>
 #include <vector>
 #include <memory>
@@ -41,3 +42,4 @@ public:
     // Set the bit array
     void setBitArray(const std::vector<unsigned char>& bits);
 };
+#endif

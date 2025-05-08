@@ -1,5 +1,6 @@
 // FileLineStorage.h
-#pragma once
+#ifndef FILE_LINE_STORAGE_H
+#define FILE_LINE_STORAGE_H
 #include "IUrlStorage.h"
 #include <string>
 #include <set>
@@ -18,3 +19,4 @@ public:
     // Parameters: const std::vector<std::string>& urls
     bool save(const std::set<std::string>& urls) override;
 };
+#endif

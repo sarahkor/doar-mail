@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ICOMMAND_H
+#define ICOMMAND_H
+
 #include <string>
 
 // ICommand is an interface for command objects that can be executed with a string input.
@@ -10,3 +12,5 @@ public:
     // Virtual destructor to ensure proper cleanup of derived classes via base pointers.
     virtual ~ICommand() = default;
 };
+
+#endif

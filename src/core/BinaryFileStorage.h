@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BINARY_FILE_STORAGE_H
+#define BINARY_FILE_STORAGE_H
 #include "IBloomFilterStorage.h"
 #include <string>
 #include <vector>
@@ -25,3 +26,4 @@ public:
     // Saves bit data from the vector to the binary file (to be implemented later)
     bool save(const std::vector<unsigned char>& bits) override;
 };
+#endif

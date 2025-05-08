@@ -1,4 +1,5 @@
-#pragma once
+#ifndef APP_H
+#define APP_H
 
 #include "main/commands/IMenu.h"
 #include "main/commands/ICommand.h"
@@ -29,3 +30,4 @@ public:
     // method to run the application.
     void run();
 };
+#endif

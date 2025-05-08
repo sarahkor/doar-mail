@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DELETE_URL_COMMAND_H
+#define DELETE_URL_COMMAND_H
 #include "ICommand.h"
 #include "core/BloomFilter.h"
 #include "core/Blacklist.h"
@@ -13,3 +14,4 @@ public:
     DeleteURLCommand(BloomFilter* bf, Blacklist* bl);
     std::string execute(const std::string& url) override;
 };
+#endif // DELETE_URL_COMMAND_H
