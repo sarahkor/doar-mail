@@ -11,6 +11,7 @@
 #include "core/ConfigurableHash.h"
 #include "core/IHashFunction.h"
 #include "utils/SetupParser.h"
+#include "server/Server.h"
 
 #include <map>
 #include <string>

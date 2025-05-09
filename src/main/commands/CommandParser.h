@@ -16,12 +16,6 @@ public:
 
     // Parses input like "<number> [url]" and returns success/failure
     bool parse(const std::string& input, std::string& keyOut, std::string& urlOut);
-
-    // Parses and returns the ICommand* associated with the command key
-    ICommand* parse(const std::string& input);
-
-    // Returns the last parsed URL
-    const std::string& getLastParsedUrl() const;
 };
 
 #endif // COMMAND_PARSER_H
