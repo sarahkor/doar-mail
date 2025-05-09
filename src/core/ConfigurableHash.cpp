@@ -16,7 +16,7 @@ size_t ConfigurableHash::hash(const std::string& input) const {
         size_t result = hasher(input); // first hash on input
 
         for (size_t i = 1; i < repeat; ++i) {
-            result = hasher(std::to_string(result)); // <=== hash on to_string of previous result
+            result = hasher(std::to_string(result)); // hash on to_string of previous result
         }
 
         return result;
