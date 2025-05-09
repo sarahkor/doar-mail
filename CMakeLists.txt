@@ -28,6 +28,8 @@ add_library(CreateOurGmail_lib
     src/utils/StatusMessages.cpp
     src/utils/SetupParser.cpp
     src/main/commands/DeleteURLCommand.cpp
+    src/server/Server.cpp         
+    src/server/ClientSession.cpp  
 )
 target_include_directories(CreateOurGmail_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -55,6 +57,7 @@ target_include_directories(tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/commands
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/server
  )
 target_link_libraries(tests PRIVATE CreateOurGmail_lib GTest::gtest_main)
 
