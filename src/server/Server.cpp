@@ -1,12 +1,12 @@
 #include "Server.h"
-#include "StatusMessages.h"
+#include "utils/StatusMessages.h"
 #include "main/commands/CommandParser.h"
 #include "main/commands/ICommand.h"
+#include "ClientSession.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
-
 #include <string>
 #include <memory>
 
@@ -46,32 +46,8 @@ void Server::run() {
         if (clientSocket < 0) {
             continue;
         }
-
-        CommandParser parser(commands);
-        char ch;
-        std::string buffer;
-
-        while (read(clientSocket, &ch, 1) > 0) {
-            buffer += ch;
-            if (ch == '\n') {
-                buffer.erase(buffer.find_last_not_of("\r\n") + 1);
-
-                try {
-                    ICommand* cmd = parser.parse(buffer);
-                    std::string response = cmd->execute(parser.getLastParsedUrl());
-                    send(clientSocket, response.c_str(), response.size(), 0);
-                } catch (const std::invalid_argument& e) {
-                    int code = std::stoi(e.what()); // "400" or "404"
-                    std::string error = StatusMessages::get(code);
-                    send(clientSocket, error.c_str(), error.size(), 0);
-                }
-
-                buffer.clear();
-            }
-        }
-
-        close(clientSocket);
+        ClientSession session(clientSocket, commands);
+        session.handle();
     }
-
     close(serverSocket);
 }
