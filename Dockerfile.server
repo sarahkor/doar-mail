@@ -4,21 +4,21 @@ FROM gcc:13
 RUN apt-get update && apt-get install -y cmake git && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
-WORKDIR /app
+WORKDIR /server
 
 # Copy project files
 COPY . .
 
 # Create and move into build directory
 RUN mkdir -p build
-WORKDIR /app/build
+WORKDIR /server/build
 
-RUN rm -rf /app/build/*
+RUN rm -rf /server/build/*
 
 # Build the whole project (library + tests + app)
 RUN cmake .. && make
 
-WORKDIR /app
+WORKDIR /server
 
 # Set the default command to run the application
-CMD ["./build/app"] 
+CMD ["./build/server"] 

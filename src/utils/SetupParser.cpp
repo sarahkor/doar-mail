@@ -18,7 +18,7 @@ bool SetupParser::Parse(int argc, char* argv[], int& port, int& bloomSize, std::
 
     port = values[0];
     bloomSize = values[1];
-    if (port <= 0 || bloomSize <= 0) {
+    if (port <= 1023 || port > 65535 || bloomSize <= 0) {
         return false;
     }
 

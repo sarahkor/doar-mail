@@ -121,3 +121,34 @@ TEST(ParseSetupTests, RealNumberPort) {
     SetupParser parser;
     EXPECT_FALSE(parser.Parse(4, const_cast<char**>(argv), port, bloomSize, hashes));
 }
+TEST(ParseSetupTests, Port1024IsAccepted) {
+    const char* argv[] = {"app", "1024", "128", "1"};
+    int port, bloomSize;
+    std::vector<int> hashes;
+    SetupParser parser;
+    EXPECT_TRUE(parser.Parse(4, const_cast<char**>(argv), port, bloomSize, hashes));
+}
+
+TEST(ParseSetupTests, Port65535IsAccepted) {
+    const char* argv[] = {"app", "65535", "128", "1"};
+    int port, bloomSize;
+    std::vector<int> hashes;
+    SetupParser parser;
+    EXPECT_TRUE(parser.Parse(4, const_cast<char**>(argv), port, bloomSize, hashes));
+}
+
+TEST(ParseSetupTests, Port1023Fails) {
+    const char* argv[] = {"app", "1023", "128", "1"};
+    int port, bloomSize;
+    std::vector<int> hashes;
+    SetupParser parser;
+    EXPECT_FALSE(parser.Parse(4, const_cast<char**>(argv), port, bloomSize, hashes));
+}
+
+TEST(ParseSetupTests, Port65536Fails) {
+    const char* argv[] = {"app", "65536", "128", "1"};
+    int port, bloomSize;
+    std::vector<int> hashes;
+    SetupParser parser;
+    EXPECT_FALSE(parser.Parse(4, const_cast<char**>(argv), port, bloomSize, hashes));
+}
