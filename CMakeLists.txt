@@ -1,8 +1,10 @@
 message(STATUS "Using CMakeLists.txt from: ${CMAKE_CURRENT_LIST_DIR}")
 cmake_minimum_required(VERSION 3.14)
 project(CreateOurGmail LANGUAGES CXX)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # Fetch GoogleTest
 include(FetchContent)
 FetchContent_Declare(
@@ -11,7 +13,8 @@ FetchContent_Declare(
 )
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
-# Your project sources
+
+# === Shared Library ===
 add_library(CreateOurGmail_lib
     src/core/BloomFilter.cpp
     src/core/ConfigurableHash.cpp
@@ -24,10 +27,10 @@ add_library(CreateOurGmail_lib
     src/main/commands/CheckURLCommand.cpp
     src/main/commands/CommandParser.cpp
     src/main/commands/ConsoleMenu.cpp     
+    src/main/commands/DeleteURLCommand.cpp
     src/main/app/App.cpp 
     src/utils/StatusMessages.cpp
     src/utils/SetupParser.cpp
-    src/main/commands/DeleteURLCommand.cpp
     src/server/Server.cpp         
     src/server/ClientSession.cpp  
 )
@@ -35,37 +38,27 @@ target_include_directories(CreateOurGmail_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# tests
+# === Server ===
+add_executable(server
+    src/main.cpp
+)
+target_link_libraries(server PRIVATE CreateOurGmail_lib)
+
+# === Tests ===
 enable_testing()
 add_executable(tests
-    # src/tests/bloom_hash_tests/testMain.cpp
-    # src/tests/bloom_hash_tests/testBloomFilter.cpp
-    # src/tests/bloom_hash_tests/testHashClass.cpp
-    # src/tests/storage_test/bloom_filter_storage_test.cpp 
-    # src/tests/storage_test/black_list_storage_test.cpp
-    # src/tests/commands_tests/AddURLCommandTests.cpp
-    # src/tests/commands_tests/CheckURLCommandTests.cpp
-    # src/tests/commands_tests/BlacklistTests.cpp
-    # src/tests/commands_tests/CommandParserTests.cpp
     src/tests/commands_tests/DeleteUrlTests.cpp
     src/tests/flow_tests/SetupParserTests.cpp
     src/tests/flow_tests/StatusMessagesTests.cpp
- )
-
+    src/tests/server_tests/ServerSanityTests.cpp
+)
 target_include_directories(tests PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/core
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main/commands
     ${CMAKE_CURRENT_SOURCE_DIR}/src/utils
     ${CMAKE_CURRENT_SOURCE_DIR}/src/server
- )
+)
 target_link_libraries(tests PRIVATE CreateOurGmail_lib GTest::gtest_main)
-
 include(GoogleTest)
 gtest_discover_tests(tests)
-
-# app
-add_executable(app
-    src/main.cpp
-)
-target_link_libraries(app PRIVATE CreateOurGmail_lib)
