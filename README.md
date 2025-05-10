@@ -1,180 +1,199 @@
 # URL Filtering System Using Bloom Filter
 
-This project implements a Bloom Filter-based URL filtering system  
-as part of an assignment in the "Advanced Programming Systems" course.  
-The system is designed to efficiently detect if a URL is blacklisted,  
-while using minimal memory and allowing for fast checks.  
-The application was developed using Test-Driven Development (TDD) methodology.
+This project implements a TCP-based URL filtering system using a Bloom Filter.  
+It was developed for the "Advanced Programming Systems" course at Bar-Ilan University  
+as part of Assignment 2, which required transforming a standalone CLI tool into  
+a client-server architecture over sockets using C++ (server) and Python (client).
 
 ---
 
 # 🧠 Project Overview
-•⁠  ⁠Implemented a Bloom Filter that supports inserting and checking URLs.
-•⁠  ⁠Used multiple hashing techniques (std::hash applied multiple times).
-•⁠  ⁠Saved and loaded the Bloom Filter state from a binary file automatically.
-•⁠  ⁠Supported false positives, but no false negatives.
-•⁠  ⁠Input is received via standard input, and output is written to standard output.
-•⁠  ⁠Carefully follows SOLID principles and supports future extension.
+- Server handles all business logic, I/O over sockets (no console I/O).
+- Client sends commands and prints results — clients are intentionally “dumb.”
+- Bloom Filter supports insertions, checks, deletions with persistent data.
+- Status messages are returned in HTTP-style format (`201 Created`, etc.).
+- SOLID principles followed — system is open for extension and closed for modification.
 
----
+## 💻 Supported Commands (via Client)
 
-# How to Compile and Run App
+| Command              | Server Response      | Meaning                          |
+|----------------------|----------------------|----------------------------------|
+| `POST <url>`         | `201 Created`        | URL added to Bloom Filter        |
+| `GET <url>`          | `200 Ok`             | URL might be blacklisted         |
+| `DELETE <url>`       | `204 No Content`     | URL deleted from file only       |
+| `DELETE <not_found>` | `404 Not Found`      | URL was not in the file          |
+| Invalid command      | `400 Bad Request`    | Format not recognized            |
 
-### Tools nedded: 
-•⁠  ⁠GCC or Clang with C++17 support (tested on GCC 13)
-•⁠  ⁠CMake ≥ 3.20 —or just g++ if you use the one-liner below
-
-### Compile and Run the Application (Locally)
-
-Compile:
-g++ -std=c++17 -I src src/main.cpp src/main/app/.cpp src/main/commands/.cpp src/core/*.cpp -o app.exe
-
-Run the Application:
-./app.exe
-
----
-
-# How to Run Unit Tests
-
-### Tools nedded: 
-•⁠  ⁠same compiler tool-chain as above (C++17)
-•⁠  ⁠GoogleTest 
-
-### Compile Unit Tests (Locally)
-
-Compile the unit tests:
-g++ -std=c++17 -I src src/tests/bloom_hash_tests/.cpp src/tests/storage_test/.cpp src/tests/commands_tests/.cpp src/main/commands/.cpp src/core/.cpp src/main/app/.cpp src/main.cpp -o tests
-
-Run the unit tests:
-./tests
-
----
+> Commands and responses are terminated by `\\n`.  
+> Invalid URLs or formats are ignored with `400 Bad Request`.
 
 # How to Run Using Docker
+
 ### Tools nedded: 
 •⁠  ⁠Docker Engine ≥ 20.10
+
 •⁠  ⁠CMake ≥ Windows users: WSL 2 or Git Bash to execute script.sh
+
 •⁠  ⁠please make sure your Docker desktop is running
 
-### Build the Docker Image, build volume and run: (after that you will be in a container)
-./script.sh  (Windows users can do this commands instead installing Git Bash:
- 1. docker build -f Dockerfile.app -t gmail_app .
- 2. docker volume create bloomdata  
- 3. docker run -it -v bloomdata:/app/data gmail_app bash )
+###  Step 1: Build Docker images for server, client, and tests
 
-### Run the Application inside the container
-./build/app
+docker build -f Dockerfile.server -t gmail_server .
 
-### Run the tests inside the container
-./build/tests
+docker build -f src/client/Dockerfile.client -t gmail_client src/client
 
-### Exit the Application:
-Ctrl + c / Ctrl + z
+docker build -f Dockerfile.tests -t gmail_tests .
 
-### Exit the container:
-Ctrl + d / Ctrl + P then Ctrl + Q
+###  Step 2: Create a shared Docker network and volume (if they don’t already exist)
 
-### Remove the image (if needed):
-docker rm gmail_app
+docker network inspect gmail_net >/dev/null 2>&1 || docker network create gmail_net
+
+docker volume inspect bloomdata >/dev/null 2>&1 || docker volume create bloomdata
+
+### Step 3: Run the server container
+
+ Open your first terminal window.
+This command launches a bash shell inside the server container.
+
+docker run -it --rm \
+  --network=gmail_net \
+  --name server \
+  -v bloomdata:/server/data \
+  gmail_server
+
+ Now inside the container, run the server manually using:
+ 
+./build/server \<port\> \<size\> \<seed1\> \<seed2\> \<seed3\>
+
+ Replace:
+ \<port\>   → Port number the server will listen on (e.g. 12345)
+ 
+\<size\>  → Bloom filter size (e.g. 1000)
+
+ \<seed1\> \<seed2\> \<seed3\> → Hash function seeds (e.g. 3 5 7)
+
+Example:
+./build/server 12345 1000 3 5 7
+
+
+### Step 4: Run the client container
+
+ Open a second terminal window.
+ This command starts an interactive bash shell inside the client container:
+
+docker run -it --rm \
+  --network=gmail_net \
+  -v bloomdata:/server/data \
+  --entrypoint bash \
+  gmail_client
+
+ Now inside the container, run the Python client script:
+ 
+python client.py server \<port\>
+
+ Example:
+python client.py server 12345
+
+After this, you can start typing commands such as:
+
+ POST http://example.com
+ 
+GET http://example.com
+
+DELETE http://example.com
+
+
+###  Step 5: (Optional) Inspect the persistent data in the volume
+docker run -it --rm -v bloomdata:/server/data alpine sh -c "ls /server/data && cat /server/data/urlsdata.txt"
+
+###  Step 6: (Optional) Run all tests
+docker run -it --rm gmail_tests
+
 
 ### Delete data:
 Exit the application (Ctrl + c / Ctrl + z), cd data, rm urlsdata.txt, rm bloomfilterdata.bin, cd .. 
 (after that it is posible to run ./build/app again without the data that was enterd in the previos run)
 o.w the data will be kept because it is inside a volume
 
-### Re-run without rebuilding
-docker run -it -v bloomdata:/app/data gmail_app bash
-
 ### Data persistance:
 the data will be kept even after deleting the container and the image, you can exit the container and image, delete them  
 make the run command again and the data will persiste, the only way the data can be deleted is manually
+
+## 🔁 Example Session
+![image](https://github.com/user-attachments/assets/dfed6ad9-be17-43c5-9c53-bbdcb30648e2)
 ---
 
-# How to Run the TCP Client Using Docker
-### Build the Docker image (run this from the project root directory)
-docker build -t tcp-client ./src/client
-### Run the client and connect to the server (replace <server_ip> and <server_port>)
-docker run -it tcp-client <server_ip> <server_port>
----
+# 🔧 Design for Extensibility
 
-# 🧩 How It Works
-1.⁠ ⁠Initialization:
-   - User specifies the Bloom filter size and hash function configuration.
+ Input/output was moved from stdin/stdout to sockets
+ This was done without modifying any core logic in the system
 
-2.⁠ ⁠Commands:
-   - 1 <URL> → Add URL to the blacklist.
-   - 2 <URL> → Check if URL is blacklisted.
+#POST / GET / DELETE commands were added
+ A lightweight parser maps them to the existing internal logic
+ Instead of returning true/false, the server now returns HTTP-style status codes
+ For example: "201 Created", "204 No Content", "400 Bad Request", etc.
+ 
+The system is designed for future extension:
+ It currently supports a single client
+ But it can be extended to support multiple concurrent clients with minor changes
 
-3.⁠ ⁠Checking Process:
-   - If Bloom filter says "not present" → output false.
-   - If Bloom filter says "maybe present", check the real blacklist:
-     - If actually blacklisted → output true true.
-     - If false positive → output true false.
-
-4.⁠ ⁠Persistence:
-   - The Bloom filter is saved to a binary file after every update.
-   - On program startup, it loads the saved Bloom filter if available.
-
-5.⁠ ⁠App flow: 
-   - the program ignores all inputs until the bloom filter setup is inputed (e.g 8 1 2) even if correct commands (1 [URL] or 2 [URL])are inputed. 
-   - once the bloom filter setup is inputed the program ignores all inputs that are not 1 [URL] or 2 [URL]'
-   - please notice that if the url inputed is not in a valid url format the program will ignore it
-   - the commands are not sensitive to spacec so command such as: 8  1    2 or 1    www.example.com are valid
+ This shows that the system follows SOLID principles:
+ It is open to extension, but closed to modification
 
 
----
+# 📌 Open/Closed Principle Reflections
 
-# Example Input
-a  
-8 1 2  
-2 www.example.com0  
-false  
-x  
-1 www.example.com0  
-2 www.example.com0  
-true true  
-2 www.example.com1  
-false  
-2 www.example.com11  
-true false  
+ These answers refer to how we handled changes in this assignment
+ and whether they required modifying code that should be closed to change.
 
----
+### 🔄 Did changing the command names (e.g. from 1/2 to POST/GET) require touching closed code?
+ No. The parser is designed to map strings like "POST" or "GET" to internal operations.
+ The logic for execution remains untouched. This shows that the command execution code
+ is closed for modification but open for extension via new command strings.
 
-# Example Output
-false  
-true true  
-false  
-true false  
+ ### ➕ Did adding new commands (e.g. DELETE) require modifying closed code?
+ No. The system was designed with a command interface. We added a new command class
+ that implements the interface. The existing logic did not need to change.
+This confirms extensibility was preserved from Assignment 1.
 
----
+###  🧾 Did changing the output format (from 'true'/'false' to status codes) require modifying closed code?
+ Partially. We encapsulated response formatting in one layer only.
+ The change did not propagate through the system, so the core logic was untouched.
+We refactored early to isolate output formatting, so future changes won't affect business logic.
 
-# Application Screenshots
+###  🔁 Did changing input/output from console to sockets require modifying closed code?
+ No. The I/O layer was already separated from the logic in Assignment 1.
+ We swapped out standard input/output for socket read/write at the outermost level.
+ This validates that I/O is an interchangeable component in our design.
 
-Starting the Application  
-![image](https://github.com/user-attachments/assets/8079f943-5acd-4290-a005-4270ecf682c6)
+### ✅ Summary:
+ Our original design from Assignment 1 already followed SOLID principles.
+ That allowed us to extend the system in Assignment 2 with:
+ - New commands
+ - New I/O mechanism (sockets)
+- New output format
+ Without modifying internal logic.
 
-Adding and Checking URLs  
-
-![image](https://github.com/user-attachments/assets/9db1aac7-ad65-4efa-bbd2-41fb323da843)
-
-Running the tests
-
-<img src="https://github.com/user-attachments/assets/bdc98778-9eb0-49d1-a416-edfedc325460" width="400"/>
----
-
-# Project Structure
-![image](https://github.com/user-attachments/assets/6b50be83-358f-4d41-9e06-5dffe97738ad)
+The code is closed for modification but open for extension.
 
 
----
+# 📌 Notes
 
-# Notes
+- The system currently supports a single client connection
+- You can easily extend the server to support multiple clients using threads or select()
+ - Command names and output were adapted to match assignment spec
+ - The code is clean, modular, and separated into .cpp and .h files
+ - No external libraries are used except:
+  - GoogleTest (C++) for testing
+  - Standard libraries in Python for the client
 
-•⁠  ⁠std::hash behavior might differ between platforms (as warned in the task description).
-•⁠  ⁠The application handles invalid inputs by ignoring them.
-•⁠  ⁠The Bloom filter supports configuration for the number and type of hash functions.
-•⁠  ⁠The project is designed for future extensions and changes, following SOLID and loose coupling principles.
+###  🎓 Course Information
 
----
+ Bar-Ilan University
+ 
+ "Advanced Programming Systems" course
+ 
+Assignment 2 — TCP Client/Server with Bloom Filter
 
-# 🎓✅ Developed as part of the "Advanced Programming Systems" course at Bar Ilan University
+Year: 2025
+
