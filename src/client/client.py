@@ -20,8 +20,8 @@ def main():
                     # Does not print anything to the screen, the input will go to msg
                     msg = input()
                     # If no input from the user is entered, continue.
-                    if msg == "":
-                        continue
+                    #if msg == "":
+                        #continue
                     # Sending the message to the server
                     # The message is converted from a string to bytes using UTF-8 encoding
                     # and sent with an end-of-line character (\n) according to the protocol.
