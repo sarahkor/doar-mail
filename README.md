@@ -7,7 +7,7 @@ a client-server architecture over sockets using C++ (server) and Python (client)
 
 ---
 
-# 🧠 Project Overview
+## 🧠 Project Overview
 - Server handles all business logic, I/O over sockets (no console I/O).
 - Client sends commands and prints results — clients are intentionally “dumb.”
 - Bloom Filter supports insertions, checks, deletions with persistent data.
@@ -29,13 +29,15 @@ a client-server architecture over sockets using C++ (server) and Python (client)
 > Commands and responses are terminated by `\\n`.  
 > Invalid URLs or formats are ignored with `400 Bad Request`.
 
-# How to Run Using Docker
+## How to Run Using Docker
+
+ 📌 **note: All commands and scripts should be run from the root of the project (create-our-gmail), as paths and dependencies are relative to it.**
 
 ### Tools nedded: 
 - ⁠ ⁠Docker Engine ≥ 20.10
 -  ⁠please make sure your Docker desktop is running
 
-###  Step 1: Build Docker images for server (with volume and network), client, and tests and run the server container 
+###  Step 1 - Build Docker images for server (with volume and network), client, and tests and run the server container 
 
 ```bash
 ./script.sh
@@ -43,31 +45,32 @@ a client-server architecture over sockets using C++ (server) and Python (client)
 
 after that you will be inside the server container
 
-### Step 2 (Optional): inside the container, run the tests:
+### Step 2 - (Optional): inside the server container, run the tests:
 
 ``` bash
   ./build/tests
   ```
 after that you will stay in the container and you can run the server.
 
-### Step 3: inside the container, run the server manually using:
+### Step 3 - inside the server container, run the server manually using:
 
-Usage:
-  ./build/server <port> <size> <seed1> [<seed2> ... <seedN>]
+**Usage:**
 
-Arguments:
-  <port>     → Port number the server will listen on (must be between 1024 and 65535)
-  <size>     → Bloom filter size (must be positive integer)
-  <seed1>    → At least one integer seed for a hash function (must be positive integer)
-  [<seed2> ... <seedN>] → Optional additional integer seeds for more hash functions
+./build/server \<port\> \<bloom_size\> \<seed1\> [\<seed2\> ... \<seedN\>]
 
-Description:
-  - The port number must be a valid TCP port in the range 1024–65535.
+**Arguments:**
+- \<port\>  → Port number the server will listen on
+- \<bloom_size\>  → Bloom filter size
+- \<seed1\> → At least one integer seed for a hash function
+- [\<seed2\> ... \<seedN\>] → Optional additional integer seeds for more hash functions
+
+**Description:**
+  - The port number must be a valid TCP port in the range **1024–65535.**
   - You must provide at least one hash function seed, but you may provide as many as you like.
   - All arguments must be valid positive integers.
   - If the arguments are missing or invalid, the server will not start.
 
-Example:
+**Example:**
 
   ``` bash
   ./build/server 12345 8 1 2
@@ -75,9 +78,10 @@ Example:
 
 Each seed will be used to configure a distinct hash function in the Bloom filter.
 
-### Step 4: Run the client container
+### Step 4 - Run the client container:
 
  **Open a second terminal window.**
+ 
  This command starts an interactive bash shell inside the client container:
 
 ```bash
@@ -89,16 +93,21 @@ Each seed will be used to configure a distinct hash function in the Bloom filter
   ```
 
 Now inside the container, run the Python client script:
+
+**Usage:**
  
 python client.py server-container \<port\>
 
-Example:
+**Example:**
 
 ``` bash
 python client.py server-container 12345
 ```
+**please notice:** 
+- the port number must be the same port number provided for the server
+- the server-container is the ip provided for the client in our case
 
-After this, you can start typing commands such as:
+After running the client, you can start typing commands in the client server such as:
 
 POST www.example.com
  
@@ -118,12 +127,11 @@ to exit the server press: Ctrl + c
 ``` bash
   ./build/server 12345 8 1 2
   ```
-You can change the arguments as needed: <port> <bloom-size> <seed1>[<seed2> ...]
+You can change the arguments as needed.
 
 to exit the server container press: Ctrl + d
 
 **re- running the server container (after exiting it):**
-after exititing the server container and you want to re-run do:
 
 ``` bash
 docker run -it --name server-container  --network gmailnet -v gmaildata:/server/data gmail_server bash
@@ -137,31 +145,37 @@ o.w the data will be kept because it is inside a volume
 the data will be kept even after deleting the container and the image, you can exit the container and image, delete them  
 make the run command again and the data will persiste, the only way the data can be deleted is manually
 
-## 🔁 Example Session
-![image](https://github.com/user-attachments/assets/dfed6ad9-be17-43c5-9c53-bbdcb30648e2)
----
-
 ## Questions:
 
-1. Did the fact that the names of the commands changed required you to touch the code that should be "closed
-   to changes but open to expansion"? 
-   no, we used a polymorphic commands map, allowing us to simply change the keys associated with each command without modifying the internal logic of the command classes themselves.
+### 1. Did the fact that the names of the commands changed required you to touch the code that should be "closed to changes but open to expansion"? 
+no, we used a polymorphic commands map, allowing us to simply change the keys associated with each command without modifying the internal logic of the command classes themselves.
 
-2. Did the fact that new commands were added require you to touch the code that should be "closed
-   to changes but open to expansion"?
-   yes and no.
-   no, because we used the command desine pattern which allowed us to add a new command class and to add it to the command map without modifying existing command logic. 
-   yes, because in an previous task we used a vector to store the blacklist, which made deletions inefficient. we changed it to a set, which required  us touch some of the code that should be "closed to changes but open to expansion".
+### 2. Did the fact that new commands were added require you to touch the code that should be "closed to changes but open to expansion"?
+yes and no.
 
-3. Did the fact that the command output changed require you to touch the code that should be "closed
-   to changes but open to expansion"?
-   No, Since we used polymorphic ICommand interface, we could just locally modify the implementation of the commands that needed to be changed, without any bigger API changes.
+no, because we used the command desine pattern which allowed us to add a new command class and to add it to the command map without modifying existing command logic. 
 
-4. Did the fact that the input and output came from sockets instead of the command line require you to touch the code that
-   should be "closed to changes but open to expansion"?
-   Yes. We had to change the execute() method signature in the ICommand interface to return a std::string instead of void. This change was necessary to redirect command output through the socket to the client. While this impacted all implementations, it was a minimal, localized change that improved the overall design by unifying output handling.
+yes, because in an previous task we used a vector to store the blacklist, which made deletions inefficient. we changed it to a set, which required  us touch some of the code that should be "closed to changes but open to expansion".
 
-### Summary:
+### 3. Did the fact that the command output changed require you to touch the code that should be "closed to changes but open to expansion"?
+No, Since we used polymorphic ICommand interface, we could just locally modify the implementation of the commands that needed to be changed, without any bigger API changes.
+
+### 4. Did the fact that the input and output came from sockets instead of the command line require you to touch the code that should be "closed to changes but open to expansion"?
+Yes. We had to change the execute() method signature in the ICommand interface to return a std::string instead of void. This change was necessary to redirect command output through the socket to the client. While this impacted all implementations, it was a minimal, localized change that improved the overall design by unifying output handling.
+
+## 🔁 Example Session
+
+### server and client:
+
+<img width="1381" alt="Screenshot 2025-05-11 at 18 00 22" src="https://github.com/user-attachments/assets/7f565b73-22a6-489e-994c-3fa6695e094b" />
+<img width="575" alt="Screenshot 2025-05-11 at 18 01 38" src="https://github.com/user-attachments/assets/cf22cc8e-8c44-434c-b6bc-fe7b9a8d09be" />
+
+### tests:
+
+<img width="1020" alt="Screenshot 2025-05-11 at 18 03 36" src="https://github.com/user-attachments/assets/bd83f7a7-891d-4277-a19c-c901721e4f4b" />
+<img width="1020" alt="Screenshot 2025-05-11 at 18 03 42" src="https://github.com/user-attachments/assets/ae3c7ee3-d978-4b70-9a09-120393a22c87" />
+
+## Summary:
 Input/output was moved from stdin/stdout to sockets
  This was done without modifying any core logic in the system
 
@@ -178,15 +192,15 @@ Input/output was moved from stdin/stdout to sockets
  It is open to extension, but closed to modification
 
 
-# 📌 Notes
+## 📌 Notes
 
 - The system currently supports a single client connection
-- You can easily extend the server to support multiple clients using threads or select()
- - Command names and output were adapted to match assignment spec
- - The code is clean, modular, and separated into .cpp and .h files
- - No external libraries are used except:
-  - GoogleTest (C++) for testing
-  - Standard libraries in Python for the client
+- extending the server to support multiple clients using threads or select() can easily be done
+- Command names and output were adapted to match assignment spec
+- The code is clean, modular, and separated into .cpp and .h files
+- No external libraries are used except:
+- GoogleTest (C++) for testing
+- Standard libraries in Python for the client
 
 ## Run the code locally:
 For faster development iteration, you can also run the code directly on your Linux/WSL machine: 
@@ -197,38 +211,55 @@ For faster development iteration, you can also run the code directly on your Lin
 
 ### step 1:
 in a terminal window:
-compile (assuming the compilation is from root (create-our-gmail)):
+**compile** (assuming the compilation is from root (create-our-gmail)):
 
 ``` bash
 g++ -std=c++17 -I src src/main.cpp src/main/app/*.cpp src/main/commands/*.cpp src/utils/*.cpp src/server/*.cpp src/core/*.cpp -o server.exe
 ```
 
-run: 
-./server.exe <port> <bloom-size> <seed1> [<seed2> ... <seedN>]
+**run:** 
 
-for example:
+**usage:**
+
+./server.exe \<port\> \<bloom_size\> \<seed1\> [\<seed2\> ... \<seedN\>]
+
+**example:**
 
 ``` bash
 ./server.exe 12345 8 1 2
 ```
-the arguments can be anything that meets this requuirements:
-<port>     → Port number the server will listen on (must be between 1024 and 65535)
-<size>     → Bloom filter size (must be positive integer)
-<seed1>    → At least one integer seed for a hash function (must be positive integer)
-<seed2> ... <seedN>] → Optional additional integer seeds for more hash functions
+**the arguments can be anything that meets this requuirements:**
+- \<port\>     → Port number the server will listen on (must be between 1024 and 65535)
+- \<size\>     → Bloom filter size (must be positive integer)
+- \<seed1\>    → At least one integer seed for a hash function (must be positive integer)
+- \<seed2\> ... \<seedN\>] → Optional additional integer seeds for more hash functions (must be positive integers)
 
 ### step 2: 
-in a seconde teminal window:
+**in a seconde teminal window:**
+
 run the client (assuming the compilation is from root (create-our-gmail)):
 
- python3 src/client/client.py <ip> <port>
+**usage**
 
- for example:
+python3 src/client/client.py /<ip/> /<port/>
+
+**arguments:**
+- <ip>: IP address of the server (e.g., 127.0.0.1 for local)
+- <port>: Port number the server is listening on (e.g., 12345)
+  
+**please notice:** 
+- the port number must be the same port number provided for the server
+- If the arguments are missing or invalid, the client will not start.
+
+**example:**
 
  ``` bash 
  python3 src/client/client.py 127.0.0.1 12345
  ```
-please notice: the port must be the same as the server port
+
+After that, you can start typing commands in the client server such as:
+POST  www.example.come, GET  www.example.com, etc..
+
 
 ###  🎓 Course Information
 
