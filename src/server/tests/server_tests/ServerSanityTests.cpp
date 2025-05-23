@@ -5,8 +5,8 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include "server/Server.h"
-#include "server/ClientSession.h"
+#include "server/main/app/Server.h"
+#include "server/main/app/ClientSession.h"
 #include "Blacklist.h"
 #include "BloomFilter.h"
 #include "FileLineStorage.h"
@@ -16,11 +16,13 @@
 #include "DeleteURLCommand.h"
 
 // Simple test that server starts and accepts one client connection
-TEST(ServerSanity, StartsAndAcceptsClient) {
+TEST(ServerSanity, StartsAndAcceptsClient)
+{
     int testPort = 55555;
 
     // Create server in a background thread
-    std::thread serverThread([&]() {
+    std::thread serverThread([&]()
+                             {
         std::map<std::string, ICommand*> commands;
 
         auto storage = std::make_unique<FileLineStorage>("testdata.txt");
@@ -45,8 +47,7 @@ TEST(ServerSanity, StartsAndAcceptsClient) {
         delete get;
         delete del;
         delete bloom;
-        delete blacklist;
-    });
+        delete blacklist; });
 
     // Give the server time to start
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -60,11 +61,11 @@ TEST(ServerSanity, StartsAndAcceptsClient) {
     addr.sin_port = htons(testPort);
     addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-    int result = connect(sock, (struct sockaddr*)&addr, sizeof(addr));
-    EXPECT_EQ(result, 0);  // Success if result is 0
+    int result = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
+    EXPECT_EQ(result, 0); // Success if result is 0
 
-    close(sock);  // Close client socket
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));  // Let server finish
-    pthread_cancel(serverThread.native_handle()); // forcibly stop for test purposes
+    close(sock);                                                 // Close client socket
+    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Let server finish
+    pthread_cancel(serverThread.native_handle());                // forcibly stop for test purposes
     serverThread.join();
 }
