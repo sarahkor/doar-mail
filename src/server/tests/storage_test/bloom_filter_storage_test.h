@@ -8,13 +8,16 @@
 #include <memory>
 #include <vector>
 
-class BloomFilterStorageTest : public ::testing::Test {
+class BloomFilterStorageTest : public ::testing::Test
+{
 protected:
-    void SetUp() override {
+    void SetUp() override
+    {
         // Setup code for each test
     }
 
-    void TearDown() override {
+    void TearDown() override
+    {
         // Cleanup code for each test
     }
 };

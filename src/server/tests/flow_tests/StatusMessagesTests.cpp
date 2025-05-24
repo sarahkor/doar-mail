@@ -5,20 +5,24 @@
 #include "Blacklist.h"
 #include "BloomFilter.h"
 
-class InMemoryStorage : public IUrlStorage {
+class InMemoryStorage : public IUrlStorage
+{
 public:
     std::set<std::string> urls;
-    bool load(std::set<std::string>& out) override {
+    bool load(std::set<std::string> &out) override
+    {
         out = urls;
         return true;
     }
-    bool save(const std::set<std::string>& in) override {
+    bool save(const std::set<std::string> &in) override
+    {
         urls = in;
         return true;
     }
 };
 
-TEST(CommandOutputTests, AddURL_Valid_Returns201) {
+TEST(CommandOutputTests, AddURL_Valid_Returns201)
+{
     auto storage = std::make_unique<InMemoryStorage>();
     Blacklist blacklist(std::move(storage));
     BloomFilter bloom(128, {}, nullptr);
@@ -28,7 +32,8 @@ TEST(CommandOutputTests, AddURL_Valid_Returns201) {
     EXPECT_EQ(response, "201 Created\n");
 }
 
-TEST(CommandOutputTests, CheckURL_AddedButNotBlacklisted_ReturnsTrueFalse) {
+TEST(CommandOutputTests, CheckURL_AddedButNotBlacklisted_ReturnsTrueFalse)
+{
     auto storage = std::make_unique<InMemoryStorage>();
     Blacklist blacklist(std::move(storage));
     BloomFilter bloom(128, {}, nullptr);
@@ -39,7 +44,8 @@ TEST(CommandOutputTests, CheckURL_AddedButNotBlacklisted_ReturnsTrueFalse) {
     EXPECT_EQ(response, "200 OK\n\ntrue false\n");
 }
 
-TEST(CommandOutputTests, CheckURL_AddedAndBlacklisted_ReturnsTrueTrue) {
+TEST(CommandOutputTests, CheckURL_AddedAndBlacklisted_ReturnsTrueTrue)
+{
     auto storage = std::make_unique<InMemoryStorage>();
     Blacklist blacklist(std::move(storage));
     BloomFilter bloom(128, {}, nullptr);
@@ -52,7 +58,8 @@ TEST(CommandOutputTests, CheckURL_AddedAndBlacklisted_ReturnsTrueTrue) {
     EXPECT_EQ(response, "200 OK\n\ntrue true\n");
 }
 
-TEST(CommandOutputTests, AddURL_Empty_Returns400) {
+TEST(CommandOutputTests, AddURL_Empty_Returns400)
+{
     auto storage = std::make_unique<InMemoryStorage>();
     Blacklist blacklist(std::move(storage));
     BloomFilter bloom(128, {}, nullptr);
@@ -60,4 +67,3 @@ TEST(CommandOutputTests, AddURL_Empty_Returns400) {
     AddURLCommand cmd(&bloom, &blacklist);
     EXPECT_EQ(cmd.execute(""), "400 Bad Request\n");
 }
-
