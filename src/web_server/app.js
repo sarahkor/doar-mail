@@ -1,10 +1,16 @@
 const express = require('express');
 const app = express();
 
-const blacklistRoutes = require('./api/routes/blacklistRoutes');
+// 🛠 Import both sets of routes
+const blacklistRoutes = require('./routes/blacklistRoutes');
+const userRoutes = require('./routes/userRoutes'); 
 
 app.use(express.json());
-app.use('/api/blacklist', blacklistRoutes);
 
-// check if it is correct??
-app.listen(8080)
+// Mount the routes under logical endpoints
+app.use('/api/blacklist', blacklistRoutes);
+app.use('/api/users', userRoutes); 
+
+app.listen(8080, () => {
+  console.log('Server is running on http://localhost:8080');
+});
