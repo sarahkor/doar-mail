@@ -1,29 +1,72 @@
+// Counter used to assign temporary IDs to blacklist entries
 let idCounter = 0;
-const blacklist = [];
+// Node.js 'net' module is used to create TCP connections
+const net = require('net');
 
+// Sends a request to add a URL to the blacklist on the C++ server
 const add = (url) => {
-    // Creates a new object named entry that looks like this: { id: , url: }
-    const entry = { id: ++idCounter, url };
-    // Adding the new object to the list
-    blacklist.push(entry);
-    // Returns the object so the controller can send it back to the client
-    return entry;
-}
+    return new Promise((resolve, reject) => {
+        const client = new net.Socket(); // Create a new TCP client socket
+        let response = '';
 
-const remove = (id) => {
-    // Find the index in the blacklist array of the link with the id that we want to delete
-    const index = blacklist.findIndex(entry => entry.id === Number(id));
-    // If we found a valid index
-    if (index !== -1) {
-        // Deletes one link starting from the index we found.
-        blacklist.splice(index, 1);
-        return true;
-    }
-    // We couldn't find the ID.
-    return false;
+        // Connect to the C++ server on localhost and port 12345
+        client.connect(12345, '127.0.0.1', () => {
+            // Send the add-url command with the given URL
+            client.write(`add-url ${url}\n`);
+        });
+
+        // Accumulate the server response data
+        client.on('data', (data) => {
+            response += data.toString();
+        });
+
+        // When the server closes the connection
+        client.on('end', () => {
+            // Construct a local response object to return to the client
+            // In real implementation, consider parsing actual response if needed
+            const entry = { id: ++idCounter, url };
+            resolve(entry);
+        });
+
+        // Handle connection or transmission errors
+        client.on('error', (err) => {
+            reject(err);
+        });
+    });
 };
 
-// Export
+// Sends a request to remove a URL from the blacklist by ID
+const remove = (id) => {
+    return new Promise((resolve, reject) => {
+        const client = new net.Socket(); // Create a new TCP client socket
+        let response = '';
+
+        // Connect to the C++ server on localhost and port 12345
+        client.connect(12345, '127.0.0.1', () => {
+            // Send the delete-url command with the given ID
+            client.write(`delete-url ${id}\n`);
+        });
+
+        // Accumulate the server response data
+        client.on('data', (data) => {
+            response += data.toString();
+        });
+
+        // When the server closes the connection
+        client.on('end', () => {
+            // Check if the response indicates a successful removal
+            const success = response.trim().toLowerCase() === 'ok';
+            resolve(success);
+        });
+
+        // Handle connection or transmission errors
+        client.on('error', (err) => {
+            reject(err);
+        });
+    });
+};
+
+// Export the functions so they can be used by controllers
 module.exports = {
     add,
     remove
