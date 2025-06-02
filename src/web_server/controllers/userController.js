@@ -1,4 +1,6 @@
-const users = require('../models/userModel');
+const sessions = require('../models/sessions');
+const { addUser, findUserById, getUserByUsername, getAllUsers } = require('../models/userModel');
+const { getLoggedInUser } = require('../utils/mailUtils');
 
 let counter = 0;
 
@@ -9,6 +11,12 @@ function generateId() {
 
 
 function registerUser(req, res) {
+  if (!req.body || typeof req.body !== 'object') {
+    return res.status(400).json({
+      status: "error",
+      message: "Missing or invalid request body."
+    });
+  }
   const {
     firstName,
     lastName,
@@ -18,6 +26,16 @@ function registerUser(req, res) {
     phone,
     birthday
   } = req.body;
+
+  const allowedFields = ['firstName', 'lastName', 'username', 'password', 'picture', 'phone', 'birthday'];
+  for (const key of Object.keys(req.body)) {
+    if (!allowedFields.includes(key)) {
+      return res.status(400).json({
+        status: "error",
+        message: `Unexpected field in request: ${key}`
+      });
+    }
+  }
 
   // Check required fields
   if (!firstName || !lastName || !username || !password) {
@@ -37,7 +55,7 @@ function registerUser(req, res) {
   }
 
   //  Duplicate email check
-  const exists = users.some(u => u.username === username);
+  const exists = getUserByUsername(username);
   if (exists) {
     return res.status(409).json({
       status: "error",
@@ -78,21 +96,33 @@ function registerUser(req, res) {
     firstName,
     lastName,
     username,
+    password,
     picture: picture || null,
     phone: phone || null,
-    birthday: birthday || null
+    birthday: birthday || null,
+    inbox: [],
+    sent: [],
+    drafts: [],
+    labels: []
   };
 
-  users.push({ ...newUser, password });
+  addUser(newUser);
 
+  const { password: _, inbox, sent, drafts, labels, ...safeUser } = newUser;
   res.status(201).json({
     status: "success",
     message: "Account created successfully.",
-    user: newUser
+    user: safeUser
   });
 }
 
 function loginUser(req, res) {
+  if (!req.body || typeof req.body !== 'object') {
+    return res.status(400).json({
+      status: "error",
+      message: "Missing or invalid request body."
+    });
+  }
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -102,13 +132,16 @@ function loginUser(req, res) {
     });
   }
 
-  const user = users.find(u => u.username === username && u.password === password);
-
-  if (!user) {
+  const user = getUserByUsername(username);
+  if (!user || user.password !== password) {
     return res.status(401).json({
       status: "error",
       message: "Incorrect username or password."
     });
+  }
+
+  if (!sessions.has(user.id)) {
+    sessions.add(user.id);
   }
 
   res.status(200).json({
@@ -119,21 +152,43 @@ function loginUser(req, res) {
 }
 
 function getUserById(req, res) {
-  const userId = req.params.id;
+  const loggedInUser = getLoggedInUser(req, res);
+  if (!loggedInUser) return;
 
-  const user = users.find(u => u.id === userId);
+  const requestedUserId = req.params.id;
+  const requestedUser = findUserById(requestedUserId);
 
-  if (!user) {
-    return res.status(404).json({
-      status: "error",
-      message: "User not found."
-    });
+  if (!requestedUser) {
+    return res.status(404).json({ error: "User not found." });
   }
 
-  const { id, firstName, lastName, username, picture, phone, birthday } = user;
+  if (loggedInUser.id !== requestedUserId) {
+    return res.status(403).json({ error: "Access denied: You can only view your own profile." });
+  }
+
+  const cleanSentMails = requestedUser.sent.map(({ id, from, to, subject, bodyPreview, date, time, status }) => ({
+    id, from, to, subject, bodyPreview, date, time, status
+  }));
+
+  const cleanReceivedMails = requestedUser.inbox.map(({ id, from, to, subject, bodyPreview, date, time, status }) => ({
+    id, from, to, subject, bodyPreview, date, time, status
+  }));
+
+  const cleanDraftMails = requestedUser.drafts.map(({ id, from, to, subject, bodyPreview, date, time, status }) => ({
+    id, from, to, subject, bodyPreview, date, time, status
+  }));
+
+  const { id, firstName, lastName, username, picture, phone, birthday, labels } = requestedUser;
+
   res.status(200).json({
     status: "success",
-    user: { id, firstName, lastName, username, picture, phone, birthday }
+    user: {
+      id, firstName, lastName, username, picture, phone, birthday,
+      inbox: cleanReceivedMails,
+      sent: cleanSentMails,
+      drafts: cleanDraftMails,
+      labels
+    }
   });
 }
 

@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string>
 #include <memory>
+#include <thread>
 
 Server::Server(IMenu *menu,
                std::map<std::string, ICommand *> &commands,
@@ -37,7 +38,7 @@ void Server::run()
         exit(EXIT_FAILURE);
     }
 
-    if (listen(serverSocket, 1) < 0)
+    if (listen(serverSocket, SOMAXCONN) < 0)
     {
         close(serverSocket);
         exit(EXIT_FAILURE);
@@ -52,8 +53,12 @@ void Server::run()
         {
             continue;
         }
-        ClientSession session(clientSocket, commands);
-        session.handle();
+        std::thread([clientSocket, this]()
+                    {
+            ClientSession session(clientSocket, this->commands);
+            session.handle(); })
+            .detach();
     }
+
     close(serverSocket);
 }

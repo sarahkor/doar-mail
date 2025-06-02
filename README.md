@@ -214,7 +214,7 @@ in a terminal window:
 **compile** (assuming the compilation is from root (create-our-gmail)):
 
 ``` bash
-g++ -std=c++17 -I src src/main.cpp src/main/app/*.cpp src/main/commands/*.cpp src/utils/*.cpp src/server/*.cpp src/core/*.cpp -o server.exe
+g++ -std=c++17 -I src src/server/main.cpp src/server/main/app/*.cpp src/server/main/commands/*.cpp src/server/utils/*.cpp src/server/core/*.cpp -o server.exe
 ```
 
 **run:** 
