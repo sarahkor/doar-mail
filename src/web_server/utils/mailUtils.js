@@ -2,6 +2,32 @@ const { findUserById } = require('../models/userModel');
 const sessions = require('../models/sessions');
 const net = require('net');
 
+const IP = '127.0.0.1';
+const PORT = 12345;
+
+// Sends a request to add a URL to the blacklist on the C++ server
+const sendRequest = (command, url, port = PORT) => {
+  return new Promise((resolve, reject) => {
+    const message = `${command} ${url}`;
+    const client = new net.Socket();
+
+    client.connect(port, IP, () => {
+      client.write(message + "\n");
+    });
+
+    client.on("data", (data) => {
+      resolve(data.toString());
+      client.destroy();
+    });
+
+    client.on("error", (err) => {
+      console.error("Error occurred:", err);
+      reject(err);
+      client.destroy();
+    });
+  });
+};
+
 function getLoggedInUser(req, res) {
   const userId = req.headers['id'];
   if (!userId) {
@@ -24,52 +50,56 @@ function getLoggedInUser(req, res) {
   return user;
 }
 
-function checkUrlAgainstBloomServer(url, host = '127.0.0.1', port = 12345) {
-  return new Promise((resolve, reject) => {
-    const client = new net.Socket();
-    let responseData = '';
+const checkUrl = async (url) => {
+  try {
+    const response = await sendRequest("GET", url);
 
-    client.connect(port, host, () => {
-      client.write(`GET ${url}\n`);
-    });
+    const lines = response.split('\n').map(line => line.trim()).filter(Boolean);
+    const statusLine = lines[0];
+    const body = lines[1] || '';
 
-    client.on('data', (data) => {
-      responseData += data.toString();
-      if (responseData.includes('\n\n')) {
-        client.destroy(); // disconnect
-      }
-    });
+    if (statusLine.startsWith("400") || statusLine.startsWith("404")) {
+      return false; // Not valid or not found
+    }
 
-    client.on('close', () => {
-      if (responseData.startsWith('404')) {
-        return resolve(false);
-      }
+    if (statusLine.startsWith("200")) {
+      return body === "true true"; // true if blacklisted, false otherwise
+    }
 
-      if (responseData.startsWith('200')) {
-        const body = responseData.split('\n\n')[1]?.trim();
-        return resolve(body === 'true true');
-      }
-
-      console.error('Unexpected response from bloom server:', responseData);
-      reject(new Error('Unexpected response format'));
-    });
-
-    client.on('error', (err) => {
-      console.error('Bloom filter server error:', err);
-      reject(err);
-    });
-  });
-}
+    throw new Error(`Unexpected status line: "${statusLine}"`);
+  } catch (error) {
+    console.error("Error in checkUrl:", error);
+    throw error;
+  }
+};
 
 function extractUrls(text) {
   if (!text) return [];
-  const urlRegex = /\b((https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z0-9]{2,})(\/\S*)?\b/g;
-  const matches = text.match(urlRegex);
-  return matches || [];
+
+  const results = new Set();
+
+  // Split the input into words (this includes "dorwww.s.com")
+  const words = text.split(/[\s<>\"\',]+/);
+  const regex = /^((https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z0-9]{2,})(\/\S*)?$/;
+
+  for (const word of words) {
+    // Check every possible substring
+    for (let start = 0; start < word.length; start++) {
+      for (let end = start + 1; end <= word.length; end++) {
+        const sub = word.slice(start, end);
+        if (regex.test(sub)) {
+          results.add(sub);
+        }
+      }
+    }
+  }
+
+  return Array.from(results);
 }
 
 module.exports = {
   getLoggedInUser,
-  checkUrlAgainstBloomServer,
-  extractUrls
+  checkUrl,
+  extractUrls,
+  sendRequest
 };
