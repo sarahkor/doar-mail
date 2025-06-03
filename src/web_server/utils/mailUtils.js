@@ -2,12 +2,12 @@ const { findUserById } = require('../models/userModel');
 const sessions = require('../models/sessions');
 const net = require('net');
 
-const IP = 'server2';
+const IP = 'server-container';
 const PORT = 12345;
 
 // Sends a request to add a URL to the blacklist on the C++ server
 const sendRequest = (command, url, port = PORT) => {
-  
+
   return new Promise((resolve, reject) => {
     const quotedUrl = url;
     const message = `${command} ${quotedUrl}`;
@@ -17,7 +17,7 @@ const sendRequest = (command, url, port = PORT) => {
       client.write(message + "\n");
     });
 
-      client.on("data", (data) => {
+    client.on("data", (data) => {
       const response = data.toString();
       resolve(response);
       client.destroy();

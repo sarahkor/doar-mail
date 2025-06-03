@@ -1,7 +1,4 @@
-// Counter used to assign temporary IDs to blacklist entries
-let idCounter = 0;
 const { sendRequest } = require('../utils/mailUtils');
-
 
 const add = async (url) => {
     try {
