@@ -165,7 +165,7 @@ open a third terminal window (you may open more terminal windows for each user o
 docker exec -it web-container bash
 ```
 
-after that you can run any of the foloowung curl commands:
+after that you will be inside the app container and you can run any of the following curl commands:
 
 ### 👤 Register a new user
 
@@ -393,6 +393,10 @@ curl -i -X DELETE "http://localhost:8080/api/blacklist/http%3A%2F%2Fexample.com"
 ### creating web server container:
 
 <img width="1217" alt="Screenshot 2025-06-03 at 19 18 10" src="https://github.com/user-attachments/assets/f09a81ac-b45f-4093-9b91-fcc6a7a55ab6" />
+
+### running the app:
+<img width="941" alt="Screenshot 2025-06-03 at 21 24 53" src="https://github.com/user-attachments/assets/c3d2e704-8819-4c93-aebc-2c44a33dae6f" />
+
 
 ### run examples:
 
