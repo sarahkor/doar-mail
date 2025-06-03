@@ -1,33 +1,45 @@
-# URL Filtering System Using Bloom Filter
-
-This project implements a TCP-based URL filtering system using a Bloom Filter.  
-It was developed for the "Advanced Programming Systems" course at Bar-Ilan University  
-as part of Assignment 2, which required transforming a standalone CLI tool into  
-a client-server architecture over sockets using C++ (server) and Python (client).
+# Create-Our-Mail: Multi-Service REST API with Node.js & C++ 
+ -  This project is the third stage of the Create-Our-Mail system.
+ -  It was developed for the "Advanced Programming Systems" course at Bar-Ilan University.
+- It extends Assignment 2 by transforming the C++ blacklist server into a socket-connected service,
+- integrated into a RESTful Node.js API that simulates Mail-system-like functionality.
 
 ---
 
 ## 🧠 Project Overview
-- Server handles all business logic, I/O over sockets (no console I/O).
-- Client sends commands and prints results — clients are intentionally “dumb.”
-- Bloom Filter supports insertions, checks, deletions with persistent data.
-- Status messages are returned in HTTP-style format (`201 Created`, etc.).
-- SOLID principles followed — system is open for extension and closed for modification.
+- REST API server built with Node.js and Express
+- Integrates with a C++ socket server for blacklist validation
+- Supports user registration, login, and token-based authorization
+- Implements Gmail-like functionality: inbox, labels, sending and managing mail
+- Validates links in outgoing emails using the external C++ blacklist service
 
-## 💻 Supported Commands (via Client)
 
-| Command              | Server Response        | Meaning                          |
-|----------------------|------------------------|----------------------------------|
-| `POST <url>`         | `201 Created`          | URL added to Bloom Filter        |
-| `GET <url>`          | `200 Ok\n\n false`     | URL is not balcklisted           |
-| `GET <url>`          | `200 Ok\n\n true true` | URL is balcklisted               |
-| `GET <url>`          | `200 Ok\n\n true false`| URL is not balcklisted           |
-| `DELETE <url>`       | `204 No Content`       | URL deleted from file only       |
-| `DELETE <not_found>` | `404 Not Found`        | URL was not in the file          |
-| Invalid command      | `400 Bad Request`      | Format not recognized            |
 
-> Commands and responses are terminated by `\\n`.  
-> Invalid URLs or formats are ignored with `400 Bad Request`.
+## 💻 Supported API Endpoints
+
+| Method | Endpoint                | Purpose                        | Expected Status | Notes |
+|--------|-------------------------|--------------------------------|------------------|-------|
+| POST   | `/api/users`            | Register a new user            | `201 Created`    | Requires `username`, `fullName`, `password` (min 6 chars) |
+| POST   | `/api/tokens`           | Log in and get token           | `200 OK`         | Requires `username` and `password` |
+| GET    | `/api/users/:id`        | Get user information           | `200 OK`         | Use token header `id: <user-id>` |
+| GET    | `/api/mails`            | Get inbox mails                | `200 OK`         | Auth required |
+| POST   | `/api/mails`            | Send new mail                  | `201 Created`    | Requires `to`, `subject`, `body` |
+| GET    | `/api/mails/:id`        | Get a specific mail            | `200 OK`         | Auth required |
+| PATCH  | `/api/mails/:id`        | Update a mail (partial)        | `200 OK`         | Auth required |
+| DELETE | `/api/mails/:id`        | Delete a mail                  | `204 No Content` | Auth required |
+| GET    | `/api/labels`           | List all labels                | `200 OK`         | Auth required |
+| POST   | `/api/labels`           | Create a new label             | `201 Created`    | Requires `name` field |
+| PATCH  | `/api/labels/:id`       | Update a label                 | `200 OK`         | Requires updated `name` |
+| DELETE | `/api/labels/:id`       | Delete a label                 | `204 No Content` | |
+| POST   | `/api/blacklist`        | Add URL to blacklist           | `201 Created`    | `{ "url": "http://..." }` |
+| DELETE | `/api/blacklist/:id`    | Remove URL from blacklist      | `204 No Content` | |
+
+> All requests should use `Content-Type: application/json` and must include `id: <user-id>` header where required.
+
+##  System Overview
+
+- `server`: C++ server providing blacklist verification via TCP socket.
+- `web_server`: Node.js server exposing RESTful endpoints (Gmail-like functionality).
 
 ## How to Run Using Docker
 
@@ -37,228 +49,225 @@ a client-server architecture over sockets using C++ (server) and Python (client)
 - ⁠ ⁠Docker Engine ≥ 20.10
 -  ⁠please make sure your Docker desktop is running
 
-###  Step 1 - Build Docker images for server (with volume and network), client, and tests and run the server container 
+###  Step 1 – Build and Launch Containers
+
+Run the following command to build images and start both the C++ and Node.js servers:
 
 ```bash
-./script.sh
+docker-compose up --build
 ```
 
-after that you will be inside the server container
+This will launch the Node.js REST API on `http://localhost:8080`
 
-### Step 2 - (Optional): inside the server container, run the tests:
+### Step 2 -  REST API – How to Use:
 
-``` bash
-  ./build/tests
-  ```
-after that you will stay in the container and you can run the server.
+Once the system is up, you can send HTTP requests via `curl` :
 
-### Step 3 - inside the server container, run the server manually using:
 
-**Usage:**
-
-./build/server \<port\> \<bloom_size\> \<seed1\> [\<seed2\> ... \<seedN\>]
-
-**Arguments:**
-- \<port\>  → Port number the server will listen on
-- \<bloom_size\>  → Bloom filter size
-- \<seed1\> → At least one integer seed for a hash function
-- [\<seed2\> ... \<seedN\>] → Optional additional integer seeds for more hash functions
-
-**Description:**
-  - The port number must be a valid TCP port in the range **1024–65535.**
-  - You must provide at least one hash function seed, but you may provide as many as you like.
-  - All arguments must be valid positive integers.
-  - If the arguments are missing or invalid, the server will not start.
-
-**Example:**
-
-  ``` bash
-  ./build/server 12345 8 1 2
-  ```
-
-Each seed will be used to configure a distinct hash function in the Bloom filter.
-
-### Step 4 - Run the client container:
-
- **Open a second terminal window.**
- 
- This command starts an interactive bash shell inside the client container:
-
-```bash
-  docker run -it --rm \
-  --network=gmailnet \
-  -v gmaildata:/server/data \
-  --entrypoint bash \
-  gmail_client
-  ```
-
-Now inside the container, run the Python client script:
-
-**Usage:**
- 
-python client.py server-container \<port\>
-
-**Example:**
+### 👤 Register a new user
 
 ``` bash
-python client.py server-container 12345
-```
-**please notice:** 
-- the port number must be the same port number provided for the server
-- the server-container is the ip provided for the client in our case
-
-After running the client, you can start typing commands in the client server such as:
-
-POST www.example.com
- 
-GET www.example.com
-
-DELETE www.example.com
-
-###  Step 5: (Optional) Inspect the persistent data in the volume
-go to the server terminal exit the cotainer (Ctrl + c ) go to the data dir (cd data) then type: cat urlsdata.txt, then type cd .. and after that you can run the server again (./build/server 12345 8 1 2)
-
-### exit the server and container:
-
-to exit the server press: Ctrl + c 
-
-**re-run the server inside the container (after exiting it):**
-
-``` bash
-  ./build/server 12345 8 1 2
+  curl -i -X POST http://localhost:8080/api/users \
+  -H "Content-Type: application/json" \
+  -d '{
+        "username": "john@example.com",
+        "fullName": "John Doe",
+        "password": "secure123",
+        "phone": "0501234567"
+      }'
   ```
-You can change the arguments as needed.
+- `username`: must be a valid email
+- `password`: must be at least 6 characters
+- `phone`: optional (Israeli mobile format like `05XXXXXXXX`)
 
-to exit the server container press: Ctrl + d
-
-**re- running the server container (after exiting it):**
+### 🔑 Log in (get user ID)
 
 ``` bash
-docker run -it --name server-container  --network gmailnet -v gmaildata:/server/data gmail_server bash
-```
+ curl -i -X POST http://localhost:8080/api/tokens \
+  -H "Content-Type: application/json" \
+  -d '{
+        "username": "john@example.com",
+        "password": "secure123"
+      }'
+  ```
+> **Returns:**  
+> ```json
+> { "id": "<logged-in user ID>" }
+> ```
+- Use this `id` in the `id:` header for all authorized requests
 
-### Delete data:
-Exit the container (Ctrl + c / Ctrl + z), cd data, rm urlsdata.txt, rm bloomfilterdata.bin, cd .. 
-o.w the data will be kept because it is inside a volume
+** you have to resign in order to login
 
-### Data persistance:
-the data will be kept even after deleting the container and the image, you can exit the container and image, delete them  
-make the run command again and the data will persiste, the only way the data can be deleted is manually
+### Get User Info by ID
+Fetch user details (name, email, etc.) using the ID returned at login:
 
-## Questions:
+``` bash
+curl -i -X GET http://localhost:8080/api/users/<user-id>
 
-### 1. Did the fact that the names of the commands changed required you to touch the code that should be "closed to changes but open to expansion"? 
-no, we used a polymorphic commands map, allowing us to simply change the keys associated with each command without modifying the internal logic of the command classes themselves.
+  ```
 
-### 2. Did the fact that new commands were added require you to touch the code that should be "closed to changes but open to expansion"?
-yes and no.
+Replace <user-id> with the ID returned from the login response.
 
-no, because we used the command desine pattern which allowed us to add a new command class and to add it to the command map without modifying existing command logic. 
+### 📬 Get Inbox
 
-yes, because in an previous task we used a vector to store the blacklist, which made deletions inefficient. we changed it to a set, which required  us touch some of the code that should be "closed to changes but open to expansion".
+``` bash
+curl -i -X GET http://localhost:8080/api/mails \
+  -H "id: <user-id>"
 
-### 3. Did the fact that the command output changed require you to touch the code that should be "closed to changes but open to expansion"?
-No, Since we used polymorphic ICommand interface, we could just locally modify the implementation of the commands that needed to be changed, without any bigger API changes.
+  ```
 
-### 4. Did the fact that the input and output came from sockets instead of the command line require you to touch the code that should be "closed to changes but open to expansion"?
-Yes. We had to change the execute() method signature in the ICommand interface to return a std::string instead of void. This change was necessary to redirect command output through the socket to the client. While this impacted all implementations, it was a minimal, localized change that improved the overall design by unifying output handling.
+Retrieves the last 50 emails that you either received or sent.
+Requirement: You must include your user-id in the header.
+
+### Send Mail
+Sends a new email to another registered user.
+
+``` bash
+curl -i -X POST http://localhost:8080/api/mails \
+  -H "Content-Type: application/json" \
+  -H "id: <user-id>" \
+  -d '{
+        "to": "other@example.com",
+        "subject": "Hello",
+        "body": "How are you?"
+      }'
+
+
+  ```
+
+Required fields in JSON:
+
+"to": recipient’s email
+
+"subject": subject of the message
+
+"body": the actual message content
+
+** Important: If the email contains a blacklisted URL, the send will fail.
+
+### Delete Mail
+Deletes the email with the specified ID.
+``` bash
+curl -i -X DELETE http://localhost:8080/api/mails/<mail-id> \
+  -H "id: <user-id>"
+  ```
+** Requirement: You must provide your user ID in the header.
+
+### Update mail
+Updates the subject or body of an existing mail
+``` bash
+curl -i -X PATCH http://localhost:8080/api/mails/<mail-id> \
+  -H "Content-Type: application/json" \
+  -H "id: <user-id>" \
+  -d '{ "subject": "Updated", "body": "New content" }'
+
+  ```
+
+### Get mail by id
+Fetches full details of a single email
+
+``` bash
+curl -i -X GET http://localhost:8080/api/mails/<mail-id> \
+  -H "id: <user-id>"
+
+  ```
+
+### Get mail by query
+Searches emails where <query> string appears in subject, body, or sender
+``` bash
+curl -i -X GET http://localhost:8080/api/mails/search/<query> \
+  -H "id: <user-id>"
+
+  ```
+
+
+### 🏷️ Create Label
+Creates a new custom label (like “Work” or “Personal”).
+``` bash
+curl -i -X POST http://localhost:8080/api/labels \
+  -H "Content-Type: application/json" \
+  -H "id: <user-id>" \
+  -d '{ "name": "label_name" }
+  ```
+** Required: A JSON field with "name": "label-name"
+Header: Must include user ID.
+
+### 🏷️ GET /api/labels – List Labels
+Returns all labels created by the logged-in user.
+``` bash
+curl -i -X GET http://localhost:8080/api/labels \
+  -H "id: <user-id>
+  ```
+** Header: Requires user ID.
+
+### Update label
+Changes the name of an existing label
+``` bash
+curl -i -X PATCH http://localhost:8080/api/labels/<label-id> \
+  -H "Content-Type: application/json" \
+  -H "id: <user-id>" \
+  -d '{ "name": "new name" }'
+
+  ```
+
+### Delete label
+Deletes a label
+``` bash
+curl -i -X DELETE http://localhost:8080/api/labels/<label-id> \
+  -H "id: <user-id>"
+
+  ```
+
+### 🚫 POST /api/blacklist – Add to Blacklist
+Adds a URL (e.g., http://phishing.com) to the blacklist used to filter spam/malicious messages.
+This blacklist is managed by the C++ server, which maintains a Bloom Filter to store and validate URLs efficiently.
+
+``` bash
+curl -i -X POST http://localhost:8080/api/blacklist \
+  -H "Content-Type: application/json" \
+  -d '{ "url": "http://phishing.com" }'
+  ```
+
+** Once a URL is blacklisted, any attempt to send an email containing it will fail with a 400 error.
+
+### 🧹 Remove from Blacklist
+Removes a URL from the blacklist maintained by the C++ server
+``` bash
+curl -i -X DELETE "http://localhost:8080/api/blacklist/http%3A%2F%2Fphishing.com"
+  ```
+
+
+## 📁 Data Persistence
+
+- All saved data (e.g., mails, labels, blacklist) are stored in a Docker volume named `gmaildata`.
+- This volume ensures that data remains even after containers are stopped or rebuilt.
+
+---
 
 ## 🔁 Example Session
 
-### server and client:
+### creating server and client containers:
 
-<img width="1381" alt="Screenshot 2025-05-11 at 18 00 22" src="https://github.com/user-attachments/assets/7f565b73-22a6-489e-994c-3fa6695e094b" />
-<img width="575" alt="Screenshot 2025-05-11 at 18 01 38" src="https://github.com/user-attachments/assets/cf22cc8e-8c44-434c-b6bc-fe7b9a8d09be" />
+![image](https://github.com/user-attachments/assets/9c706ee0-3b27-4fe6-9adc-e0ff987181c5)
 
-### tests:
 
-<img width="1020" alt="Screenshot 2025-05-11 at 18 03 36" src="https://github.com/user-attachments/assets/bd83f7a7-891d-4277-a19c-c901721e4f4b" />
-<img width="1020" alt="Screenshot 2025-05-11 at 18 03 42" src="https://github.com/user-attachments/assets/ae3c7ee3-d978-4b70-9a09-120393a22c87" />
+### :examples
+![image](https://github.com/user-attachments/assets/d8c8aa96-b17f-4406-8e8c-a0e0902395da)
+
 
 ## Summary:
-Input/output was moved from stdin/stdout to sockets
- This was done without modifying any core logic in the system
+The system evolves from a simple C++ CLI into a multi-service Gmail-like REST API using Docker, Node.js, and the original C++ blacklist server.
 
-#POST / GET / DELETE commands were added
- A lightweight parser maps them to the existing internal logic
- Instead of returning true/false, the server now returns HTTP-style status codes
- For example: "201 Created", "204 No Content", "400 Bad Request", etc.
- 
- The system is designed for future extension:
- It currently supports a single client
- But it can be extended to support multiple concurrent clients with minor changes
+Input/output was redirected from local console to TCP socket communication between the Node.js and C++ containers.
 
- This shows that the system follows SOLID principles:
- It is open to extension, but closed to modification
+The Node.js server exposes RESTful endpoints (POST, GET, DELETE, etc.) while delegating blacklist operations to the C++ server via socket.
 
+Instead of raw true/false responses, the system now returns HTTP-style status codes (201 Created, 404 Not Found, etc.) for clarity and integration with modern APIs.
 
-## 📌 Notes
+The system is modular and extensible, currently supporting one client, but easily adaptable for concurrent connections.
 
-- The system currently supports a single client connection
-- extending the server to support multiple clients using threads or select() can easily be done
-- Command names and output were adapted to match assignment spec
-- The code is clean, modular, and separated into .cpp and .h files
-- No external libraries are used except:
-- GoogleTest (C++) for testing
-- Standard libraries in Python for the client
+This upgrade reflects good software engineering practices, including separation of concerns, reuse of existing logic, and open/closed design for future improvements.
 
-## Run the code locally:
-For faster development iteration, you can also run the code directly on your Linux/WSL machine: 
-
-### Tools needed:
-- g++ (C++ compiler with C++17 support)
-- python3 (Python 3 interpreter)
-
-### step 1:
-in a terminal window:
-**compile** (assuming the compilation is from root (create-our-gmail)):
-
-``` bash
-g++ -std=c++17 -I src src/server/main.cpp src/server/main/app/*.cpp src/server/main/commands/*.cpp src/server/utils/*.cpp src/server/core/*.cpp -o server.exe
-```
-
-**run:** 
-
-**usage:**
-
-./server.exe \<port\> \<bloom_size\> \<seed1\> [\<seed2\> ... \<seedN\>]
-
-**example:**
-
-``` bash
-./server.exe 12345 8 1 2
-```
-**the arguments can be anything that meets this requuirements:**
-- \<port\>     → Port number the server will listen on (must be between 1024 and 65535)
-- \<size\>     → Bloom filter size (must be positive integer)
-- \<seed1\>    → At least one integer seed for a hash function (must be positive integer)
-- \<seed2\> ... \<seedN\>] → Optional additional integer seeds for more hash functions (must be positive integers)
-
-### step 2: 
-**in a seconde teminal window:**
-
-run the client (assuming the compilation is from root (create-our-gmail)):
-
-**usage**
-
-python3 src/client/client.py /<ip/> /<port/>
-
-**arguments:**
-- <ip>: IP address of the server (e.g., 127.0.0.1 for local)
-- <port>: Port number the server is listening on (e.g., 12345)
-  
-**please notice:** 
-- the port number must be the same port number provided for the server
-- If the arguments are missing or invalid, the client will not start.
-
-**example:**
-
- ``` bash 
- python3 src/client/client.py 127.0.0.1 12345
- ```
-
-After that, you can start typing commands in the client server such as:
-POST  www.example.come, GET  www.example.com, etc..
 
 
 ###  🎓 Course Information
@@ -267,7 +276,7 @@ POST  www.example.come, GET  www.example.com, etc..
  
  "Advanced Programming Systems" course
  
-Assignment 2 — TCP Client/Server with Bloom Filter
+Assignment 3 — Multi-Service REST API with Node.js & C++ 
 
 Year: 2025
 
