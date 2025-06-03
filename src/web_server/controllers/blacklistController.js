@@ -27,6 +27,7 @@ exports.addToBlacklist = async (req, res) => {
 exports.removeFromBlacklist = async (req, res) => {
     const encodedUrl = req.params.url;
     const url = decodeURIComponent(encodedUrl);
+    console.log("Trying to remove:", url);
 
     if (!url) {
         return res.status(400).json({ error: 'Missing URL in request path' });

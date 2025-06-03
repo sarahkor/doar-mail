@@ -31,9 +31,11 @@ add_library(CreateOurGmail_lib
     src/server/main/app/App.cpp
     src/server/utils/StatusMessages.cpp
     src/server/utils/SetupParser.cpp
+    src/server/utils/Sync.cpp
     src/server/main/app/Server.cpp
     src/server/main/app/ClientSession.cpp
 )
+
 target_include_directories(CreateOurGmail_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )

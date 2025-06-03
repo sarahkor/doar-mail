@@ -3,6 +3,6 @@ const router = express.Router();
 const controller = require('../controllers/blacklistController');
 
 router.route('/').post(controller.addToBlacklist);
-router.delete('/:id', controller.removeFromBlacklist);
+router.delete('/:url', controller.removeFromBlacklist);
 
 module.exports = router;
