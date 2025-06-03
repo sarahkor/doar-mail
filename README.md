@@ -33,7 +33,7 @@
 | GET | `/api/mails/search/:query`    | get the mails that are the resulte of searchin query   | `200 Ok` | Auth required | 
 | GET    | `/api/labels`           | List all labels                | `200 OK`         | Auth required |
 | POST   | `/api/labels`           | Create a new label             | `201 Created`    | Auth required, Requires `name` field , optinal: `color` ( if not specified default color is pink) |
-| PATCH  | `/api/labels/:id`       | Update a label                 | `204 No Content`         | Auth required,Requires updated `name` |
+| PATCH  | `/api/labels/:id`       | Update a label                 | `204 No Content`         | Auth required, Requires updated `name` |
 | DELETE | `/api/labels/:id`       | Delete a label                 | `204 No Content` | Auth required |
 | POST   | `/api/blacklist`        | Add URL to blacklist           | `201 Created`    | url required in body `{ "url": "http://..." }` |
 | DELETE | `/api/blacklist/:id`    | Remove URL from blacklist      | `204 No Content` | id is the url to be deleted | 
@@ -205,10 +205,10 @@ open a third terminal window (you may open more terminal windows for each user o
   ```
 > **Returns:**  
 > ```json
-> { "id": "<logged-in user ID>" }
+> { "token": "<logged-in user ID>" }
 > ```
 
-- Use this `id` in the `id:` header for all authorized requests
+- Use this `token` in the `id:` header for all authorized requests
 - you have to register in order to login
 
 ### Get User Info by ID
@@ -310,7 +310,7 @@ Creates a new custom label (like “Work” or “Personal”).
 curl -i -X POST http://localhost:8080/api/labels \
   -H "Content-Type: application/json" \
   -H "id: <user-id>" \
-  -d '{ "name": "label_name", "color": "blue" }'
+  -d '{ "name": "work", "color": "blue" }'
   ```
 
 - Required: A JSON field with "name": "label-name"
@@ -413,7 +413,7 @@ The Node.js server exposes RESTful endpoints (POST, GET, DELETE, etc.) while del
 
 Instead of raw true/false responses, the system now returns HTTP-style status codes (201 Created, 404 Not Found, etc.) for clarity and integration with modern APIs.
 
-The system is modular and extensible, currently supporting one client, but easily adaptable for concurrent connections.
+The system is modular and extensible.
 
 This upgrade reflects good software engineering practices, including separation of concerns, reuse of existing logic, and open/closed design for future improvements.
 
