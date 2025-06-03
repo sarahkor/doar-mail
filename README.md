@@ -3,6 +3,9 @@
  -  It was developed for the "Advanced Programming Systems" course at Bar-Ilan University.
 - It extends Assignment 2 by transforming the C++ blacklist server into a socket-connected service,
 - integrated into a RESTful Node.js API that simulates Mail-system-like functionality.
+- the code of exercise 3 is in branch ex-3
+- the code of exercise 2 is in branch ex-2
+- the code of exercise 1 is in branch ex-1
 
 ---
 
@@ -52,7 +55,7 @@
 
 ###  Step 1 – Build and Launch c++ server:
 
-optinal: before creating new containers delete all (running or stopped) containers:
+**optinal**: before creating new containers delete all (running or stopped) containers:
 
 ``` bash
 docker rm -f $(docker ps -aq)
@@ -60,10 +63,7 @@ docker rm -f $(docker ps -aq)
 
 Run the following command to build the c++ server build a volume and network and run it:
 
-```bash
-./script.sh
-```
-if you can not run a script on your environment please run the following commands: 
+please run the following commands: 
 
 ```bash
 docker rm -f server-container 2>/dev/null || true
@@ -71,6 +71,12 @@ docker build -f Dockerfile.server -t url_server .
 docker volume create urldata || true
 docker network create urlnet || true 
 docker run -it --name server-container  --network urlnet -v urldata:/server/data url_server bash
+```
+
+if you can run a script on your environment you can run the script instead ( contains the exact same commands ) :
+
+```bash
+./script.sh
 ```
 after that you will be inside the server container
 
@@ -98,6 +104,38 @@ after that you will be inside the server container
   ``` bash
   ./build/server 12345 8 1 2
   ```
+
+### Optional:
+**Inspect the persistent data in the volume:**
+
+go to the server terminal exit the cotainer (Ctrl + c ) go to the data dir (cd data) then type: cat urlsdata.txt, then type cd .. and after that you can run the server again (./build/server 12345 8 1 2)
+
+**exit the server and container:**
+
+to exit the server press: Ctrl + c 
+
+**re-run the server inside the container (after exiting it):**
+
+``` bash
+  ./build/server 12345 8 1 2
+  ```
+
+to exit the server container press: Ctrl + d
+
+**re- running the server container (after exiting it):**
+
+``` bash
+docker run -it --name server-container  --network urlnet -v urldata:/server/data url_server bash
+```
+
+**Delete data:**
+Exit the container (Ctrl + c / Ctrl + z), cd data, rm urlsdata.txt, rm bloomfilterdata.bin, cd .. 
+o.w the data will be kept because it is inside a volume
+
+**Data persistance:**
+the data will be kept even after deleting the container and the image, you can exit the container and image, delete them  
+make the run command again and the data will persiste, the only way the data can be deleted is manually
+
 
 
 ### Step 3 -  build and run the web server:
@@ -136,7 +174,7 @@ open a third terminal window (you may open more terminal windows for each user o
       }'
   ```
 
-*Required fields in JSON:*
+**Required fields in JSON:**
 
 - `firstName`: user's name ( cannot be empty )
 
@@ -146,7 +184,7 @@ open a third terminal window (you may open more terminal windows for each user o
 
 - `password` : chosen password ( must contain at least 6 characters )
 
-*Optional fields:*
+**Optional fields:**
 
 - `picture`: a link to a picture
 
@@ -168,9 +206,9 @@ open a third terminal window (you may open more terminal windows for each user o
 > ```json
 > { "id": "<logged-in user ID>" }
 > ```
-- Use this `id` in the `id:` header for all authorized requests
 
-** you have to resign in order to login
+- Use this `id` in the `id:` header for all authorized requests
+- you have to register in order to login
 
 ### Get User Info by ID
 Fetch user details (name, email, etc.) using the ID returned at login:
@@ -182,7 +220,7 @@ curl -i -X GET http://localhost:8080/api/users/<user-id> \
 
 Replace <user-id> with the ID returned from the login response.
 
-only a logged in user can see its details, and a user's details can be seen only by himself
+- only a logged in user can see its details, and a user's details can be seen only by himself
 
 ### 📬 Get Inbox
 
@@ -192,8 +230,8 @@ curl -i -X GET http://localhost:8080/api/mails \
 
   ```
 
-Retrieves the last 50 sent, received or drafts emails 
-Requirement: You must include your user-id in the header.
+- Retrieves the last 50 sent, received or drafts emails 
+- Requirement: You must include your user-id in the header.
 
 ### Send Mail
 Sends a new email to another registered user.
@@ -211,19 +249,19 @@ curl -i -X POST http://localhost:8080/api/mails \
 
   ```
 
-Required fields in JSON:
+**Required fields in JSON:**
 
-"to": recipient’s email
+`to`: recipient’s email
 
-"status" : must be "sent" or "draft"
+`status` : must be "sent" or "draft"
 
-Optional fields:
+**Optional fields:**
 
-"subject": subject of the message
+`subject`: subject of the message
 
-"body": the actual message content
+`body`: the actual message content
 
-** Important: If the email contains a blacklisted URL, the send will fail.
+- Important: If the email contains a blacklisted URL, the send will fail.
 
 ### Delete Mail
 Deletes the email with the specified ID.
@@ -231,7 +269,7 @@ Deletes the email with the specified ID.
 curl -i -X DELETE http://localhost:8080/api/mails/<mail-id> \
   -H "id: <user-id>"
   ```
-** Requirement: You must provide your user ID in the header.
+- Requirement: You must provide your user ID in the header.
 
 ### Update mail
 Updates the subject or body of an existing mail
@@ -261,9 +299,8 @@ curl -i -X GET http://localhost:8080/api/mails/search/<query> \
 
   ```
 
-*please notice that if you want to search for a string that contains spacec, you will need to replace every space in the query with `%20` for example, if you want to search for hello bob you will need to enter the query in this way: `hello%20bob`*
-
-the search is not case sensitive
+- **please notice that if you want to search for a string that contains spacec, you will need to replace every space in the query with `%20` for example, if you want to search for hello bob you will need to enter the query in this way: `hello%20bob`**
+- the search is not case sensitive
 
 
 ### 🏷️ Create Label
@@ -275,12 +312,10 @@ curl -i -X POST http://localhost:8080/api/labels \
   -d '{ "name": "label_name", "color": "blue" }'
   ```
 
-** Required: A JSON field with "name": "label-name"
-** Optional : A JSON field with "color": "color-you-want-for-the-label"
-
-if a color is not specified it will be defaulted to pink
-
-Header: Must include user ID.
+- Required: A JSON field with "name": "label-name"
+- Optional : A JSON field with "color": "color-you-want-for-the-label"
+- if a color is not specified it will be defaulted to pink
+- Header: Must include user ID.
 
 ### 🏷️ GET /api/labels – List Labels
 Returns all labels created by the logged-in user.
@@ -288,7 +323,7 @@ Returns all labels created by the logged-in user.
 curl -i -X GET http://localhost:8080/api/labels \
   -H "id: <user-id>"
   ```
-** Header: Requires user ID.
+- Header: Requires user ID.
 
 ### Update label
 Changes the name or color of an existing label
@@ -327,14 +362,14 @@ curl -i -X POST http://localhost:8080/api/blacklist \
   -d '{ "url": "http://example.com" }'
   ```
 
-** Once a URL is blacklisted, any attempt to send an email containing it will fail with a 400 error.
+- Once a URL is blacklisted, any attempt to send an email containing it will fail with a 400 error.
 
 ### 🧹 Remove from Blacklist
 Removes a URL from the blacklist maintained by the C++ server
 ``` bash
 curl -i -X DELETE "http://localhost:8080/api/blacklist/http%3A%2F%2Fexample.com"
   ```
-**please notice* if a url contains '/' or ':' please replace the '/' with '%2F' and the ':' with '%3A'. without it being replaced the url wont be deleted from blacklist.**
+- **please notice* if a url contains '/' or ':' please replace the '/' with '%2F' and the ':' with '%3A'. without it being replaced the url wont be deleted from blacklist.**
 
 ## 📁 Data Persistence
 
