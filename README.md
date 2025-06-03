@@ -104,6 +104,7 @@ after that you will be inside the server container
   ``` bash
   ./build/server 12345 8 1 2
   ```
+after that the server is running and listens to clients requests
 
 ### Optional:
 **Inspect the persistent data in the volume:**
@@ -387,7 +388,7 @@ curl -i -X DELETE "http://localhost:8080/api/blacklist/http%3A%2F%2Fexample.com"
 
 <img width="1217" alt="Screenshot 2025-06-03 at 19 18 10" src="https://github.com/user-attachments/assets/f09a81ac-b45f-4093-9b91-fcc6a7a55ab6" />
 
-### :run examples
+### run examples:
 
 <img width="1217" alt="Screenshot 2025-06-03 at 19 18 30" src="https://github.com/user-attachments/assets/299c9dd0-606c-4db4-9f29-a9024c4ce61b" />
 <img width="1217" alt="Screenshot 2025-06-03 at 19 19 29" src="https://github.com/user-attachments/assets/ad7d029c-95cc-428f-b1ed-4d38c50c5fb3" />
