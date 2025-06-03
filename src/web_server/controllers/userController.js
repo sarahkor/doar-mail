@@ -27,6 +27,13 @@ function registerUser(req, res) {
     birthday
   } = req.body;
 
+  if (typeof firstName !== 'string' || typeof lastName !== 'string') {
+    return res.status(400).json({
+      status: "error",
+      message: "First name and last name must be strings."
+    });
+  }
+
   const allowedFields = ['firstName', 'lastName', 'username', 'password', 'picture', 'phone', 'birthday'];
   for (const key of Object.keys(req.body)) {
     if (!allowedFields.includes(key)) {
