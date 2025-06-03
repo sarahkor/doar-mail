@@ -38,8 +38,11 @@ const createMail = ({ sender, recipient, subject, bodyPreview, status }) => {
 };
 
 const getMailById = (user, id) => {
-  const mail = [...user.sent, ...user.inbox, ...user.drafts].find(m => m.id === id);
-  return mail || null;
+  return (
+    user.sent.find(m => m.id === id) ||
+    user.inbox.find(m => m.id === id) ||
+    user.drafts.find(m => m.id === id)
+  );
 };
 
 const updateMailById = (user, id, { to, recipient, subject, bodyPreview, status }) => {
@@ -56,6 +59,10 @@ const updateMailById = (user, id, { to, recipient, subject, bodyPreview, status 
 
   if (status === 'sent') {
     mail.status = 'sent';
+    const timestamp = Date.now();
+    mail.timestamp = timestamp;
+    mail.date = new Date(timestamp).toLocaleDateString('en-GB');
+    mail.time = new Date(timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     if (!recipient.inbox.some(m => m.id === mail.id)) {
       recipient.inbox.push(mail);
     }
@@ -70,8 +77,6 @@ const updateMailById = (user, id, { to, recipient, subject, bodyPreview, status 
 
 
 const deleteMailById = (user, id) => {
-  const mail = mails.find(m => m.id === id);
-  if (!mail) return false;
 
   let removed = false;
 

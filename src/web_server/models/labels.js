@@ -45,6 +45,12 @@ const addMailToLabel = (user, labelId, mailId) => {
   return true;
 };
 
+const labelNameExists = (user, name, excludeId = null) => {
+  return (user.labels || []).some(label =>
+    label.name.toLowerCase() === name.toLowerCase() && label.id !== excludeId
+  );
+};
+
 
 module.exports = {
   listLabelsByUser,
@@ -52,5 +58,6 @@ module.exports = {
   getLabelById,
   deleteLabel,
   addMailToLabel,
-  editLabel
+  editLabel,
+  labelNameExists
 };

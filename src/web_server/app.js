@@ -27,6 +27,10 @@ app.use('/api/mails', mailRoute);
 app.use('/api/labels', labelRoute);
 app.post('/api/tokens', loginUser);
 
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
 
 app.listen(8080, () => {
   console.log('Server is running on http://localhost:8080');
