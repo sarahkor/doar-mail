@@ -1,19 +1,17 @@
 # Dockerfile.client
 FROM node:20
 
-WORKDIR /app
+# Install curl
+RUN apt-get update && apt-get install -y curl
 
+WORKDIR /app
 
 COPY src/web_server/package*.json ./
 
-
 RUN npm install
-
 
 COPY src/web_server .
 
-
 EXPOSE 8080
-
 
 CMD ["node", "app.js"]

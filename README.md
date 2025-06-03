@@ -155,11 +155,17 @@ docker run -d --name web-container --network urlnet -p 8080:8080 gmail_web
 ```
 
 ### Step 4 -  REST API – How to Use:
+docker exec -it web-container bash
 
 Now that the system is up, you can send HTTP requests via `curl`. 
 
-open a third terminal window (you may open more terminal windows for each user or you can run all users in the same terminal window), and run this commands: 
+open a third terminal window (you may open more terminal windows for each user or you can run all users in the same terminal window), and run this command in each terminal window you open : 
 
+```bash
+docker exec -it web-container bash
+```
+
+after that you can run any of the foloowung curl commands:
 
 ### 👤 Register a new user
 
