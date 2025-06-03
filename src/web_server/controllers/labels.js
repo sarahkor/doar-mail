@@ -1,6 +1,12 @@
 const Label = require('../models/labels');
 const { getLoggedInUser } = require('../utils/mailUtils');
 
+const ALLOWED_FIELDS = ['name', 'color'];
+const REQUIRED_FIELDS = ['name'];
+const ALLOWED_COLORS = [
+  "red", "blue", "green", "yellow", "orange", "purple", "pink",
+  "black", "white", "gray", "brown"];
+
 exports.listLabels = (req, res) => {
   const user = getLoggedInUser(req, res);
   if (!user) return;
@@ -10,84 +16,153 @@ exports.listLabels = (req, res) => {
 };
 
 exports.createLabel = (req, res) => {
-  const user = getLoggedInUser(req, res);
-  if (!user) return;
+  try {
+    const user = getLoggedInUser(req, res);
+    if (!user) return;
 
-  if (!req.body) {
-    return res.status(400).json({ error: 'Missing request body.' });
+    const body = req.body || {};
+    const fields = Object.keys(body);
+
+    const unexpected = fields.filter(k => !ALLOWED_FIELDS.includes(k));
+    const missing = REQUIRED_FIELDS.filter(f => !body[f]);
+
+    if (unexpected.length > 0) {
+      return res.status(400).json({
+        error: `Unexpected fields: ${unexpected.join(', ')}`,
+        allowedFields: ALLOWED_FIELDS,
+        requiredFields: REQUIRED_FIELDS
+      });
+    }
+
+    if (missing.length > 0) {
+      return res.status(400).json({
+        error: `Missing required field(s): ${missing.join(', ')}`,
+        allowedFields: ALLOWED_FIELDS,
+        requiredFields: REQUIRED_FIELDS
+      });
+    }
+
+    const { name, color } = body;
+    if (color && !ALLOWED_COLORS.includes(color)) {
+      return res.status(400).json({
+        error: `Invalid color: '${color}'. Allowed colors are: ${ALLOWED_COLORS.join(', ')}`
+      });
+    }
+    if (Label.labelNameExists(user, name)) {
+      return res.status(400).json({ error: `A label named '${name}' already exists.` });
+    }
+
+    const newLabel = Label.createLabel(user, { name, color });
+    res.status(201)
+      .location(`/api/labels/${newLabel.id}`)
+    res.status(201).json({
+      id: newLabel.id,
+      name: newLabel.name,
+      color: newLabel.color
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create label.' });
   }
-
-  const { name, color } = req.body;
-  if (!name) return res.status(400).json({ error: 'Missing label name' });
-
-  const newLabel = Label.createLabel(user, { name, color });
-
-  res.status(201)
-    .location(`/api/labels/${newLabel.id}`)
-    .json(newLabel);
 };
 
+
 exports.getLabel = (req, res) => {
-  const user = getLoggedInUser(req, res);
-  if (!user) return;
+  try {
+    const user = getLoggedInUser(req, res);
+    if (!user) return;
 
-  const label = Label.getLabelById(user, parseInt(req.params.id));
-  if (!label) return res.status(404).json({ error: 'Label not found' });
+    const label = Label.getLabelById(user, parseInt(req.params.id));
+    if (!label) return res.status(404).json({ error: 'Label not found' });
 
-  res.status(200).json(label);
+    res.status(200).json(label);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch label.' });
+  }
 };
 
 exports.editLabel = (req, res) => {
-  const user = getLoggedInUser(req, res);
-  if (!user) return;
+  try {
+    const user = getLoggedInUser(req, res);
+    if (!user) return;
 
-  if (!req.body) {
-    return res.status(400).json({ error: 'Missing request body.' });
+    const body = req.body || {};
+    if (!body || Object.keys(body).length === 0) {
+      return res.status(400).json({ error: 'Missing or invalid request body.' });
+    }
+
+    const fields = Object.keys(body);
+    const unexpected = fields.filter(k => !ALLOWED_FIELDS.includes(k));
+    if (unexpected.length > 0) {
+      return res.status(400).json({
+        error: `Unexpected fields: ${unexpected.join(', ')}`,
+        allowedFields: ALLOWED_FIELDS,
+        requiredFields: []
+      });
+    }
+
+    if (body.color && !ALLOWED_COLORS.includes(body.color)) {
+      return res.status(400).json({
+        error: `Invalid color: '${body.color}'. Allowed colors are: ${ALLOWED_COLORS.join(', ')}`
+      });
+    }
+
+    const labelId = parseInt(req.params.id);
+    const existingLabel = Label.getLabelById(user, labelId);
+    if (!existingLabel) {
+      return res.status(404).json({ error: 'Label not found' });
+    }
+
+    if (body.name && Label.labelNameExists(user, body.name, labelId)) {
+      return res.status(400).json({ error: `A label named '${body.name}' already exists.` });
+    }
+
+    const updated = Label.editLabel(user, labelId, body);
+    if (!updated) return res.status(404).json({ error: 'Label not found' });
+
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to edit label.' });
   }
-
-  const labelId = parseInt(req.params.id);
-  const { name, color } = req.body;
-
-  const updated = Label.editLabel(user, labelId, { name, color });
-  if (!updated) {
-    return res.status(404).json({ error: 'Label not found' });
-  }
-  res.status(204).end();
 };
 
 exports.deleteLabel = (req, res) => {
-  const user = getLoggedInUser(req, res);
-  if (!user) return;
+  try {
+    const user = getLoggedInUser(req, res);
+    if (!user) return;
 
-  const labelId = parseInt(req.params.id);
-  const deleted = Label.deleteLabel(user, labelId);
+    const labelId = parseInt(req.params.id);
+    const deleted = Label.deleteLabel(user, labelId);
 
-  if (!deleted) {
-    return res.status(404).json({ error: 'Label not found or already deleted' });
+    if (!deleted) {
+      return res.status(404).json({ error: 'Label not found or already deleted' });
+    }
+
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete label.' });
   }
-
-  res.status(204).end();
 };
 
 exports.addMailToLabel = (req, res) => {
-  const user = getLoggedInUser(req, res);
-  if (!user) return;
+  try {
+    const user = getLoggedInUser(req, res);
+    if (!user) return;
 
-  if (!req.body) {
-    return res.status(400).json({ error: 'Missing request body.' });
+    const body = req.body || {};
+    if (typeof body.mailId !== 'number') {
+      return res.status(400).json({ error: 'mailId must be a number' });
+    }
+
+    const labelId = parseInt(req.params.id);
+    const added = Label.addMailToLabel(user, labelId, body.mailId);
+    if (!added) {
+      return res.status(400).json({
+        error: 'Failed to add mail to label. Mail may already be in label or label does not exist.'
+      });
+    }
+
+    res.status(200).json({ message: 'Mail added to label successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add mail to label.' });
   }
-
-  const labelId = parseInt(req.params.id);
-  const { mailId } = req.body;
-
-  if (typeof mailId !== 'number') {
-    return res.status(400).json({ error: 'mailId must be a number' });
-  }
-
-  const added = Label.addMailToLabel(user, labelId, mailId);
-  if (!added) {
-    return res.status(400).json({ error: 'Failed to add mail to label. Mail may already be in label or label does not exist.' });
-  }
-
-  res.status(200).json({ message: 'Mail added to label successfully' });
 };

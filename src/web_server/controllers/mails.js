@@ -6,215 +6,199 @@ const {
   extractUrls,
 } = require('../utils/mailUtils');
 
+const ALLOWED_FIELDS = ['to', 'subject', 'bodyPreview', 'status'];
+const REQUIRED_FIELDS = ['to', 'status'];
+
 exports.listMails = (req, res) => {
+  try {
+    const user = getLoggedInUser(req, res);
+    if (!user) return;
 
-  const user = getLoggedInUser(req, res);
-  if (!user) return;
-
-  const userFiftyMails = Mail.listMailsByUser(user);
-  res.status(200).json(userFiftyMails);
+    const mails = Mail.listMailsByUser(user);
+    res.status(200).json(mails);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to list mails.' });
+  }
 };
 
 exports.createMail = async (req, res) => {
-  const user = getLoggedInUser(req, res);
-  if (!user) return;
+  try {
+    const user = getLoggedInUser(req, res);
+    if (!user) return;
 
-  if (!req.body) {
-    return res.status(400).json({ error: 'Missing request body.' });
-  }
+    const body = req.body;
+    const keys = Object.keys(body);
+    const unexpected = keys.filter(k => !ALLOWED_FIELDS.includes(k));
+    const missing = REQUIRED_FIELDS.filter(f => !body[f]);
 
-  const allowedFields = ['to', 'subject', 'bodyPreview', 'status'];
-  const requiredFields = ['to', 'status'];
-  const unexpectedFields = Object.keys(req.body).filter(
-    key => !allowedFields.includes(key)
-  );
+    if (unexpected.length > 0)
+      throw { status: 400, error: `Unexpected fields in request: ${unexpected.join(', ')}`, allowedFields: ALLOWED_FIELDS, requiredFields: REQUIRED_FIELDS };
 
-  if (unexpectedFields.length > 0) {
-    return res.status(400).json({
-      error: `Unexpected fields in request: ${unexpectedFields.join(', ')}`,
-      allowedFields,
-      requiredFields
-    });
-  }
+    if (missing.length > 0)
+      throw { status: 400, error: `Missing required field(s): ${missing.join(', ')}`, allowedFields: ALLOWED_FIELDS, requiredFields: REQUIRED_FIELDS };
 
 
-  const { to, subject, bodyPreview, status } = req.body;
+    const { to, subject, bodyPreview, status } = body;
+    if (!['sent', 'draft'].includes(status))
+      throw { status: 400, error: 'status must be sent/draft' };
 
-  if (!status) {
-    return res.status(400).json({ error: 'Missing required field: status (sent/draft)' });
-  }
-  if (status !== 'draft' && status !== 'sent') {
-    return res.status(400).json({ error: 'status must be sent/draft' });
-  }
+    const cleanTo = to.trim();
+    if (!cleanTo) throw { status: 400, error: 'Missing required field: to (recipient email)' };
 
-  const cleanTo = to?.trim();
-  if (!cleanTo) {
-    return res.status(400).json({ error: 'Missing required field: to (recipient email)' });
-  }
+    const recipient = getUserByUsername(cleanTo);
+    if (!recipient) throw { status: 400, error: 'Recipient does not exist' };
 
-  const safeSubject = subject?.trim() === "" ? "(no subject)" : (subject || "(no subject)");
-  const safeBody = bodyPreview || "";
+    const urls = [
+      ...extractUrls(cleanTo),
+      ...extractUrls(subject),
+      ...extractUrls(bodyPreview)
+    ];
 
-  // Check if recipient exists (by username)
-  const recipient = getUserByUsername(to.trim());
-  if (!recipient) {
-    return res.status(400).json({ error: 'Recipient does not exist' });
-  }
-
-  const urls = [
-    ...extractUrls(cleanTo),
-    ...extractUrls(safeSubject),
-    ...extractUrls(safeBody)
-  ];
-
-  for (const url of urls) {
-    const isBlacklisted = await checkUrl(url);
-    if (isBlacklisted) {
-      return res.status(400).json({ error: `Mail contains blacklisted URL: ${url}` });
+    for (const url of urls) {
+      const isBlacklisted = await checkUrl(url);
+      if (isBlacklisted) {
+        throw { status: 400, error: `Mail contains blacklisted URL: ${url}` };
+      }
     }
+
+    const safeSubject = subject?.trim() === '' ? '(no subject)' : (subject || '(no subject)');
+    const safeBody = bodyPreview || '';
+
+    const newMail = Mail.createMail({
+      sender: user,
+      recipient,
+      subject: safeSubject,
+      bodyPreview: safeBody,
+      status
+    });
+
+    const { timestamp, ...mailWithoutTimestamp } = newMail;
+
+    res.status(201)
+      .location(`/api/mails/${newMail.id}`)
+      .json(mailWithoutTimestamp);
+
+  } catch (err) {
+    const status = err.status || 500;
+    const message = err.error || 'Internal server error';
+    res.status(status).json({ error: message });
   }
-  const newMail = Mail.createMail({
-    sender: user,
-    recipient,
-    subject: safeSubject,
-    bodyPreview: safeBody,
-    status
-  });
-
-  const { timestamp, ...mailWithoutTimestamp } = newMail;
-
-  res.status(201)
-    .location(`/api/mails/${newMail.id}`)
-    .json(mailWithoutTimestamp);
 };
 
 exports.getMailById = (req, res) => {
-  const user = getLoggedInUser(req, res);
-  if (!user) return;
+  try {
+    const user = getLoggedInUser(req, res);
+    if (!user) return;
 
-  const mailId = parseInt(req.params.id);
-  const mail = Mail.getMailById(user, mailId);
+    const mailId = parseInt(req.params.id);
+    const mail = Mail.getMailById(user, mailId);
+    if (!mail) throw { status: 404, error: 'Mail not found in your sent, received, or drafts folder' };
 
-  if (!mail) {
-    return res.status(404).json({ error: 'Mail not found in your sent or recived emails' });
+    res.status(200).json(mail);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.error || 'Failed to get mail' });
   }
-
-  res.status(200).json(mail);
 };
 
 exports.updateMail = async (req, res) => {
-  const user = getLoggedInUser(req, res);
-  if (!user) return;
+  try {
+    const user = getLoggedInUser(req, res);
+    if (!user) return;
 
-  if (!req.body) {
-    return res.status(400).json({ error: 'Missing request body.' });
-  }
+    const body = req.body;
+    if (!body) throw { status: 400, error: 'Missing request body.' };
 
-  const allowedFields = ['to', 'subject', 'bodyPreview', 'status'];
-  const requiredFields = [];
-  const unexpectedFields = Object.keys(req.body).filter(
-    key => !allowedFields.includes(key)
-  );
+    const unexpected = Object.keys(body).filter(k => !ALLOWED_FIELDS.includes(k));
+    if (unexpected.length > 0)
+      throw { status: 400, error: `Unexpected fields in PATCH request: ${unexpected.join(', ')}`, allowedFields: ALLOWED_FIELDS };
 
-  if (unexpectedFields.length > 0) {
-    return res.status(400).json({
-      error: `Unexpected fields in PATCH request: ${unexpectedFields.join(', ')}`,
-      allowedFields,
-      requiredFields
+    const mailId = parseInt(req.params.id);
+    const mail = Mail.getMailById(user, mailId);
+    if (!mail) throw { status: 404, error: 'Mail not found in your sent, received, or drafts folder' };
+    if (mail.from !== user.username)
+      throw { status: 403, error: 'Access denied: you must be the sender to edit this mail' };
+    if (mail.status !== 'draft')
+      throw { status: 403, error: `Mail status is '${mail.status}'. Only draft mails can be edited.` };
+
+    const { to, subject, bodyPreview, status } = body;
+    let recipient = null;
+    if (to !== undefined) {
+      const cleanTo = to.trim();
+      if (!cleanTo) throw { status: 400, error: 'Recipient email cannot be empty.' };
+
+      recipient = getUserByUsername(cleanTo);
+      if (!recipient) throw { status: 400, error: 'Recipient does not exist.' };
+    }
+
+    const urls = [
+      ...(to ? extractUrls(to) : []),
+      ...(subject ? extractUrls(subject) : []),
+      ...(bodyPreview ? extractUrls(bodyPreview) : [])
+    ];
+
+    for (const url of urls) {
+      if (await checkUrl(url))
+        throw { status: 400, error: `Mail contains blacklisted URL: ${url}` };
+    }
+
+    const safeSubject = subject?.trim() === '' ? '(no subject)' : subject;
+    const safeBody = bodyPreview || '';
+
+    const updated = Mail.updateMailById(user, mailId, {
+      to,
+      recipient,
+      subject: safeSubject,
+      bodyPreview: safeBody,
+      status
     });
+
+    if (!updated) throw { status: 404, error: 'update failed' };
+    res.status(204).end();
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.error || 'Mail update failed' });
   }
-
-
-  const mailId = parseInt(req.params.id);
-  const mail = Mail.getMailById(user, mailId);
-  if (!mail) {
-    return res.status(404).json({ error: 'Mail not found' });
-  }
-  if (mail.from !== user.username) {
-    return res.status(403).json({ error: 'Access denied to this mail, you must be the sender of this mail in order to edit it' });
-  }
-
-  if (mail.status !== 'draft') {
-    return res.status(403).json({ error: `Mail status is '${mail.status}'. Only draft mails can be edited.` });
-  }
-
-  const { to, subject, bodyPreview, status } = req.body;
-  let recipient = null;
-  if (to !== undefined) {
-    const cleanTo = to.trim();
-    if (!cleanTo) {
-      return res.status(400).json({ error: 'Recipient email cannot be empty.' });
-    }
-
-    recipient = getUserByUsername(cleanTo);
-    if (!recipient) {
-      return res.status(400).json({ error: 'Recipient does not exist.' });
-    }
-  }
-  const urls = [
-    ...extractUrls(to),
-    ...extractUrls(subject),
-    ...extractUrls(bodyPreview)
-  ];
-  for (const url of urls) {
-    const isBlacklisted = await checkUrl(url);
-    if (isBlacklisted) {
-      return res.status(400).json({ error: `Mail contains blacklisted URL: ${url}` });
-    }
-  }
-  const safeSubject = subject?.trim() === "" ? "(no subject)" : subject;
-  const safeBody = bodyPreview || "";
-
-  const updatedMail = Mail.updateMailById(user, mailId, {
-    to,
-    recipient,
-    subject: safeSubject,
-    bodyPreview: safeBody,
-    status
-  });
-
-  if (!updatedMail) {
-    return res.status(404).json({ error: 'update failed' });
-  }
-
-  res.status(204).end();
 };
 
 exports.deleteMail = (req, res) => {
-  const user = getLoggedInUser(req, res);
-  if (!user) return;
+  try {
+    const user = getLoggedInUser(req, res);
+    if (!user) return;
 
-  const mailId = parseInt(req.params.id);
-  const mail = Mail.getMailById(user, mailId);
-  if (!mail) {
-    return res.status(404).json({ error: 'Mail not found in your mails' });
+    const mailId = parseInt(req.params.id);
+    const mail = Mail.getMailById(user, mailId);
+    if (!mail) {
+      return res.status(404).json({ error: 'Mail not found in your mails' });
+    }
+
+    const isSender = mail.from === user.username;
+    const isReceiver = mail.to === user.username;
+    if (!isSender && !isReceiver)
+      throw { status: 403, error: 'Access denied: you must be the sender or recipient' };
+
+    const deleted = Mail.deleteMailById(user, mailId);
+    if (!deleted) throw { status: 404, error: 'Mail not found or already deleted' };
+
+    res.status(204).end();
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.error || 'Mail deletion failed' });
   }
-
-  // Only allow deletion if user is either sender or receiver
-  const isSender = mail.from === user.username;
-  const isReceiver = mail.to === user.username;
-  if (!isSender && !isReceiver) {
-    return res.status(403).json({ error: 'Access denied: you must be the sender or recipient to delete this mail' });
-  }
-
-  const deleted = Mail.deleteMailById(user, mailId);
-
-  if (!deleted) {
-    return res.status(404).json({ error: 'Mail not found or already deleted from your view' });
-  }
-
-  res.status(204).end();
 };
 
 exports.searchMails = (req, res) => {
-  const user = getLoggedInUser(req, res);
-  if (!user) return;
+  try {
+    const user = getLoggedInUser(req, res);
+    if (!user) return;
 
-  const query = req.params.query?.toLowerCase();
-  if (!query) {
-    return res.status(400).json({ error: 'Missing search query' });
+    // Decode the raw query string from the path
+    const encodedQuery = req.params.query;
+    const query = decodeURIComponent(encodedQuery || '').trim().toLowerCase();
+
+    if (!query) throw { status: 400, error: 'Missing search query' };
+
+    const results = Mail.searchMailsByUser(user, query);
+    res.status(200).json(results);
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.error || 'Search failed' });
   }
-
-  const results = Mail.searchMailsByUser(user, query);
-  res.status(200).json(results);
 };
+
