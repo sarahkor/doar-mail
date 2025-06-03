@@ -1,24 +1,11 @@
 FROM gcc:13
 
-# Install required packages
+# Install CMake and Git
 RUN apt-get update && apt-get install -y cmake git && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /server
-
-# Copy project files
 COPY . .
+RUN mkdir -p build && cd build && cmake .. && make
 
-# Create and move into build directory
-RUN mkdir -p build
-WORKDIR /server/build
-
-RUN rm -rf /server/build/*
-
-# Build the whole project (library + tests + app)
-RUN cmake .. && make
-
-WORKDIR /server
-
-# Set the default command to run the application
-CMD ["./build/server"] 
+# Run server with default params (you can override with `docker run`)
+CMD ["./build/server", "12345", "1000", "3"]
