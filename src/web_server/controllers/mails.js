@@ -2,8 +2,8 @@ const Mail = require('../models/mails');
 const { getUserByUsername } = require('../models/userModel');
 const {
   getLoggedInUser,
-  checkUrlAgainstBloomServer,
-  extractUrls
+  checkUrl,
+  extractUrls,
 } = require('../utils/mailUtils');
 
 exports.listMails = (req, res) => {
@@ -67,10 +67,11 @@ exports.createMail = async (req, res) => {
     ...extractUrls(safeBody)
   ];
 
-  const blacklistedChecks = await Promise.all(urls.map(url => checkUrlAgainstBloomServer(url)));
-
-  if (blacklistedChecks.includes(true)) {
-    return res.status(400).json({ error: 'Mail contains blacklisted URL.' });
+  for (const url of urls) {
+    const isBlacklisted = await checkUrl(url);
+    if (isBlacklisted) {
+      return res.status(400).json({ error: `Mail contains blacklisted URL: ${url}` });
+    }
   }
   const newMail = Mail.createMail({
     sender: user,
@@ -80,9 +81,11 @@ exports.createMail = async (req, res) => {
     status
   });
 
+  const { timestamp, ...mailWithoutTimestamp } = newMail;
+
   res.status(201)
     .location(`/api/mails/${newMail.id}`)
-    .end();
+    .json(mailWithoutTimestamp);
 };
 
 exports.getMailById = (req, res) => {
@@ -153,10 +156,11 @@ exports.updateMail = async (req, res) => {
     ...extractUrls(subject),
     ...extractUrls(bodyPreview)
   ];
-  const blacklistedChecks = await Promise.all(urls.map(url => checkUrlAgainstBloomServer(url)));
-
-  if (blacklistedChecks.includes(true)) {
-    return res.status(400).json({ error: 'Updated mail contains blacklisted URL.' });
+  for (const url of urls) {
+    const isBlacklisted = await checkUrl(url);
+    if (isBlacklisted) {
+      return res.status(400).json({ error: `Mail contains blacklisted URL: ${url}` });
+    }
   }
   const safeSubject = subject?.trim() === "" ? "(no subject)" : subject;
   const safeBody = bodyPreview || "";
