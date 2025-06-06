@@ -4,10 +4,46 @@ import LabelItem from './LabelItem';
 import NewLabelDialog from './NewLabelDialog';
 import { getLabels } from '../api/labelsApi';
 
+const buildTree = (items) => {
+  const map = new Map();
+  items.forEach(l => map.set(l.id, { ...l, children: [] }));
+  const roots = [];
+  map.forEach(l => {
+    if (l.parentId) {
+      map.get(l.parentId)?.children.push(l);
+    } else {
+      roots.push(l);
+    }
+  });
+  return roots;
+};
+
+
 function LabelSidebar() {
     const [showModal, setShowModal] = useState(false);
     const [labels, setLabels] = useState([]);
     const [selectedLabelId, setSelectedLabelId] = useState(null);
+
+    const renderLabel = (node, depth = 0) => (
+        <li key={node.id}>
+            <LabelItem
+            label={node}
+            depth={depth}                     // NEW
+            isSelected={node.id === selectedLabelId}
+            onSelect={() => setSelectedLabelId(node.id)}
+            onColorChange={updateLabelColor}
+            onLabelUpdate={handleLabelUpdate}
+            onLabelDelete={handleLabelDelete}
+            onLabelAdd={handleCreateLabel}    // the add handler you wired earlier
+            existingLabels={labels.filter(l => l.id !== node.id)}
+            />
+            {node.children.length > 0 && (
+            <ul className="label-sublist">
+                {node.children.map(child => renderLabel(child, depth + 1))}
+            </ul>
+            )}
+        </li>
+    );
 
     /* ───────────── טעינת לייבלים בתחילה ───────────── */
     useEffect(() => {
@@ -68,19 +104,7 @@ function LabelSidebar() {
             </div>
 
             <ul className="label-list">
-                {labels.map((label) => (
-                    <li key={label.id}>
-                        <LabelItem
-                            label={label}
-                            isSelected={label.id === selectedLabelId}
-                            onSelect={() => setSelectedLabelId(label.id)}
-                            onColorChange={updateLabelColor}
-                            onLabelUpdate={handleLabelUpdate}
-                            onLabelDelete={handleLabelDelete}
-                            existingLabels={labels.filter(l => l.id !== label.id)}
-                        />
-                    </li>
-                ))}
+                {buildTree(labels).map(root => renderLabel(root))}
             </ul>
 
             {showModal && (

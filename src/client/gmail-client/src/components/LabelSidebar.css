@@ -64,3 +64,9 @@
   direction: ltr;
   text-align: left;
 }
+
+.label-sublist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}

@@ -8,6 +8,7 @@ function NewLabelDialog({ onClose, onCreate, existingLabels = [],defaultParentId
     const handleSubmit = () => {
         if (labelName.trim() === '') return;
         const newLabel = {
+        id: Date.now().toString(),
         name: labelName,
         color: 'gray',
         parentId: isNested ? parentId : null,
@@ -52,7 +53,7 @@ function NewLabelDialog({ onClose, onCreate, existingLabels = [],defaultParentId
             className="select-dropdown"
             value={parentId}
             onChange={(e) => setParentId(e.target.value)}
-            disabled={!isNested}                 // <- keeps it greyed-out until nested
+            disabled={!isNested || forceNested}               // <- keeps it greyed-out until nested
             >
             <option value="" disabled>
                 Please select a parent…

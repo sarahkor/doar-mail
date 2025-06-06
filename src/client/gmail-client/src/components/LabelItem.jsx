@@ -11,7 +11,7 @@ const COLOR_OPTIONS = [
   '#fdcfe8', '#e6c9a8', '#e8eaed',
 ];
 
-function LabelItem({ label, isSelected, onSelect, onColorChange, onLabelUpdate, onLabelDelete, existingLabels }) {
+function LabelItem({ label, depth = 0, isSelected, onSelect, onColorChange, onLabelUpdate, onLabelDelete, existingLabels, onLabelAdd  }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const [showTooltip, setShowTooltip] = useState(false);
     const [showColors, setShowColors] = useState(false);
@@ -41,7 +41,7 @@ function LabelItem({ label, isSelected, onSelect, onColorChange, onLabelUpdate, 
   };
 
   return (
-    <div className={`label-item-container ${isSelected ? 'selected' : ''}`}>
+    <div className={`label-item-container ${isSelected ? 'selected' : ''}`} style={{ paddingLeft: depth * 16 }}>
       <div className="label-item" onClick={onSelect}>
         <span
           className="label-color"
@@ -138,8 +138,9 @@ function LabelItem({ label, isSelected, onSelect, onColorChange, onLabelUpdate, 
         {showAddModal && (
         <NewLabelDialog
             onClose={() => setShowAddModal(false)}
-            onCreate={onLabelUpdate /* or a dedicated add handler */}
-            existingLabels={existingLabels}
+            onCreate={onLabelAdd}                    // NEW – the real “add” handler
+            // include the current label so the <select> can show it pre-selected
+            existingLabels={[label, ...existingLabels]}   // NEW
             defaultParentId={label.id}
             forceNested={true}
         />
