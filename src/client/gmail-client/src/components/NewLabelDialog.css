@@ -1,0 +1,144 @@
+/* NewLabelDialog.css - Styled exactly like Gmail */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.new-label-modal {
+  background: white;
+  border-radius: 12px;
+  width: 400px;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  font-family: Arial, sans-serif ;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: normal;
+  color: #202124;
+  margin: 0;
+  text-align: left;
+}
+
+.input-label {
+  font-size: 14px;
+  color: #5f6368;
+  text-align: left;
+}
+
+.input-text {
+  width: 100%;           /* stay inside the modal */
+  padding: 8px 12px;     /* optional: Gmail-like padding */
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  box-sizing: border-box; /* <-- key line */
+  font-size: 14px;        /* you probably don’t want the global 1 px rule */
+}
+
+.input-text:focus {
+  border: 2px solid #1a73e8;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-container input[type="checkbox"] {
+  accent-color: #1a73e8;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.nest-label {
+  font-size: 12px;
+  color: #444746;
+}
+
+.select-dropdown {
+  width: 100%;           /* stay inside the modal */
+  padding: 8px 12px;     /* optional: Gmail-like padding */
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  box-sizing: border-box; /* <-- key line */
+  font-size: 14px;  
+}
+
+.select-dropdown:focus {
+  border: 2px solid #1a73e8;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-button {
+  background: none;
+  border: none;
+  color: #1a73e8;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancel-button:hover {
+  background-color: rgba(26, 115, 232, 0.1);
+}
+
+.create-button {
+  background-color: #1a73e8;
+  border: none;
+  color: white;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.create-button:hover {
+  background-color: #1967d2;
+  box-shadow: 0 1px 3px rgba(26, 115, 232, 0.4);
+}
+
+.create-button:disabled {
+  background-color: #e8f0fe;
+  color: #c6dafc;
+  cursor: default;
+  box-shadow: none;
+}
+
+.modal-title {
+    text-align: left;
+    font-weight: 100;
+    margin: 5px;
+}
+.modal-subtitle {
+    text-align: left;
+    color: #444746;
+    font-size: 12px;
+    padding: 0;
+
+}
+input {
+    font-size: 1px;
+}

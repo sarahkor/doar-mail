@@ -34,6 +34,13 @@ const sendRequest = (command, url, port = PORT) => {
 
 
 function getLoggedInUser(req, res) {
+   /* ===== DEV AUTH-BYPASS – להסיר כש-Login מוכן ===== */
+  if (process.env.DISABLE_AUTH === 'true') {
+    // משתמש דמה לסביבת פיתוח
+    return { id: 0, name: 'Dev User' };
+  }
+  /* ===== /DEV AUTH-BYPASS ===== */
+
   const userId = req.headers['id'];
   if (!userId) {
     res.status(401).json({ error: 'Missing user ID in header' });
@@ -51,8 +58,29 @@ function getLoggedInUser(req, res) {
     return null;
   }
 
-
   return user;
+
+  /************ */
+
+  // const userId = req.headers['id'];
+  // if (!userId) {
+  //   res.status(401).json({ error: 'Missing user ID in header' });
+  //   return null;
+  // }
+
+  // const user = findUserById(userId);
+  // if (!user) {
+  //   res.status(401).json({ error: 'Invalid user ID' });
+  //   return null;
+  // }
+
+  // if (!sessions.has(userId)) {
+  //   res.status(401).json({ error: 'Unauthorized: user is not logged in' });
+  //   return null;
+  // }
+
+
+  // return user;
 }
 
 const checkUrl = async (url) => {

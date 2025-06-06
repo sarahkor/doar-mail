@@ -116,10 +116,13 @@ exports.editLabel = (req, res) => {
       return res.status(400).json({ error: `A label named '${body.name}' already exists.` });
     }
 
+    // const updated = Label.editLabel(user, labelId, body);
+    // if (!updated) return res.status(404).json({ error: 'Label not found' });
+    // res.status(204).end();
     const updated = Label.editLabel(user, labelId, body);
     if (!updated) return res.status(404).json({ error: 'Label not found' });
+    res.status(200).json(updated);   // ← נח לבקליינט
 
-    res.status(204).end();
   } catch (err) {
     res.status(500).json({ error: 'Failed to edit label.' });
   }

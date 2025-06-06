@@ -1,10 +1,10 @@
 {
   "name": "create-our-gmail",
   "version": "1.0.0",
-  "description": "This project implements a TCP-based URL filtering system using a Bloom Filter.  \r It was developed for the \"Advanced Programming Systems\" course at Bar-Ilan University  \r as part of Assignment 2, which required transforming a standalone CLI tool into  \r a client-server architecture over sockets using C++ (server) and Python (client).",
-  "main": "index.js",
+  "description": "This project implements a TCP-based URL filtering system using a Bloom Filter. It was developed for the \"Advanced Programming Systems\" course at Bar-Ilan University as part of Assignment 2, which required transforming a standalone CLI tool into a client-server architecture over sockets using C++ (server) and Python (client).",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
