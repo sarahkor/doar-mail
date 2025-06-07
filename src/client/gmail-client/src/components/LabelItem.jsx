@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './LabelItem.css';
 import { renameLabel, deleteLabel, updateLabelColor } from '../api/labelsApi';
 import EditLabelDialog from './EditLabelDialog';
@@ -18,6 +18,26 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+        setShowColors(false);
+      }
+    };
+
+    if (menuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen]);
+
   const toggleMenu = (e) => {
     e.stopPropagation();
     setMenuOpen(!menuOpen);
@@ -60,68 +80,69 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
           className="more-button-wrapper"
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
+          ref={menuRef}
         >
           <button className="more-button" onClick={toggleMenu}>⋮</button>
           {showTooltip && !menuOpen && (
             <div className="label-tooltip">{label.name}</div>
           )}
-        </div>
-      </div>
 
-      {menuOpen && (
-        <div className="label-menu">
-          <div
-            className={`label-menu-item ${showColors ? 'active' : ''}`}
-            onClick={() => setShowColors(!showColors)}
-          >
-            Label color {showColors ? '▾' : '▸'}
-          </div>
+          {menuOpen && (
+            <div className="label-menu">
+              <div
+                className={`label-menu-item ${showColors ? 'active' : ''}`}
+                onClick={() => setShowColors(!showColors)}
+              >
+                Label color {showColors ? '▾' : '▸'}
+              </div>
 
-          <div
-            className="label-menu-item"
-            onClick={() => {
-              setShowEditModal(true);
-              setMenuOpen(false);
-            }}
-          >
-            Edit
-          </div>
-          <div
-            className="label-menu-item"
-            onClick={() => {
-              setShowDeleteModal(true);
-              setMenuOpen(false);
-            }}
-          >
-            Remove label
-          </div>
+              <div
+                className="label-menu-item"
+                onClick={() => {
+                  setShowEditModal(true);
+                  setMenuOpen(false);
+                }}
+              >
+                Edit
+              </div>
+              <div
+                className="label-menu-item"
+                onClick={() => {
+                  setShowDeleteModal(true);
+                  setMenuOpen(false);
+                }}
+              >
+                Remove label
+              </div>
 
-          <div
-            className="label-menu-item"
-            onClick={() => {
-              setShowAddModal(true);
-              setMenuOpen(false);
-            }}
-          >
-            Add sublabel
-          </div>
+              <div
+                className="label-menu-item"
+                onClick={() => {
+                  setShowAddModal(true);
+                  setMenuOpen(false);
+                }}
+              >
+                Add sublabel
+              </div>
 
-          {showColors && (
-            <div className="color-picker-popup">
-              {COLOR_OPTIONS.map((color) => (
-                <div
-                  key={color}
-                  className="label-color-circle"
-                  style={{ backgroundColor: color }}
-                  onClick={(e) => handleColorClick(e, color)}
-                >
-                  <span className="label-color-letter">a</span>
+              {showColors && (
+                <div className="color-picker-popup">
+                  {COLOR_OPTIONS.map((color) => (
+                    <div
+                      key={color}
+                      className="label-color-circle"
+                      style={{ backgroundColor: color }}
+                      onClick={(e) => handleColorClick(e, color)}
+                    >
+                      <span className="label-color-letter">a</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
         </div>
-      )}
+      </div>
 
       {showEditModal && (
         <EditLabelDialog
@@ -144,7 +165,7 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
       {showAddModal && (
         <NewLabelDialog
           onClose={() => setShowAddModal(false)}
-          onCreate={onLabelAdd}                    // NEW – the real “add” handler
+          onCreate={onLabelAdd}                    // NEW – the real "add" handler
           // include the current label so the <select> can show it pre-selected
           existingLabels={[label, ...existingLabels]}   // NEW
           defaultParentId={label.id}
