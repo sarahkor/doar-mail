@@ -11,17 +11,17 @@ const COLOR_OPTIONS = [
   '#fdcfe8', '#e6c9a8', '#e8eaed',
 ];
 
-function LabelItem({ label, depth = 0, isSelected, onSelect, onColorChange, onLabelUpdate, onLabelDelete, existingLabels, onLabelAdd  }) {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [showTooltip, setShowTooltip] = useState(false);
-    const [showColors, setShowColors] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [showAddModal, setShowAddModal] = useState(false);
-    const toggleMenu = (e) => {
-        e.stopPropagation();
-        setMenuOpen(!menuOpen);
-        setShowColors(false);
+function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect, onColorChange, onLabelUpdate, onLabelDelete, existingLabels, onLabelAdd, allLabels = [] }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [showColors, setShowColors] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const toggleMenu = (e) => {
+    e.stopPropagation();
+    setMenuOpen(!menuOpen);
+    setShowColors(false);
   };
 
   const handleColorChange = async (color) => {
@@ -40,9 +40,14 @@ function LabelItem({ label, depth = 0, isSelected, onSelect, onColorChange, onLa
     handleColorChange(color);
   };
 
+  console.log(`Label "${label.name}" at depth ${depth} with ${depth * 24}px padding`);
+
   return (
-    <div className={`label-item-container ${isSelected ? 'selected' : ''}`} style={{ paddingLeft: depth * 16 }}>
+    <div className={`label-item-container ${isSelected ? 'selected' : ''}`} style={{ paddingLeft: depth * 24 }}>
       <div className="label-item" onClick={onSelect}>
+        {hasChildren && (
+          <span className="label-arrow">▸</span>
+        )}
         <span
           className="label-color"
           style={{ backgroundColor: label.color }}
@@ -132,19 +137,20 @@ function LabelItem({ label, depth = 0, isSelected, onSelect, onColorChange, onLa
           label={label}
           onClose={() => setShowDeleteModal(false)}
           onDelete={onLabelDelete}
+          allLabels={allLabels}
         />
       )}
 
-        {showAddModal && (
+      {showAddModal && (
         <NewLabelDialog
-            onClose={() => setShowAddModal(false)}
-            onCreate={onLabelAdd}                    // NEW – the real “add” handler
-            // include the current label so the <select> can show it pre-selected
-            existingLabels={[label, ...existingLabels]}   // NEW
-            defaultParentId={label.id}
-            forceNested={true}
+          onClose={() => setShowAddModal(false)}
+          onCreate={onLabelAdd}                    // NEW – the real “add” handler
+          // include the current label so the <select> can show it pre-selected
+          existingLabels={[label, ...existingLabels]}   // NEW
+          defaultParentId={label.id}
+          forceNested={true}
         />
-        )}
+      )}
 
     </div>
   );

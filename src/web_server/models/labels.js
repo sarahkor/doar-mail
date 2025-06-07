@@ -4,11 +4,12 @@ const listLabelsByUser = (user) => {
   return user.labels || [];
 }
 
-const createLabel = (user, { name, color }) => {
+const createLabel = (user, { name, color, parentId }) => {
   const newLabel = {
     id: ++labelIdCounter,
     name,
-    color: color || 'pink',
+    color: color || 'gray',
+    parentId: parentId ? parseInt(parentId) : null, // Ensure parentId is a number
     mails: []
   };
   if (!user.labels) user.labels = [];
@@ -23,8 +24,26 @@ const getLabelById = (user, labelId) => {
 const deleteLabel = (user, labelId) => {
   const index = user.labels.findIndex(label => label.id === labelId);
   if (index === -1) return false;
-  user.labels.splice(index, 1);
-  return true;
+
+  // Find all child labels that have this label as parent
+  const childLabels = user.labels.filter(label => label.parentId === labelId);
+
+  // Recursively delete all child labels first
+  childLabels.forEach(childLabel => {
+    console.log(`🗑️ Cascading delete: removing child label "${childLabel.name}" (ID: ${childLabel.id})`);
+    deleteLabel(user, childLabel.id);
+  });
+
+  // Delete the parent label
+  const parentIndex = user.labels.findIndex(label => label.id === labelId);
+  if (parentIndex !== -1) {
+    const deletedLabel = user.labels[parentIndex];
+    console.log(`🗑️ Deleting parent label "${deletedLabel.name}" (ID: ${labelId})`);
+    user.labels.splice(parentIndex, 1);
+    return true;
+  }
+
+  return false;
 };
 
 const editLabel = (user, labelId, { name, color }) => {

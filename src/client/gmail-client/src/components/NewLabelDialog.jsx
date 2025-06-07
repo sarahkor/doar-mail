@@ -13,8 +13,9 @@ function NewLabelDialog({ onClose, onCreate, existingLabels = [], defaultParentI
 
     setLoading(true);
     try {
-      console.log('🔵 Creating label:', labelName);
-      const newLabel = await addLabel(labelName, 'pink'); // Default color
+      const parentIdToSend = isNested ? parentId : null;
+      console.log('🔵 Creating label:', labelName, 'isNested:', isNested, 'parentId:', parentIdToSend);
+      const newLabel = await addLabel(labelName, 'gray', parentIdToSend); // Pass parent ID
       console.log('✅ Label created:', newLabel);
       onCreate(newLabel);
       onClose();
@@ -80,7 +81,7 @@ function NewLabelDialog({ onClose, onCreate, existingLabels = [], defaultParentI
           </button>
           <button
             className="create-button"
-            disabled={labelName.trim() === '' || loading}
+            disabled={labelName.trim() === '' || loading || (isNested && !parentId)}
             onClick={handleSubmit}
           >
             {loading ? 'Creating...' : 'Create'}

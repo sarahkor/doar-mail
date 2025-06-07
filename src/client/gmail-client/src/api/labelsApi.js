@@ -10,16 +10,25 @@ export async function getLabels() {
     return response.json();
 }
 
-export async function addLabel(name, color = '#f28b82') {
+export async function addLabel(name, color = 'gray', parentId = null) {
+    const body = { name, color };
+    if (parentId) {
+        body.parentId = parentId;
+    }
+
+    console.log('📤 Sending to API:', JSON.stringify(body, null, 2));
+
     const response = await fetch('/api/labels', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'id': 'dev-user', // For development
         },
-        body: JSON.stringify({ name, color }),
+        body: JSON.stringify(body),
     });
     if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API Error:', response.status, errorText);
         throw new Error('Failed to create label');
     }
     return response.json();
@@ -50,7 +59,8 @@ export async function deleteLabel(id) {
     if (!response.ok) {
         throw new Error('Failed to delete label');
     }
-    return response.json();
+    // Delete returns 204 No Content, so don't try to parse JSON
+    return { success: true };
 }
 
 export async function updateLabelColor(id, color) {

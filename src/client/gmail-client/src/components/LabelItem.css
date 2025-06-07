@@ -15,6 +15,15 @@
   background-color: #e8f0fe;
 }
 
+.label-arrow {
+  font-size: 10px;
+  color: #5f6368;
+  margin-right: 4px;
+  margin-left: 2px;
+  transition: transform 0.2s;
+  user-select: none;
+}
+
 .label-color {
   width: 10px;
   height: 10px;

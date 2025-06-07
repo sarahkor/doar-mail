@@ -12,7 +12,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: normal; /* רגיל, לא bold */
+  font-weight: normal;
+  /* רגיל, לא bold */
   margin-bottom: 10px;
   padding-left: 5px;
 }
@@ -69,4 +70,25 @@
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+/* Enhanced nested label styling */
+.label-list li {
+  position: relative;
+}
+
+/* Simple visual line for nested structure */
+.label-sublist {
+  position: relative;
+}
+
+.label-sublist::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #e8eaed;
+  opacity: 0.5;
 }

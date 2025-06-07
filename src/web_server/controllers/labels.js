@@ -1,7 +1,7 @@
 const Label = require('../models/labels');
 const { getLoggedInUser } = require('../utils/mailUtils');
 
-const ALLOWED_FIELDS = ['name', 'color'];
+const ALLOWED_FIELDS = ['name', 'color', 'parentId'];
 const REQUIRED_FIELDS = ['name'];
 const ALLOWED_COLORS = [
   "red", "blue", "green", "yellow", "orange", "purple", "pink",
@@ -26,6 +26,10 @@ exports.createLabel = (req, res) => {
     if (!user) return;
 
     const body = req.body || {};
+    console.log('📥 Received body:', JSON.stringify(body, null, 2));
+    console.log('📥 Body keys:', Object.keys(body));
+    console.log('📥 Allowed fields:', ALLOWED_FIELDS);
+
     const fields = Object.keys(body);
 
     const unexpected = fields.filter(k => !ALLOWED_FIELDS.includes(k));
@@ -47,23 +51,33 @@ exports.createLabel = (req, res) => {
       });
     }
 
-    const { name, color } = body;
+    const { name, color, parentId } = body;
     if (color && !ALLOWED_COLORS.includes(color)) {
       return res.status(400).json({
         error: `Invalid color: '${color}'. Allowed colors are: ${ALLOWED_COLORS.join(', ')}`
       });
     }
+
+    // Validate parentId if provided
+    if (parentId) {
+      const parentLabel = Label.getLabelById(user, parseInt(parentId));
+      if (!parentLabel) {
+        return res.status(400).json({ error: `Parent label with ID ${parentId} not found.` });
+      }
+    }
+
     if (Label.labelNameExists(user, name)) {
       return res.status(400).json({ error: `A label named '${name}' already exists.` });
     }
 
-    const newLabel = Label.createLabel(user, { name, color });
+    const newLabel = Label.createLabel(user, { name, color, parentId });
     res.status(201)
       .location(`/api/labels/${newLabel.id}`)
       .json({
         id: newLabel.id,
         name: newLabel.name,
-        color: newLabel.color
+        color: newLabel.color,
+        parentId: newLabel.parentId
       });
   } catch (err) {
     res.status(500).json({ error: 'Failed to create label.' });
