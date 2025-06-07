@@ -5,7 +5,12 @@ const ALLOWED_FIELDS = ['name', 'color'];
 const REQUIRED_FIELDS = ['name'];
 const ALLOWED_COLORS = [
   "red", "blue", "green", "yellow", "orange", "purple", "pink",
-  "black", "white", "gray", "brown"];
+  "black", "white", "gray", "brown",
+  // Also allow hex colors
+  "#f28b82", "#fbbc04", "#fff475", "#ccff90",
+  "#a7ffeb", "#cbf0f8", "#aecbfa", "#d7aefb",
+  "#fdcfe8", "#e6c9a8", "#e8eaed"
+];
 
 exports.listLabels = (req, res) => {
   const user = getLoggedInUser(req, res);
@@ -55,11 +60,11 @@ exports.createLabel = (req, res) => {
     const newLabel = Label.createLabel(user, { name, color });
     res.status(201)
       .location(`/api/labels/${newLabel.id}`)
-    res.status(201).json({
-      id: newLabel.id,
-      name: newLabel.name,
-      color: newLabel.color
-    });
+      .json({
+        id: newLabel.id,
+        name: newLabel.name,
+        color: newLabel.color
+      });
   } catch (err) {
     res.status(500).json({ error: 'Failed to create label.' });
   }

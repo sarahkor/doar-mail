@@ -1,22 +1,30 @@
 import React, { useState } from 'react';
 import './NewLabelDialog.css';
+import { addLabel } from '../api/labelsApi';
 
-function NewLabelDialog({ onClose, onCreate, existingLabels = [],defaultParentId = '', forceNested = false }) {
-    const [labelName, setLabelName] = useState('');
-    const [isNested, setIsNested]   = useState(forceNested);
-    const [parentId, setParentId]   = useState(defaultParentId);
-    const handleSubmit = () => {
-        if (labelName.trim() === '') return;
-        const newLabel = {
-        id: Date.now().toString(),
-        name: labelName,
-        color: 'gray',
-        parentId: isNested ? parentId : null,
-        };
-        console.log('🔵 שולחת לשרת את:', newLabel); // הדפסת בדיקה
-        onCreate(newLabel);
-        onClose();
-    };
+function NewLabelDialog({ onClose, onCreate, existingLabels = [], defaultParentId = '', forceNested = false }) {
+  const [labelName, setLabelName] = useState('');
+  const [isNested, setIsNested] = useState(forceNested);
+  const [parentId, setParentId] = useState(defaultParentId);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (labelName.trim() === '' || loading) return;
+
+    setLoading(true);
+    try {
+      console.log('🔵 Creating label:', labelName);
+      const newLabel = await addLabel(labelName, 'pink'); // Default color
+      console.log('✅ Label created:', newLabel);
+      onCreate(newLabel);
+      onClose();
+    } catch (error) {
+      console.error('❌ Failed to create label:', error);
+      alert('Failed to create label: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 
@@ -49,20 +57,20 @@ function NewLabelDialog({ onClose, onCreate, existingLabels = [],defaultParentId
         </div>
 
         <select
-            id="parent-select"
-            className="select-dropdown"
-            value={parentId}
-            onChange={(e) => setParentId(e.target.value)}
-            disabled={!isNested || forceNested}               // <- keeps it greyed-out until nested
-            >
-            <option value="" disabled>
-                Please select a parent…
+          id="parent-select"
+          className="select-dropdown"
+          value={parentId}
+          onChange={(e) => setParentId(e.target.value)}
+          disabled={!isNested || forceNested}               // <- keeps it greyed-out until nested
+        >
+          <option value="" disabled>
+            Please select a parent…
+          </option>
+          {existingLabels.map((l) => (
+            <option key={l.id} value={l.id}>
+              {l.name}
             </option>
-            {existingLabels.map((l) => (
-                <option key={l.id} value={l.id}>
-                {l.name}
-                </option>
-            ))}
+          ))}
         </select>
 
 
@@ -72,10 +80,10 @@ function NewLabelDialog({ onClose, onCreate, existingLabels = [],defaultParentId
           </button>
           <button
             className="create-button"
-            disabled={labelName.trim() === ''}
+            disabled={labelName.trim() === '' || loading}
             onClick={handleSubmit}
           >
-            Create
+            {loading ? 'Creating...' : 'Create'}
           </button>
         </div>
       </div>

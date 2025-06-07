@@ -34,10 +34,10 @@ const sendRequest = (command, url, port = PORT) => {
 
 
 function getLoggedInUser(req, res) {
-   /* ===== DEV AUTH-BYPASS – להסיר כש-Login מוכן ===== */
+  /* ===== DEV AUTH-BYPASS – להסיר כש-Login מוכן ===== */
   if (process.env.DISABLE_AUTH === 'true') {
-    // משתמש דמה לסביבת פיתוח
-    return { id: 0, name: 'Dev User' };
+    // In dev mode, force the user ID to be 'dev-user'
+    req.headers['id'] = 'dev-user';
   }
   /* ===== /DEV AUTH-BYPASS ===== */
 

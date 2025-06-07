@@ -1,5 +1,9 @@
 export async function getLabels() {
-    const response = await fetch('/api/labels');
+    const response = await fetch('/api/labels', {
+        headers: {
+            'id': 'dev-user', // For development
+        }
+    });
     if (!response.ok) {
         throw new Error('Failed to fetch labels');
     }
@@ -11,6 +15,7 @@ export async function addLabel(name, color = '#f28b82') {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'id': 'dev-user', // For development
         },
         body: JSON.stringify({ name, color }),
     });
@@ -25,6 +30,7 @@ export async function renameLabel(id, name) {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
+            'id': 'dev-user', // For development
         },
         body: JSON.stringify({ name }),
     });
@@ -37,6 +43,9 @@ export async function renameLabel(id, name) {
 export async function deleteLabel(id) {
     const response = await fetch(`/api/labels/${id}`, {
         method: 'DELETE',
+        headers: {
+            'id': 'dev-user', // For development
+        },
     });
     if (!response.ok) {
         throw new Error('Failed to delete label');
@@ -49,6 +58,7 @@ export async function updateLabelColor(id, color) {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
+            'id': 'dev-user', // For development
         },
         body: JSON.stringify({ color }),
     });

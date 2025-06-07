@@ -5,17 +5,17 @@ import NewLabelDialog from './NewLabelDialog';
 import { getLabels } from '../api/labelsApi';
 
 const buildTree = (items) => {
-  const map = new Map();
-  items.forEach(l => map.set(l.id, { ...l, children: [] }));
-  const roots = [];
-  map.forEach(l => {
-    if (l.parentId) {
-      map.get(l.parentId)?.children.push(l);
-    } else {
-      roots.push(l);
-    }
-  });
-  return roots;
+    const map = new Map();
+    items.forEach(l => map.set(l.id, { ...l, children: [] }));
+    const roots = [];
+    map.forEach(l => {
+        if (l.parentId) {
+            map.get(l.parentId)?.children.push(l);
+        } else {
+            roots.push(l);
+        }
+    });
+    return roots;
 };
 
 
@@ -27,20 +27,20 @@ function LabelSidebar() {
     const renderLabel = (node, depth = 0) => (
         <li key={node.id}>
             <LabelItem
-            label={node}
-            depth={depth}                     // NEW
-            isSelected={node.id === selectedLabelId}
-            onSelect={() => setSelectedLabelId(node.id)}
-            onColorChange={updateLabelColor}
-            onLabelUpdate={handleLabelUpdate}
-            onLabelDelete={handleLabelDelete}
-            onLabelAdd={handleCreateLabel}    // the add handler you wired earlier
-            existingLabels={labels.filter(l => l.id !== node.id)}
+                label={node}
+                depth={depth}                     // NEW
+                isSelected={node.id === selectedLabelId}
+                onSelect={() => setSelectedLabelId(node.id)}
+                onColorChange={updateLabelColor}
+                onLabelUpdate={handleLabelUpdate}
+                onLabelDelete={handleLabelDelete}
+                onLabelAdd={handleCreateLabel}    // the add handler you wired earlier
+                existingLabels={labels.filter(l => l.id !== node.id)}
             />
             {node.children.length > 0 && (
-            <ul className="label-sublist">
-                {node.children.map(child => renderLabel(child, depth + 1))}
-            </ul>
+                <ul className="label-sublist">
+                    {node.children.map(child => renderLabel(child, depth + 1))}
+                </ul>
             )}
         </li>
     );
@@ -61,6 +61,7 @@ function LabelSidebar() {
 
     /* ───────────── יצירת לייבל חדש ───────────── */
     const handleCreateLabel = (newLabel) => {
+        console.log('Adding new label to state:', newLabel);
         setLabels(prev => [...prev, newLabel]);
         setShowModal(false);
     };
