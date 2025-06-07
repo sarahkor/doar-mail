@@ -1,0 +1,136 @@
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    padding: 0 24px;
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 200px;
+}
+
+.navbar-center {
+    flex: 1;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 200px;
+    justify-content: flex-end;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    padding: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.3s ease;
+}
+
+.menu-button:hover {
+    background-color: var(--hover-bg);
+}
+
+.gmail-logo {
+    display: flex;
+    align-items: center;
+}
+
+.gmail-logo img {
+    height: 40px;
+    width: auto;
+}
+
+.navbar-icon-button {
+    background: none;
+    border: none;
+    padding: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.3s ease;
+}
+
+.navbar-icon-button:hover {
+    background-color: var(--hover-bg);
+}
+
+.dark-mode-toggle {
+    position: relative;
+}
+
+.dark-mode-toggle:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.user-avatar {
+    margin-left: 8px;
+}
+
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #1a73e8;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+}
+
+.avatar-circle:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark mode specific styles */
+[data-theme="dark"] .gmail-logo img {
+    filter: brightness(0) invert(1);
+}
+
+[data-theme="dark"] .avatar-circle:hover {
+    box-shadow: 0 1px 3px rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 16px;
+    }
+
+    .navbar-left,
+    .navbar-right {
+        min-width: auto;
+    }
+
+    .gmail-logo img {
+        height: 32px;
+    }
+}

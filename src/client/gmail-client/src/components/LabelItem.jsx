@@ -18,12 +18,18 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [colorPickerPosition, setColorPickerPosition] = useState({ top: 0, left: 0 });
   const menuRef = useRef(null);
+  const colorPickerRef = useRef(null);
 
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      // Check if click is outside both menu and color picker
+      const isOutsideMenu = menuRef.current && !menuRef.current.contains(event.target);
+      const isOutsideColorPicker = colorPickerRef.current && !colorPickerRef.current.contains(event.target);
+
+      if (isOutsideMenu && isOutsideColorPicker) {
         setMenuOpen(false);
         setShowColors(false);
       }
@@ -44,12 +50,29 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
     setShowColors(false);
   };
 
+  const handleColorMenuClick = () => {
+    if (!showColors && menuRef.current) {
+      // Calculate position for color picker
+      const menuRect = menuRef.current.getBoundingClientRect();
+      const menuItemHeight = 40; // Approximate height of menu item
+      const colorMenuItemIndex = 0; // "Label color" is the first item
+
+      setColorPickerPosition({
+        top: menuRect.top + (colorMenuItemIndex * menuItemHeight),
+        left: menuRect.right + 8 // 8px gap from menu
+      });
+    }
+    setShowColors(!showColors);
+  };
+
   const handleColorChange = async (color) => {
+    console.log('Changing color to:', color, 'for label:', label.name);
     try {
       await updateLabelColor(label.id, color);
       if (onColorChange) onColorChange(label.id, color);
       setShowColors(false);
       setMenuOpen(false);
+      console.log('Color changed successfully');
     } catch (error) {
       console.error('Failed to update label color:', error);
     }
@@ -57,21 +80,35 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
 
   const handleColorClick = (e, color) => {
     e.stopPropagation();
+    e.preventDefault();
+    console.log('Color clicked:', color);
     handleColorChange(color);
   };
 
-  console.log(`Label "${label.name}" at depth ${depth} with ${depth * 24}px padding`);
+  // Calculate indentation - 24px per level, with minimum base padding
+  const indentationPx = Math.max(24, 24 + (depth * 24));
+
+  console.log(`🏷️ Label "${label.name}" - Depth: ${depth}, Indentation: ${indentationPx}px, ParentID: ${label.parentId || 'none'}`);
 
   return (
-    <div className={`label-item-container ${isSelected ? 'selected' : ''}`} style={{ paddingLeft: depth * 24 }}>
-      <div className="label-item" onClick={onSelect}>
+    <div className={`label-item-container ${isSelected ? 'selected' : ''}`}>
+      <div
+        className="label-item"
+        onClick={onSelect}
+        style={{ paddingLeft: `${indentationPx}px` }}
+      >
         {hasChildren && (
           <span className="label-arrow">▸</span>
         )}
-        <span
-          className="label-color"
-          style={{ backgroundColor: label.color }}
-        ></span>
+        <svg className="label-icon" width="20" height="20" viewBox="0 0 20 20">
+          <path
+            d="M3.5 4A1.5 1.5 0 0 0 2 5.5v9A1.5 1.5 0 0 0 3.5 16h8.379a1.5 1.5 0 0 0 1.06-.44l4.122-4.12a1.5 1.5 0 0 0 0-2.122L13.939 5.19A1.5 1.5 0 0 0 12.879 4.75H3.5z"
+            fill={label.color}
+            stroke="var(--border-color)"
+            strokeWidth="0.5"
+          />
+          <circle cx="6" cy="10" r="1.5" fill="white" opacity="0.9" />
+        </svg>
         <span className={`label-name ${isSelected ? 'bold' : ''}`}>
           {label.name}
         </span>
@@ -91,7 +128,7 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
             <div className="label-menu">
               <div
                 className={`label-menu-item ${showColors ? 'active' : ''}`}
-                onClick={() => setShowColors(!showColors)}
+                onClick={handleColorMenuClick}
               >
                 Label color {showColors ? '▾' : '▸'}
               </div>
@@ -124,25 +161,32 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
               >
                 Add sublabel
               </div>
-
-              {showColors && (
-                <div className="color-picker-popup">
-                  {COLOR_OPTIONS.map((color) => (
-                    <div
-                      key={color}
-                      className="label-color-circle"
-                      style={{ backgroundColor: color }}
-                      onClick={(e) => handleColorClick(e, color)}
-                    >
-                      <span className="label-color-letter">a</span>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
         </div>
       </div>
+
+      {showColors && (
+        <div
+          ref={colorPickerRef}
+          className="color-picker-popup"
+          style={{
+            top: `${colorPickerPosition.top}px`,
+            left: `${colorPickerPosition.left}px`
+          }}
+        >
+          {COLOR_OPTIONS.map((color) => (
+            <div
+              key={color}
+              className="label-color-circle"
+              style={{ backgroundColor: color }}
+              onClick={(e) => handleColorClick(e, color)}
+            >
+              <span className="label-color-letter">a</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {showEditModal && (
         <EditLabelDialog

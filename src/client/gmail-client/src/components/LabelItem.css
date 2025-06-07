@@ -1,152 +1,194 @@
+/* Label Item Styles */
 .label-item-container {
   position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.label-item-container.selected {
+  background-color: var(--hover-bg);
 }
 
 .label-item {
   display: flex;
   align-items: center;
-  padding: 6px 5px;
-  border-radius: 6px;
-  transition: background-color 0.2s;
+  padding: 8px 24px 8px 0;
   cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s ease;
+  /* Padding-left will be set inline via style prop for indentation */
 }
 
 .label-item:hover {
-  background-color: #e8f0fe;
+  background-color: var(--hover-bg);
 }
 
 .label-arrow {
-  font-size: 10px;
-  color: #5f6368;
-  margin-right: 4px;
-  margin-left: 2px;
-  transition: transform 0.2s;
-  user-select: none;
+  margin-right: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  width: 16px;
+  text-align: center;
+  transition: color 0.3s ease;
+  flex-shrink: 0;
 }
 
-.label-color {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  margin-right: 8px;
+.label-icon {
+  margin-right: 12px;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.label-icon path {
+  transition: stroke 0.3s ease;
+}
+
+.label-item:hover .label-icon {
+  opacity: 0.8;
 }
 
 .label-name {
-  flex-grow: 1;
+  flex: 1;
   font-size: 14px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s ease;
 }
 
 .label-name.bold {
-  font-weight: bold;
-}
-
-.label-edit-input {
-  flex-grow: 1;
-  font-size: 14px;
-  border: 1px solid #1a73e8;
-  border-radius: 4px;
-  padding: 2px 4px;
-  margin-right: 8px;
-  outline: none;
+  font-weight: 500;
 }
 
 .more-button-wrapper {
   position: relative;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.label-item:hover .more-button-wrapper {
+  opacity: 1;
 }
 
 .more-button {
   background: none;
   border: none;
-  font-size: 16px;
+  color: var(--text-secondary);
   cursor: pointer;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 16px;
+  line-height: 1;
+  transition: background-color 0.2s ease, color 0.3s ease;
 }
 
 .more-button:hover {
-  background-color: #e0e0e0;
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .label-tooltip {
   position: absolute;
-  top: 30px;
-  right: 0;
-  background: black;
-  color: white;
-  font-size: 12px;
-  padding: 5px 8px;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 4px 8px;
   border-radius: 4px;
+  font-size: 12px;
   white-space: nowrap;
-  z-index: 10;
+  z-index: 1000;
+  margin-bottom: 4px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .label-menu {
   position: absolute;
   top: 100%;
   right: 0;
-  background: white;
-  border: 1px solid #ccc;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 6px 0;
-  box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  width: 170px;
+  box-shadow: var(--shadow);
+  z-index: 1500;
+  min-width: 160px;
+  padding: 8px 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .label-menu-item {
-  padding: 8px 12px;
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
   cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.3s ease;
 }
 
 .label-menu-item:hover {
-  background-color: #f1f1f1;
+  background-color: var(--hover-bg);
 }
 
-/* עיצוב של תפריט הצבעים */
+.label-menu-item.active {
+  background-color: var(--hover-bg);
+}
+
 .color-picker-popup {
-  display: grid;
-  grid-template-columns: repeat(6, 26px);
-  gap: 8px;
-  padding: 12px;
-  background-color: white;
-  border: 1px solid #ccc;
-  position: absolute;
-  top: 0;
-  left: 175px;
+  position: fixed;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  z-index: 2000;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  min-width: 160px;
 }
 
 .label-color-circle {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  position: relative;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
 .label-color-circle:hover {
-  outline: 2px solid #000;
+  transform: scale(1.1);
+  border-color: var(--text-secondary);
 }
 
 .label-color-letter {
-  font-size: 12px;
   color: white;
-  font-weight: bold;
-  font-family: Arial, sans-serif;
-  pointer-events: none;
+  font-size: 12px;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.label-menu-item.active {
-  background-color: #e0e0e0;
-  font-weight: 500;
+/* Dark mode specific adjustments */
+[data-theme="dark"] .label-menu {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .color-picker-popup {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .label-tooltip {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }

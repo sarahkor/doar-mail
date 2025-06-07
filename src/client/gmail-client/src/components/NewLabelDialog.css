@@ -1,6 +1,6 @@
 /* NewLabelDialog.css - Styled exactly like Gmail */
 
-.modal-overlay {
+.dialog-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -10,135 +10,181 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2000;
+  transition: background-color 0.3s ease;
 }
 
-.new-label-modal {
-  background: white;
-  border-radius: 12px;
+[data-theme="dark"] .dialog-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.dialog {
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
   width: 400px;
-  padding: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  font-family: Arial, sans-serif ;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: hidden;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.title {
+[data-theme="dark"] .dialog {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.dialog-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--border-color);
+  transition: border-color 0.3s ease;
+}
+
+.dialog-title {
   font-size: 20px;
-  font-weight: normal;
-  color: #202124;
+  font-weight: 500;
+  color: var(--text-primary);
   margin: 0;
-  text-align: left;
+  transition: color 0.3s ease;
 }
 
-.input-label {
+.dialog-content {
+  padding: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
   font-size: 14px;
-  color: #5f6368;
-  text-align: left;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  transition: color 0.3s ease;
 }
 
-.input-text {
-  width: 100%;           /* stay inside the modal */
-  padding: 8px 12px;     /* optional: Gmail-like padding */
-  border: 1px solid #dadce0;
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
-  box-sizing: border-box; /* <-- key line */
-  font-size: 14px;        /* you probably don’t want the global 1 px rule */
+  font-size: 14px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: border-color 0.2s ease, background-color 0.3s ease, color 0.3s ease;
 }
 
-.input-text:focus {
-  border: 2px solid #1a73e8;
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #1a73e8;
 }
 
-.checkbox-row {
+.form-input::placeholder {
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.checkbox-group {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.checkbox-container input[type="checkbox"] {
-  accent-color: #1a73e8;
+.checkbox-input {
   width: 16px;
   height: 16px;
+  accent-color: #1a73e8;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  color: var(--text-primary);
   cursor: pointer;
+  transition: color 0.3s ease;
 }
 
-.nest-label {
-  font-size: 12px;
-  color: #444746;
-}
-
-.select-dropdown {
-  width: 100%;           /* stay inside the modal */
-  padding: 8px 12px;     /* optional: Gmail-like padding */
-  border: 1px solid #dadce0;
-  border-radius: 4px;
-  box-sizing: border-box; /* <-- key line */
-  font-size: 14px;  
-}
-
-.select-dropdown:focus {
-  border: 2px solid #1a73e8;
-}
-
-.action-buttons {
+.dialog-actions {
+  padding: 16px 24px 24px;
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px;
 }
 
-.cancel-button {
+.dialog-button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.3s ease;
+}
+
+.dialog-button-secondary {
   background: none;
-  border: none;
-  color: #1a73e8;
-  font-size: 14px;
-  padding: 10px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background 0.2s;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.cancel-button:hover {
-  background-color: rgba(26, 115, 232, 0.1);
+.dialog-button-secondary:hover {
+  background-color: var(--hover-bg);
 }
 
-.create-button {
+.dialog-button-primary {
   background-color: #1a73e8;
-  border: none;
+  border: 1px solid #1a73e8;
   color: white;
-  font-size: 14px;
-  padding: 10px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
 }
 
-.create-button:hover {
-  background-color: #1967d2;
-  box-shadow: 0 1px 3px rgba(26, 115, 232, 0.4);
+.dialog-button-primary:hover {
+  background-color: #1557b0;
+  border-color: #1557b0;
 }
 
-.create-button:disabled {
-  background-color: #e8f0fe;
-  color: #c6dafc;
-  cursor: default;
-  box-shadow: none;
+.dialog-button-primary:disabled {
+  background-color: var(--text-secondary);
+  border-color: var(--text-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .modal-title {
-    text-align: left;
-    font-weight: 100;
-    margin: 5px;
+  text-align: left;
+  font-weight: 100;
+  margin: 5px;
 }
+
 .modal-subtitle {
-    text-align: left;
-    color: #444746;
-    font-size: 12px;
-    padding: 0;
+  text-align: left;
+  color: #444746;
+  font-size: 12px;
+  padding: 0;
 
 }
+
 input {
-    font-size: 1px;
+  font-size: 1px;
 }
