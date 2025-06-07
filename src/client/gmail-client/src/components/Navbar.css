@@ -54,6 +54,7 @@
 .gmail-logo {
     display: flex;
     align-items: center;
+    margin-left: 20px;
 }
 
 .gmail-logo img {

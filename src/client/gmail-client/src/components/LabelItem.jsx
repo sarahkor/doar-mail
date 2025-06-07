@@ -85,10 +85,14 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
     handleColorChange(color);
   };
 
-  // Calculate indentation - 24px per level, with minimum base padding
-  const indentationPx = Math.max(24, 24 + (depth * 24));
+  // Calculate indentation - account for arrow space so parent and children don't align
+  // Base padding: 24px, then 24px per depth level
+  // Arrow takes up 24px (16px width + 8px margin), so we need to account for this
+  const baseIndentation = 24;
+  const depthIndentation = depth * 24;
+  const indentationPx = baseIndentation + depthIndentation;
 
-  console.log(`🏷️ Label "${label.name}" - Depth: ${depth}, Indentation: ${indentationPx}px, ParentID: ${label.parentId || 'none'}`);
+  console.log(`🏷️ Label "${label.name}" - Depth: ${depth}, HasChildren: ${hasChildren}, Indentation: ${indentationPx}px, ParentID: ${label.parentId || 'none'}`);
 
   return (
     <div className={`label-item-container ${isSelected ? 'selected' : ''}`}>
@@ -97,21 +101,25 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
         onClick={onSelect}
         style={{ paddingLeft: `${indentationPx}px` }}
       >
-        {hasChildren && (
-          <span className="label-arrow">▸</span>
-        )}
-        <svg className="label-icon" width="20" height="20" viewBox="0 0 20 20">
-          <path
-            d="M3.5 4A1.5 1.5 0 0 0 2 5.5v9A1.5 1.5 0 0 0 3.5 16h8.379a1.5 1.5 0 0 0 1.06-.44l4.122-4.12a1.5 1.5 0 0 0 0-2.122L13.939 5.19A1.5 1.5 0 0 0 12.879 4.75H3.5z"
-            fill={label.color}
-            stroke="var(--border-color)"
-            strokeWidth="0.5"
-          />
-          <circle cx="6" cy="10" r="1.5" fill="white" opacity="0.9" />
-        </svg>
-        <span className={`label-name ${isSelected ? 'bold' : ''}`}>
-          {label.name}
-        </span>
+        <div className="label-content">
+          {hasChildren ? (
+            <span className="label-arrow">▸</span>
+          ) : (
+            <span className="label-arrow-placeholder"></span>
+          )}
+          <svg className="label-icon" width="20" height="20" viewBox="0 0 20 20">
+            <path
+              d="M3.5 4A1.5 1.5 0 0 0 2 5.5v9A1.5 1.5 0 0 0 3.5 16h8.379a1.5 1.5 0 0 0 1.06-.44l4.122-4.12a1.5 1.5 0 0 0 0-2.122L13.939 5.19A1.5 1.5 0 0 0 12.879 4.75H3.5z"
+              fill={label.color}
+              stroke="var(--border-color)"
+              strokeWidth="0.5"
+            />
+            <circle cx="6" cy="10" r="1.5" fill="white" opacity="0.9" />
+          </svg>
+          <span className={`label-name ${isSelected ? 'bold' : ''}`}>
+            {label.name}
+          </span>
+        </div>
 
         <div
           className="more-button-wrapper"

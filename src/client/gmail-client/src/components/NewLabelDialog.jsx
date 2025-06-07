@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './NewLabelDialog.css';
 import { addLabel } from '../api/labelsApi';
 
@@ -7,9 +7,28 @@ function NewLabelDialog({ onClose, onCreate, existingLabels = [], defaultParentI
   const [isNested, setIsNested] = useState(forceNested);
   const [parentId, setParentId] = useState(defaultParentId);
   const [loading, setLoading] = useState(false);
+  const [nameError, setNameError] = useState('');
+
+  // Check for duplicate names whenever labelName changes
+  useEffect(() => {
+    if (labelName.trim() === '') {
+      setNameError('');
+      return;
+    }
+
+    const isDuplicate = existingLabels.some(
+      label => label.name.toLowerCase() === labelName.trim().toLowerCase()
+    );
+
+    if (isDuplicate) {
+      setNameError('The label name you have chosen already exists. Please try another name:');
+    } else {
+      setNameError('');
+    }
+  }, [labelName, existingLabels]);
 
   const handleSubmit = async () => {
-    if (labelName.trim() === '' || loading) return;
+    if (labelName.trim() === '' || loading || nameError) return;
 
     setLoading(true);
     try {
@@ -27,63 +46,84 @@ function NewLabelDialog({ onClose, onCreate, existingLabels = [], defaultParentI
     }
   };
 
-
+  const handleNameChange = (e) => {
+    setLabelName(e.target.value);
+  };
 
   return (
-    <div className="modal-overlay">
-      <div className="new-label-modal">
-        <h2 className="modal-title">New label</h2>
-        <label className="modal-subtitle" htmlFor="label-input">
-          Please enter a new label name:
-        </label>
-        <input
-          id="label-input"
-          className="input-text"
-          value={labelName}
-          onChange={(e) => setLabelName(e.target.value)}
-        />
-
-        <div className="checkbox-row">
-          <label className="checkbox-container">
-            <input
-              type="checkbox"
-              checked={isNested}
-              onChange={() => setIsNested(!isNested)}
-            />
-            <span className="checkmark"></span>
-          </label>
-          <label className="nest-label" htmlFor="parent-select">
-            Nest label under:
-          </label>
+    <div className="dialog-overlay">
+      <div className="dialog">
+        <div className="dialog-header">
+          <h2 className="dialog-title">New label</h2>
         </div>
 
-        <select
-          id="parent-select"
-          className="select-dropdown"
-          value={parentId}
-          onChange={(e) => setParentId(e.target.value)}
-          disabled={!isNested || forceNested}               // <- keeps it greyed-out until nested
-        >
-          <option value="" disabled>
-            Please select a parent…
-          </option>
-          {existingLabels.map((l) => (
-            <option key={l.id} value={l.id}>
-              {l.name}
-            </option>
-          ))}
-        </select>
+        <div className="dialog-content">
+          <div className="form-group">
+            <label className="form-label" htmlFor="label-input">
+              Please enter a new label name:
+            </label>
+            {nameError && (
+              <div className="error-message">
+                {nameError}
+              </div>
+            )}
+            <input
+              id="label-input"
+              className={`form-input ${nameError ? 'error' : ''}`}
+              value={labelName}
+              onChange={handleNameChange}
+              placeholder="Enter label name"
+            />
+          </div>
 
+          <div className="form-group">
+            <div className="checkbox-group">
+              <input
+                type="checkbox"
+                id="nest-checkbox"
+                className="checkbox-input"
+                checked={isNested}
+                onChange={() => setIsNested(!isNested)}
+                disabled={forceNested}
+              />
+              <label className="checkbox-label" htmlFor="nest-checkbox">
+                Nest label under:
+              </label>
+            </div>
+          </div>
 
-        <div className="action-buttons">
-          <button className="cancel-button" onClick={onClose}>
+          {isNested && (
+            <div className="form-group">
+              <select
+                id="parent-select"
+                className="form-select"
+                value={parentId}
+                onChange={(e) => setParentId(e.target.value)}
+                disabled={!isNested || forceNested}
+              >
+                <option value="" disabled>
+                  Please select a parent…
+                </option>
+                {existingLabels.map((l) => (
+                  <option key={l.id} value={l.id}>
+                    {l.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        <div className="dialog-actions">
+          <button className="dialog-button dialog-button-secondary" onClick={onClose}>
             Cancel
           </button>
           <button
-            className="create-button"
-            disabled={labelName.trim() === '' || loading || (isNested && !parentId)}
+            className="dialog-button dialog-button-primary"
+            disabled={labelName.trim() === '' || loading || nameError || (isNested && !parentId)}
             onClick={handleSubmit}
           >
+            {loading && <span className="loading-spinner"></span>}
             {loading ? 'Creating...' : 'Create'}
           </button>
         </div>
