@@ -1,0 +1,121 @@
+.search-container {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    background-color: var(--hover-bg);
+    border-radius: 8px;
+    height: 48px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.search-container.focused .search-form {
+    background-color: var(--bg-primary);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.search-icon-button {
+    background: none;
+    border: none;
+    padding: 12px 16px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px 0 0 8px;
+    transition: color 0.3s ease;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    color: var(--text-primary);
+    padding: 12px 8px;
+    outline: none;
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+    transition: color 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+}
+
+.clear-button {
+    background: none;
+    border: none;
+    padding: 12px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, color 0.3s ease;
+}
+
+.clear-button:hover {
+    background-color: var(--hover-bg);
+}
+
+.filter-button {
+    background: none;
+    border: none;
+    padding: 12px 16px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0 8px 8px 0;
+    transition: background-color 0.2s ease, color 0.3s ease;
+}
+
+.filter-button:hover {
+    background-color: var(--hover-bg);
+}
+
+/* Focus styles */
+.search-container.focused .search-icon-button,
+.search-container.focused .filter-button {
+    color: #1a73e8;
+}
+
+/* Dark mode specific adjustments */
+[data-theme="dark"] .search-container.focused .search-form {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .search-container {
+        max-width: none;
+        margin: 0 16px;
+    }
+
+    .search-form {
+        height: 44px;
+    }
+
+    .search-input {
+        font-size: 14px;
+    }
+
+    .search-icon-button,
+    .filter-button {
+        padding: 10px 12px;
+    }
+
+    .clear-button {
+        padding: 10px;
+    }
+}

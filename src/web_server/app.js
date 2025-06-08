@@ -11,6 +11,18 @@ const labelRoute = require('./routes/labels');
 // Import login controller directly
 const { loginUser } = require('./controllers/userController');
 
+// Enable CORS for React development
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, id');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 app.use(express.json());
 
 app.use((err, req, res, next) => {
@@ -32,6 +44,31 @@ app.use((req, res) => {
 });
 
 
+// Enable dev auth bypass
+process.env.DISABLE_AUTH = 'true';
+
+// Create dev user for testing
+const { addUser } = require('./models/userModel');
+const sessions = require('./models/sessions');
+const devUser = {
+  id: 'dev-user',
+  firstName: 'Dev',
+  lastName: 'User',
+  username: 'dev@example.com',
+  password: 'dev123',
+  picture: null,
+  phone: null,
+  birthday: null,
+  inbox: [],
+  sent: [],
+  drafts: [],
+  labels: []
+};
+addUser(devUser);
+sessions.add('dev-user'); // Add to active sessions
+
 app.listen(8080, () => {
   console.log('Server is running on http://localhost:8080');
+  console.log('Auth bypass enabled for development');
+  console.log('Dev user created with ID: dev-user');
 });

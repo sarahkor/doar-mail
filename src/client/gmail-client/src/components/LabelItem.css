@@ -1,0 +1,210 @@
+/* Label Item Styles */
+.label-item-container {
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.label-item-container.selected {
+  background-color: var(--hover-bg);
+}
+
+.label-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 24px 8px 0;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s ease;
+  /* Padding-left will be set inline via style prop for indentation */
+}
+
+.label-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.label-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  /* Allows text truncation */
+}
+
+.label-arrow {
+  margin-right: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  width: 16px;
+  text-align: center;
+  transition: color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.label-arrow-placeholder {
+  margin-right: 8px;
+  width: 16px;
+  flex-shrink: 0;
+  /* Invisible placeholder to maintain consistent spacing */
+}
+
+.label-icon {
+  margin-right: 12px;
+  flex-shrink: 0;
+  transition: opacity 0.2s ease;
+}
+
+.label-icon path {
+  transition: stroke 0.3s ease;
+}
+
+.label-item:hover .label-icon {
+  opacity: 0.8;
+}
+
+.label-name {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.3s ease;
+}
+
+.label-name.bold {
+  font-weight: 500;
+}
+
+.more-button-wrapper {
+  position: relative;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.label-item:hover .more-button-wrapper {
+  opacity: 1;
+}
+
+.more-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 16px;
+  line-height: 1;
+  transition: background-color 0.2s ease, color 0.3s ease;
+}
+
+.more-button:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.label-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 4px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.label-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  z-index: 1500;
+  min-width: 160px;
+  padding: 8px 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.label-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.3s ease;
+}
+
+.label-menu-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.label-menu-item.active {
+  background-color: var(--hover-bg);
+}
+
+.color-picker-popup {
+  position: fixed;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  z-index: 2000;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  min-width: 160px;
+}
+
+.label-color-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.label-color-circle:hover {
+  transform: scale(1.1);
+  border-color: var(--text-secondary);
+}
+
+.label-color-letter {
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode specific adjustments */
+[data-theme="dark"] .label-menu {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .color-picker-popup {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .label-tooltip {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}

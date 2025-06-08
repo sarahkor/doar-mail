@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* Label Sidebar Styles */
+.label-sidebar {
+  width: 256px;
+  height: 100vh;
+  background-color: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+  padding: 16px 0;
+  overflow-y: auto;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.sidebar-section {
+  margin-bottom: 24px;
+}
+
+.sidebar-section h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0 0 8px 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+.labels-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.create-label-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8px 24px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.3s ease;
+  text-align: left;
+}
+
+.create-label-button:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.create-label-button svg {
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+/* Scrollbar styling */
+.label-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.label-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.label-sidebar::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.label-sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-secondary);
+}
+
+/* Dark mode scrollbar adjustments */
+[data-theme="dark"] .label-sidebar::-webkit-scrollbar-thumb {
+  background-color: #5f6368;
+}
+
+[data-theme="dark"] .label-sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: #9aa0a6;
+}
+
+.label-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: normal;
+  /* רגיל, לא bold */
+  margin-bottom: 10px;
+  padding-left: 5px;
+}
+
+.add-label-wrapper {
+  position: relative;
+}
+
+.add-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.add-button:hover {
+  background-color: #e0e0e0;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  top: 35px;
+  right: 0;
+  background: black;
+  color: white;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.add-label-wrapper:hover .tooltip {
+  display: block;
+}
+
+.label-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  direction: ltr;
+  text-align: left;
+}
+
+.label-sublist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Enhanced nested label styling */
+.label-list li {
+  position: relative;
+}
+
+/* Simple visual line for nested structure */
+.label-sublist {
+  position: relative;
+}
+
+.label-sublist::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #e8eaed;
+  opacity: 0.5;
+}
