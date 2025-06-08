@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SearchBar from './SearchBar';
 import './Navbar.css';
+import doarLogo from '../assets/images/doar-logo.svg';
 
 function Navbar() {
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -36,7 +37,7 @@ function Navbar() {
         <div className="navbar">
             <div className="navbar-left">
                 <div className="gmail-logo">
-                    <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r2.png" alt="Gmail" height="40" />
+                    <img src={doarLogo} alt="Doar" height="160" className="logo" />
                 </div>
             </div>
 
