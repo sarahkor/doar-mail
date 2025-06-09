@@ -58,7 +58,7 @@
 }
 
 .gmail-logo img {
-    height: 40px;
+    height: 80px;
     width: auto;
 }
 
@@ -134,4 +134,16 @@
     .gmail-logo img {
         height: 32px;
     }
+}
+
+.logo {
+    color: #1a73e8;
+    /* Default blue color for light mode */
+}
+
+[data-theme='dark'] .logo {
+    color: #ffffff;
+    /* White color for dark mode */
+    filter: brightness(0.9);
+    /* Slightly dim the logo in dark mode */
 }

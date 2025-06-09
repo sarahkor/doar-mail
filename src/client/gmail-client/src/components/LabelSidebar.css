@@ -108,11 +108,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
+  color: var(--text-secondary);
+  transition: background-color 0.2s, color 0.3s;
+}
+
+[data-theme="dark"] .add-button {
+  color: #fff;
 }
 
 .add-button:hover {
   background-color: #e0e0e0;
+}
+
+[data-theme="dark"] .add-button:hover {
+  background-color: #333;
 }
 
 .tooltip {
