@@ -29,6 +29,7 @@ function registerUser(req, res) {
     picture,
     phone,
     birthday
+    gender
   } = req.body;
 
   if (!username.includes("@")) {
@@ -49,7 +50,7 @@ function registerUser(req, res) {
     });
   }
 
-  const allowedFields = ['firstName', 'lastName', 'username', 'password', 'picture', 'phone', 'birthday'];
+  const allowedFields = ['firstName', 'lastName', 'username', 'password', 'picture', 'phone', 'birthday', 'gender'];
   for (const key of Object.keys(req.body)) {
     if (!allowedFields.includes(key)) {
       return res.status(400).json({
@@ -65,6 +66,13 @@ function registerUser(req, res) {
       message: "First name, last name, username (email), and password are required."
     });
   }
+  
+  if (gender && !["male", "female", "other"].includes(gender.toLowerCase())) {
+  return res.status(400).json({
+    status: "error",
+    message: "Invalid gender. Must be 'male', 'female', or 'other'."
+  });
+}
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(username)) {
@@ -116,6 +124,7 @@ function registerUser(req, res) {
     picture: picture || null,
     phone: phone || null,
     birthday: birthday || null,
+    gender: gender || null,
     inbox: [],
     sent: [],
     drafts: [],
@@ -131,6 +140,9 @@ function registerUser(req, res) {
     user: safeUser
   });
 }
+
+const jwt = require('jsonwebtoken');
+const jwtSecret = 'your_jwt_secret'; 
 
 function loginUser(req, res) {
   if (!req.body || typeof req.body !== 'object') {
@@ -174,21 +186,24 @@ function loginUser(req, res) {
     });
   }
 
-  if (!sessions.has(user.id)) {
-    sessions.add(user.id);
-  }
+  // 🔐 יצירת טוקן JWT
+  const token = jwt.sign(
+    { id: user.id, username: user.username },
+    jwtSecret,
+    { expiresIn: '1h' }
+  );
 
   return res.status(200).json({
-  status: "success",
-  message: "Login successful.",
-  token: user.id,
-  username: user.username 
-});
-
+    status: "success",
+    message: "Login successful.",
+    token,
+    username: user.username
+  });
 }
 
+
 function getUserById(req, res) {
-  const loggedInUser = getLoggedInUser(req, res);
+  const loggedInUser = req.user;
   if (!loggedInUser) return;
 
   const requestedUserId = req.params.id;
