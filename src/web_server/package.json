@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/meshybb/Create-our-Gmail#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }

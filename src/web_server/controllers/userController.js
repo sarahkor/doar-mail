@@ -9,6 +9,10 @@ function generateId() {
   return Date.now().toString(36) + "-" + counter.toString(36);
 }
 
+function getUserByPhone(phone) {
+  const users = getAllUsers();
+  return users.find(u => u.phone === phone);
+}
 
 function registerUser(req, res) {
   if (!req.body || typeof req.body !== 'object') {
@@ -17,7 +21,7 @@ function registerUser(req, res) {
       message: "Missing or invalid request body."
     });
   }
-  const {
+  let {
     firstName,
     lastName,
     username, // email
@@ -26,6 +30,17 @@ function registerUser(req, res) {
     phone,
     birthday
   } = req.body;
+
+  if (!username.includes("@")) {
+    username = `${username}@doar.com`;
+  }
+
+  if (!username.endsWith("@doar.com")) {
+    return res.status(400).json({
+      status: "error",
+      message: "Only '@doar.com' emails are allowed for registration."
+    });
+  }
 
   if (typeof firstName !== 'string' || typeof lastName !== 'string') {
     return res.status(400).json({
@@ -44,7 +59,6 @@ function registerUser(req, res) {
     }
   }
 
-  // Check required fields
   if (!firstName || !lastName || !username || !password) {
     return res.status(400).json({
       status: "error",
@@ -52,7 +66,6 @@ function registerUser(req, res) {
     });
   }
 
-  // Email format validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(username)) {
     return res.status(400).json({
@@ -61,7 +74,6 @@ function registerUser(req, res) {
     });
   }
 
-  //  Duplicate email check
   const exists = getUserByUsername(username);
   if (exists) {
     return res.status(409).json({
@@ -70,7 +82,6 @@ function registerUser(req, res) {
     });
   }
 
-  // Phone validation
   const phoneRegex = /^05\d{8}$/;
   if (phone && !phoneRegex.test(phone)) {
     return res.status(400).json({
@@ -79,7 +90,6 @@ function registerUser(req, res) {
     });
   }
 
-  // Optional: Birthday validation
   if (birthday) {
     const birthDate = new Date(birthday);
     if (isNaN(birthDate) || birthDate > new Date()) {
@@ -90,7 +100,6 @@ function registerUser(req, res) {
     }
   }
 
-  // Optional: Password strength
   if (password.length < 6) {
     return res.status(400).json({
       status: "error",
@@ -130,7 +139,8 @@ function loginUser(req, res) {
       message: "Missing or invalid request body."
     });
   }
-  const { username, password } = req.body;
+
+  let { username, password } = req.body;
 
   if (!username || !password) {
     return res.status(400).json({
@@ -139,8 +149,25 @@ function loginUser(req, res) {
     });
   }
 
-  const user = getUserByUsername(username);
-  if (!user || user.password !== password) {
+  const phoneRegex = /^05\d{8}$/;
+  let user;
+  if (phoneRegex.test(username)) {
+    user = getUserByPhone(username);
+  } else {
+    if (!username.includes("@")) {
+      username = `${username}@doar.com`;
+    }
+    user = getUserByUsername(username);
+  }
+
+  if (!user) {
+    return res.status(404).json({
+      status: "error",
+      message: "User not found."
+    });
+  }
+
+  if (user.password !== password) {
     return res.status(401).json({
       status: "error",
       message: "Incorrect username or password."
@@ -151,11 +178,13 @@ function loginUser(req, res) {
     sessions.add(user.id);
   }
 
-  res.status(200).json({
-    status: "success",
-    message: "Login successful.",
-    token: user.id
-  });
+  return res.status(200).json({
+  status: "success",
+  message: "Login successful.",
+  token: user.id,
+  username: user.username 
+});
+
 }
 
 function getUserById(req, res) {
