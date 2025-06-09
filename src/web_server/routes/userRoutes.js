@@ -1,20 +1,17 @@
-// Import Express to use its routing features
+// Description: Routes for user-related operations such as registration, login, and fetching user details.
 const express = require('express');
-
-// Create a new router object (mini Express app for user routes)
 const router = express.Router();
 
-// Import both controller functions at once
+// Importing user controller functions and authentication middleware
 const { registerUser, loginUser, getUserById } = require('../controllers/userController');
+const { requireAuth } = require('../utils/authMiddleware');
 
-// Route for user registration: POST /api/users
+// Route definitions for user operations
 router.post('/', registerUser);
 
-// Route for user login: POST /api/users/tokens
 router.post('/tokens', loginUser);
 
-// Route for getting user by ID: GET /api/users/:id
-router.get('/:id', getUserById);
 
-// Export the router so it can be used in app.js
+router.get('/:id', requireAuth, getUserById);
+
 module.exports = router;
