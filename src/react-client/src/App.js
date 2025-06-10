@@ -1,7 +1,7 @@
 import './App.css';
 import Navbar from './components/Navbar';
 import LabelSidebar from './components/LabelSidebar';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/Login/LoginPage";
 import RegisterPage from "./pages/Register/RegisterPage";
 import HomePage from "./pages/HomePage";
@@ -24,10 +24,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-
-        {/* Wrap home route in your layout */}
         <Route
           path="/home"
           element={
@@ -36,10 +35,11 @@ function App() {
             </AppLayout>
           }
         />
+        {/* ניתוב לכל דבר לא מוכר */}
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
   );
 }
-
 
 export default App;

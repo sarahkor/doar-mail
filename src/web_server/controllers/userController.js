@@ -1,6 +1,12 @@
+require('dotenv').config(); 
+const jwt = require('jsonwebtoken');
 const sessions = require('../models/sessions');
 const { addUser, findUserById, getUserByUsername, getAllUsers } = require('../models/userModel');
 const { getLoggedInUser } = require('../utils/mailUtils');
+
+console.log("JWT_SECRET =", process.env.JWT_SECRET);
+const jwtSecret = process.env.JWT_SECRET;
+const jwtExpiry = process.env.JWT_EXPIRES_IN || '1d';
 
 let counter = 0;
 
@@ -21,15 +27,16 @@ function registerUser(req, res) {
       message: "Missing or invalid request body."
     });
   }
+
   let {
     firstName,
     lastName,
-    username, // email
+    username,
     password,
     picture,
     phone,
-    birthday
-    gender
+    birthday,
+    gender,
   } = req.body;
 
   if (!username.includes("@")) {
@@ -66,13 +73,13 @@ function registerUser(req, res) {
       message: "First name, last name, username (email), and password are required."
     });
   }
-  
+
   if (gender && !["male", "female", "other"].includes(gender.toLowerCase())) {
-  return res.status(400).json({
-    status: "error",
-    message: "Invalid gender. Must be 'male', 'female', or 'other'."
-  });
-}
+    return res.status(400).json({
+      status: "error",
+      message: "Invalid gender. Must be 'male', 'female', or 'other'."
+    });
+  }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(username)) {
@@ -141,9 +148,6 @@ function registerUser(req, res) {
   });
 }
 
-const jwt = require('jsonwebtoken');
-const jwtSecret = 'your_jwt_secret'; 
-
 function loginUser(req, res) {
   if (!req.body || typeof req.body !== 'object') {
     return res.status(400).json({
@@ -186,12 +190,13 @@ function loginUser(req, res) {
     });
   }
 
-  // 🔐 יצירת טוקן JWT
   const token = jwt.sign(
     { id: user.id, username: user.username },
     jwtSecret,
-    { expiresIn: '1h' }
+    { expiresIn: jwtExpiry }
   );
+
+
 
   return res.status(200).json({
     status: "success",
@@ -200,7 +205,6 @@ function loginUser(req, res) {
     username: user.username
   });
 }
-
 
 function getUserById(req, res) {
   const loggedInUser = req.user;
@@ -229,12 +233,12 @@ function getUserById(req, res) {
     id, from, to, subject, bodyPreview, date, time, status
   }));
 
-  const { id, firstName, lastName, username, picture, phone, birthday, labels } = requestedUser;
+  const { id, firstName, lastName, username, picture, phone, birthday, labels, gender } = requestedUser;
 
   res.status(200).json({
     status: "success",
     user: {
-      id, firstName, lastName, username, picture, phone, birthday,
+      id, firstName, lastName, username, picture, phone, birthday, gender,
       inbox: cleanReceivedMails,
       sent: cleanSentMails,
       drafts: cleanDraftMails,

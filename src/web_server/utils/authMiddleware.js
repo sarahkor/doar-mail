@@ -1,25 +1,29 @@
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const jwtSecret = 'your_jwt_secret'; 
+const jwtSecret = process.env.JWT_SECRET;
 
-function requireAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader?.split(' ')[1];
 
-  if (!authHeader) {
-    return res.status(401).json({ error: "Missing Authorization header." });
-  }
-
-  const token = authHeader.split(' ')[1]; 
   if (!token) {
-    return res.status(401).json({ error: "Token missing." });
+    return res.status(401).json({
+      status: 'error',
+      message: 'Missing token. Please log in first.'
+    });
   }
 
-  try {
-    const decoded = jwt.verify(token, jwtSecret);
-    req.user = decoded; 
-    next(); 
-  } catch (err) {
-    return res.status(403).json({ error: "Invalid or expired token." });
-  }
+  jwt.verify(token, jwtSecret, (err, user) => {
+    if (err) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Invalid or expired token.'
+      });
+    }
+
+    req.user = user; 
+    next();
+  });
 }
 
-module.exports = { requireAuth };
+module.exports = authenticateToken;
