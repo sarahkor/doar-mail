@@ -4,14 +4,14 @@ const router = express.Router();
 
 // Importing user controller functions and authentication middleware
 const { registerUser, loginUser, getUserById } = require('../controllers/userController');
-const { requireAuth } = require('../utils/authMiddleware');
+const authenticateToken = require('../utils/authMiddleware');
+
 
 // Route definitions for user operations
 router.post('/', registerUser);
 
 router.post('/tokens', loginUser);
 
-
-router.get('/:id', requireAuth, getUserById);
+router.get('/:id', authenticateToken, getUserById);
 
 module.exports = router;
