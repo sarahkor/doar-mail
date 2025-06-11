@@ -1,9 +1,11 @@
 import './App.css';
 import Navbar from './components/Navbar';
 import LabelSidebar from './components/LabelSidebar';
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/Login/LoginPage";
 import RegisterPage from "./pages/Register/RegisterPage";
+import RegisterDetailsPage from './pages/Register/RegisterDetailsPage'; 
+import RegisterPasswordPage from './pages/Register/RegisterPasswordPage';
 import HomePage from "./pages/HomePage";
 
 function AppLayout({ children }) {
@@ -22,24 +24,25 @@ function AppLayout({ children }) {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route
-          path="/home"
-          element={
-            <AppLayout>
-              <HomePage />
-            </AppLayout>
-          }
-        />
-        {/* ניתוב לכל דבר לא מוכר */}
-        <Route path="*" element={<Navigate to="/login" />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/register/details" element={<RegisterDetailsPage />} /> 
+      <Route path="/register/password" element={<RegisterPasswordPage />} />
+      <Route
+        path="/home"
+        element={
+          <AppLayout>
+            <HomePage />
+          </AppLayout>
+        }
+      />
+      <Route path="*" element={<Navigate to="/login" />} />
+    </Routes>
   );
 }
+
+
 
 export default App;
