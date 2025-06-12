@@ -1,5 +1,7 @@
-require('dotenv').config();
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
+const { findUserById } = require('../models/userModel');
+
 const jwtSecret = process.env.JWT_SECRET;
 
 function authenticateToken(req, res, next) {
@@ -13,7 +15,7 @@ function authenticateToken(req, res, next) {
     });
   }
 
-  jwt.verify(token, jwtSecret, (err, user) => {
+  jwt.verify(token, jwtSecret, (err, payload) => {
     if (err) {
       return res.status(403).json({
         status: 'error',
@@ -21,7 +23,15 @@ function authenticateToken(req, res, next) {
       });
     }
 
-    req.user = user; 
+    const user = findUserById(payload.id);
+    if (!user) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'User no longer exists.'
+      });
+    }
+
+    req.user = user;
     next();
   });
 }

@@ -1,15 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const labelController = require('../controllers/labels');
+const authenticateToken = require('../utils/authMiddleware'); // ✅ add this
 
 router.route('/')
-  .get(labelController.listLabels)
-  .post(labelController.createLabel);
+  .get(authenticateToken, labelController.listLabels)
+  .post(authenticateToken, labelController.createLabel);
 
 router.route('/:id')
-  .get(labelController.getLabel)
-  .patch(labelController.editLabel)
-  .delete(labelController.deleteLabel);
-router.post('/:id/mails', labelController.addMailToLabel);
+  .get(authenticateToken, labelController.getLabel)
+  .patch(authenticateToken, labelController.editLabel)
+  .delete(authenticateToken, labelController.deleteLabel);
+
+router.post('/:id/mails', authenticateToken, labelController.addMailToLabel);
+router.delete('/:labelId/:mailId', authenticateToken, labelController.removeFromLabel);
 
 module.exports = router;

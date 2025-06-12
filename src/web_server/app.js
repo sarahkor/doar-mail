@@ -3,6 +3,8 @@ require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
 const express = require('express');
 const app = express();
+const multer = require('multer');
+const upload = multer();
 
 app.set('json spaces', 2);
 
@@ -33,6 +35,12 @@ const blacklistRoute = require('./routes/blacklistRoutes');
 const userRoute = require('./routes/userRoutes');
 const mailRoute = require('./routes/mails');
 const labelRoute = require('./routes/labels');
+const inboxRoute = require('./routes/inbox');
+const draftsRoute = require('./routes/drafts');
+const sentRoute = require('./routes/sent');
+const spamRoute = require('./routes/spam');
+const trashRoute = require('./routes/trash');
+const starredRoute = require('./routes/starred');
 const { loginUser } = require('./controllers/userController');
 
 app.use('/api/blacklist', blacklistRoute);
@@ -40,6 +48,12 @@ app.use('/api/users', userRoute);
 app.use('/api/mails', mailRoute);
 app.use('/api/labels', labelRoute);
 app.post('/api/tokens', loginUser);
+app.use('/api/inbox', inboxRoute);
+app.use('/api/drafts', draftsRoute);
+app.use('/api/sent', sentRoute);
+app.use('/api/spam', spamRoute);
+app.use('/api/trash', trashRoute);
+app.use('/api/starred', starredRoute);
 
 
 app.use(express.static(path.join(__dirname, '..', 'react-client', 'build')));
