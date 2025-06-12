@@ -1,4 +1,4 @@
-require('dotenv').config(); 
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const sessions = require('../models/sessions');
 const { addUser, findUserById, getUserByUsername, getAllUsers } = require('../models/userModel');
@@ -135,12 +135,15 @@ function registerUser(req, res) {
     inbox: [],
     sent: [],
     drafts: [],
-    labels: []
+    labels: [],
+    starred: [],
+    trash: [],
+    spam: []
   };
 
   addUser(newUser);
 
-  const { password: _, inbox, sent, drafts, labels, ...safeUser } = newUser;
+  const { password: _, inbox, sent, drafts, labels, starred, trash, spam, ...safeUser } = newUser;
   res.status(201).json({
     status: "success",
     message: "Account created successfully.",
@@ -235,6 +238,12 @@ function getUserById(req, res) {
 
   const { id, firstName, lastName, username, picture, phone, birthday, labels, gender } = requestedUser;
 
+  const FIFTEEN_DAYS = 15 * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  const cleanTrash = (requestedUser.trash || [])
+    .filter(mail => now - mail.deletedAt < FIFTEEN_DAYS)
+    .map(({ deletedAt, ...rest }) => rest);
+
   res.status(200).json({
     status: "success",
     user: {
@@ -242,9 +251,13 @@ function getUserById(req, res) {
       inbox: cleanReceivedMails,
       sent: cleanSentMails,
       drafts: cleanDraftMails,
-      labels
+      labels,
+      starred: requestedUser.starred || [],
+      spam: requestedUser.spam || [],
+      trash: cleanTrash
     }
   });
+
 }
 
 module.exports = { registerUser, loginUser, getUserById };

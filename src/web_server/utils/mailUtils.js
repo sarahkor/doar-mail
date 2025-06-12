@@ -2,7 +2,8 @@ const { findUserById } = require('../models/userModel');
 const sessions = require('../models/sessions');
 const net = require('net');
 
-const IP = 'server-container';
+//const IP = 'server-container';
+const IP = '127.0.0.1';
 const PORT = 12345;
 
 // Sends a request to add a URL to the blacklist on the C++ server
@@ -111,28 +112,45 @@ function extractUrls(text) {
 
   const results = new Set();
 
-  // Split the input into words (this includes "dorwww.s.com")
-  const words = text.split(/[\s<>\"\',]+/);
-  const regex = /^((https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z0-9]{2,})(\/\S*)?$/;
+  // Split text into candidate words
+  const words = text.split(/[\s<>"'`,;!?()]+/);
+
+  // Matches full URLs like www.example.com or http://x.co/path
+  const regex = /^((https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(\/\S*)?$/;
 
   for (const word of words) {
-    // Check every possible substring
-    for (let start = 0; start < word.length; start++) {
-      for (let end = start + 1; end <= word.length; end++) {
-        const sub = word.slice(start, end);
-        if (regex.test(sub)) {
-          results.add(sub);
-        }
-      }
+    if (regex.test(word)) {
+      results.add(word);
     }
   }
 
   return Array.from(results);
 }
+function sortByRecent(mails = []) {
+  return mails.slice().sort((a, b) => b.timestamp - a.timestamp);
+}
+function paginateMails(mails, pageQuery) {
+  const limit = 50;
+  const page = Math.max(0, parseInt(pageQuery) || 0);
+
+  const start = page * limit;
+  const end = start + limit;
+  const paginated = mails.slice(start, end);
+
+  return {
+    page,
+    limit,
+    total: mails.length,
+    mails: paginated
+  };
+}
+
 
 module.exports = {
   getLoggedInUser,
   checkUrl,
   extractUrls,
-  sendRequest
+  sendRequest,
+  sortByRecent,
+  paginateMails
 };

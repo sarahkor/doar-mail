@@ -1,3 +1,4 @@
+const { getMailById } = require('./mails');
 let labelIdCounter = 0;
 
 const listLabelsByUser = (user) => {
@@ -10,7 +11,7 @@ const createLabel = (user, { name, color, parentId }) => {
     name,
     color: color || 'gray',
     parentId: parentId ? parseInt(parentId) : null, // Ensure parentId is a number
-    mails: []
+    mailIds: []
   };
   if (!user.labels) user.labels = [];
   user.labels.push(newLabel);
@@ -56,18 +57,52 @@ const editLabel = (user, labelId, { name, color }) => {
   return label;
 };
 
-//for later
 const addMailToLabel = (user, labelId, mailId) => {
   const label = getLabelById(user, labelId);
-  if (!label || label.mails.includes(mailId)) return false;
-  label.mails.push(mailId);
-  return true;
+  if (!label) return false;
+
+  const mail = getMailById(user, mailId);
+  if (!mail) return false;
+
+  if (!label.mailIds) label.mailIds = [];
+
+  if (!label.mailIds.includes(mailId)) {
+    label.mailIds.push(mailId);
+    return true;
+  }
+
+  return false;
+}
+
+const getLabelWithMails = (user, labelId) => {
+  const label = getLabelById(user, labelId);
+  if (!label) return null;
+
+  const fullMails = (label.mailIds || [])
+    .map(mailId => getMailById(user, mailId))
+    .filter(Boolean);
+
+  return {
+    ...label,
+    mails: fullMails
+  };
 };
 
 const labelNameExists = (user, name, excludeId = null) => {
   return (user.labels || []).some(label =>
     label.name.toLowerCase() === name.toLowerCase() && label.id !== excludeId
   );
+};
+
+const removeMailFromLabel = (user, labelId, mailId) => {
+  const label = (user.labels || []).find(l => l.id === labelId);
+  if (!label) return false;
+
+  const index = label.mailIds.indexOf(mailId);
+  if (index === -1) return false;
+
+  label.mailIds.splice(index, 1); // Remove mailId from label
+  return true;
 };
 
 
@@ -78,5 +113,7 @@ module.exports = {
   deleteLabel,
   addMailToLabel,
   editLabel,
-  labelNameExists
+  labelNameExists,
+  getLabelWithMails,
+  removeMailFromLabel
 };
