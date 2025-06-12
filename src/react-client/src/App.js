@@ -5,17 +5,26 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/Login/LoginPage";
 import RegisterPage from "./pages/Register/RegisterPage";
 import HomePage from "./pages/HomePage";
+import { useState } from 'react';
+import ComposeDialog from './components/ComposeDialog'; // adjust path if needed
+
 
 function AppLayout({ children }) {
+  const [showCompose, setShowCompose] = useState(false);
+
+  const openCompose = () => setShowCompose(true);
+  const closeCompose = () => setShowCompose(false);
+
   return (
     <div className="App">
-      <Navbar />
+      <Navbar onComposeClick={openCompose} />
       <div className="app-content" style={{ display: "flex" }}>
         <LabelSidebar />
         <div style={{ flexGrow: 1, padding: "20px" }}>
           {children}
         </div>
       </div>
+      {showCompose && <ComposeDialog onClose={closeCompose} />}
     </div>
   );
 }
@@ -35,7 +44,6 @@ function App() {
             </AppLayout>
           }
         />
-        {/* ניתוב לכל דבר לא מוכר */}
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>

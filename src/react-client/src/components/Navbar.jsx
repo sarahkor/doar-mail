@@ -3,7 +3,7 @@ import SearchBar from './SearchBar';
 import './Navbar.css';
 import doarLogo from '../assets/images/doar-logo.svg';
 
-function Navbar() {
+function Navbar({ onComposeClick }) {
     const [isDarkMode, setIsDarkMode] = useState(false);
 
     // Check for saved theme preference or default to light mode
@@ -39,6 +39,9 @@ function Navbar() {
                 <div className="gmail-logo">
                     <img src={doarLogo} alt="Doar" height="160" className="logo" />
                 </div>
+                <button className="compose-button" onClick={onComposeClick}>
+                    Compose
+                </button>
             </div>
 
             <div className="navbar-center">
