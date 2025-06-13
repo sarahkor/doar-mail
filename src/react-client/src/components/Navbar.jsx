@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import SearchBar from './SearchBar';
 import './Navbar.css';
 import doarLogo from '../assets/images/doar-logo.svg';
+import composeIcon from '../assets/icons/compose.svg';
 
 function Navbar({ onComposeClick }) {
     const [isDarkMode, setIsDarkMode] = useState(false);
 
     // Check for saved theme preference or default to light mode
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
+        const savedTheme = sessionStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
         if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
@@ -26,10 +27,10 @@ function Navbar({ onComposeClick }) {
 
         if (newTheme) {
             document.documentElement.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
+            sessionStorage.setItem('theme', 'dark');
         } else {
             document.documentElement.setAttribute('data-theme', 'light');
-            localStorage.setItem('theme', 'light');
+            sessionStorage.setItem('theme', 'light');
         }
     };
 
@@ -40,7 +41,8 @@ function Navbar({ onComposeClick }) {
                     <img src={doarLogo} alt="Doar" height="160" className="logo" />
                 </div>
                 <button className="compose-button" onClick={onComposeClick}>
-                    Compose
+                    <img src={composeIcon} alt="Compose" className="compose-icon" />
+                    <span className="compose-text">Compose</span>
                 </button>
             </div>
 

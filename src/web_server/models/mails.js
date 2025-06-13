@@ -14,6 +14,7 @@ const createMail = ({ sender, recipient, subject, bodyPreview, status = 'draft',
   const newMail = {
     id: ++mailsIdCounter,
     from: sender.username,
+    fromName: `${sender.firstName} ${sender.lastName}`,
     to: recipient.username,
     subject,
     bodyPreview,

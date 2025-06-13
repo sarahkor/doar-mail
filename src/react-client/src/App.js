@@ -1,34 +1,12 @@
 import './App.css';
-import Navbar from './components/Navbar';
-import LabelSidebar from './components/LabelSidebar';
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/Login/LoginPage";
 import RegisterPage from "./pages/Register/RegisterPage";
-import RegisterDetailsPage from './pages/Register/RegisterDetailsPage'; 
+import RegisterDetailsPage from './pages/Register/RegisterDetailsPage';
 import RegisterPasswordPage from './pages/Register/RegisterPasswordPage';
-import HomePage from "./pages/HomePage";
-import { useState } from 'react';
-import ComposeDialog from './components/ComposeDialog';
-
-function AppLayout({ children }) {
-  const [showCompose, setShowCompose] = useState(false);
-
-  const openCompose = () => setShowCompose(true);
-  const closeCompose = () => setShowCompose(false);
-
-  return (
-    <div className="App">
-      <Navbar onComposeClick={openCompose} />
-      <div className="app-content" style={{ display: "flex" }}>
-        <LabelSidebar />
-        <div style={{ flexGrow: 1, padding: "20px" }}>
-          {children}
-        </div>
-      </div>
-      {showCompose && <ComposeDialog onClose={closeCompose} />}
-    </div>
-  );
-}
+import HomePage from "./pages/home/HomePage"; // <-- Use the right path/casing
+import AppLayout from './components/AppLayout';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -36,16 +14,21 @@ function App() {
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/register/details" element={<RegisterDetailsPage />} /> 
+      <Route path="/register/details" element={<RegisterDetailsPage />} />
       <Route path="/register/password" element={<RegisterPasswordPage />} />
+
+      {/* Nested mailbox routes, protected by login */}
       <Route
-        path="/home"
+        path="/home/*"
         element={
-          <AppLayout>
-            <HomePage />
-          </AppLayout>
+          <ProtectedRoute>
+            <AppLayout>
+              <HomePage />
+            </AppLayout>
+          </ProtectedRoute>
         }
       />
+
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );

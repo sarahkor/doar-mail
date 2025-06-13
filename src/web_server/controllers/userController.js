@@ -48,8 +48,8 @@ function registerUser(req, res) {
 
   // Validate required string fields
   if (!firstName || typeof firstName !== 'string' ||
-      !username || typeof username !== 'string' ||
-      !password || typeof password !== 'string') {
+    !username || typeof username !== 'string' ||
+    !password || typeof password !== 'string') {
     return res.status(400).json({ status: "error", message: "Missing or invalid required fields: firstName, username, password." });
   }
 
@@ -57,6 +57,7 @@ function registerUser(req, res) {
   if (!username.includes("@")) {
     username = `${username}@doar.com`;
   }
+  username = username.trim().toLowerCase();
 
   if (!username.endsWith("@doar.com")) {
     return res.status(400).json({ status: "error", message: "Only '@doar.com' emails are allowed for registration." });

@@ -21,7 +21,7 @@ function RegisterPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    
+
     if (name === "firstName") setFirstNameError("");
     if (name === "lastName") setLastNameError("");
   };

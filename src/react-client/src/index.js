@@ -1,6 +1,5 @@
-// src/index.js
-
-import 'bootstrap/dist/css/bootstrap.min.css'; 
+/* provide the AuthContext to the entire app */
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
 import React from 'react';
@@ -13,7 +12,6 @@ import { AuthProvider } from './contexts/AuthContext';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    {/* provide the AuthContext to the entire app */}
     <AuthProvider>
       <BrowserRouter>
         <App />

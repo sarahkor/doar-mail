@@ -54,6 +54,10 @@ exports.createMail = async (req, res) => {
     const cleanTo = to.trim();
     if (!cleanTo) throw { status: 400, error: 'Recipient email required.' };
 
+    if (!cleanTo.endsWith('@doar.com')) {
+      throw { status: 400, error: 'You can only send mail to Doar users. Please use an @doar.com address.' };
+    }
+
     const recipient = getUserByUsername(cleanTo);
     if (!recipient) throw { status: 400, error: 'Recipient does not exist.' };
 
@@ -145,6 +149,10 @@ exports.updateMail = async (req, res) => {
     if (to !== undefined) {
       const cleanTo = to.trim();
       if (!cleanTo) throw { status: 400, error: 'Recipient email cannot be empty.' };
+
+      if (!cleanTo.endsWith('@doar.com')) {
+        throw { status: 400, error: 'You can only send mail to Doar users. Please use an @doar.com address.' };
+      }
 
       recipient = getUserByUsername(cleanTo);
       if (!recipient) throw { status: 400, error: 'Recipient does not exist.' };
