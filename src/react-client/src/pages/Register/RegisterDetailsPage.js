@@ -63,7 +63,7 @@ function RegisterDetailsPage() {
   const handleImageUploadClick = () => {
     fileInputRef.current.click();
   };
-  
+
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -108,7 +108,7 @@ function RegisterDetailsPage() {
     });
     navigate("/register/password");
   };
-  
+
   // Render the registration details form
   return (
     <div className="container-fluid d-flex justify-content-center align-items-center min-vh-100 bg-light">

@@ -76,3 +76,7 @@
     transform: rotate(360deg);
   }
 }
+
+.toast {
+  z-index: 99999 !important;
+}

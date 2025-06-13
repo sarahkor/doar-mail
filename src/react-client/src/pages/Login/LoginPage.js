@@ -1,4 +1,3 @@
-
 // Description: Login page component for the Doar application
 import { useState } from "react";
 import logo from "../../assets/images/doar-logo.png";
@@ -10,12 +9,13 @@ function LoginPage() {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setError(""); // Clear error when typing
   };
-  
+
   // Handle next step in the login process
   // Validates the username and checks if it exists in the system
   const handleNext = async (e) => {
@@ -32,7 +32,7 @@ function LoginPage() {
       const response = await fetch("/api/tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: email, password: "__check__" }) 
+        body: JSON.stringify({ username: email, password: "__check__" })
       });
       if (response.status === 404) {
         setError("Couldn't find your Doar account");
@@ -47,16 +47,21 @@ function LoginPage() {
       setError("Server error. Please try again later.");
     }
   };
-  
+
   // Handle form submission for login
   // Validates the username and password, then logs in the user
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Always reset previous session token for security
+    sessionStorage.removeItem("token");
+
     const isPhone = /^05\d{8}$/.test(formData.username);
     const email = formData.username.includes("@") || isPhone
       ? formData.username
       : `${formData.username}@doar.com`;
+
     try {
       const response = await fetch("/api/tokens", {
         method: "POST",
@@ -65,7 +70,7 @@ function LoginPage() {
       });
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem("token", data.token); 
+        sessionStorage.setItem("token", data.token);  // Use sessionStorage for session-based security
         navigate("/home");
       } else {
         const err = await response.json();
@@ -75,7 +80,7 @@ function LoginPage() {
       setError("An error occurred. Please try again.");
     }
   };
-  
+
   // Render the login page
   return (
     <div className="container d-flex justify-content-center align-items-center min-vh-100 bg-light">

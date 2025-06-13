@@ -1,0 +1,17 @@
+.inbox-wrapper {
+  /* Remove margin-top: -48px if you want it aligned! */
+  position: relative;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.11), 0 1.5px 6px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  padding: 32px 24px 24px 24px;
+  min-height: 60vh;
+  /* Don't set overflow here! */
+}
+
+.inbox-scroll-container {
+  max-height: 80vh;
+  /* or 100% if you want to fill parent */
+  overflow-y: auto;
+}

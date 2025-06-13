@@ -12,7 +12,6 @@ const authenticateToken = require('../utils/authMiddleware');
 
 // Route definitions for user operations
 
-// 👇 Upload profilePicture + register form
 router.post('/', upload.single('profilePicture'), registerUser);
 
 router.post('/tokens', loginUser);

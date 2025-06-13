@@ -1,0 +1,82 @@
+.mail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid #ccc;
+}
+
+.mail-item:hover {
+  background-color: #f5f5f5;
+}
+
+.mail-item.read {
+  font-weight: normal;
+}
+
+.mail-item.unread {
+  font-weight: bold;
+}
+
+.mail-from {
+  flex: 0 0 180px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mail-content {
+  flex: 1;
+  padding: 0 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mail-subject {
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mail-preview {
+  font-size: 13px;
+  color: #777;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mail-time {
+  flex: 0 0 70px;
+  font-size: 12px;
+  color: #999;
+  text-align: right;
+}
+
+[data-theme='dark'] .mail-item {
+  background-color: #1e1e1e;
+  border-color: #333;
+}
+
+[data-theme='dark'] .mail-item:hover {
+  background-color: #2a2a2a;
+}
+
+[data-theme='dark'] .mail-item.read {
+  background-color: #252525;
+  color: #aaa;
+}
+
+[data-theme='dark'] .mail-item.unread {
+  background-color: #202124;
+  color: #eee;
+}
+
+[data-theme='dark'] .mail-subject,
+[data-theme='dark'] .mail-preview,
+[data-theme='dark'] .mail-from,
+[data-theme='dark'] .mail-time {
+  color: #ccc;
+}
