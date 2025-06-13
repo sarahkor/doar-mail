@@ -4,7 +4,6 @@ const sessions = require('../models/sessions');
 const { addUser, findUserById, getUserByUsername, getAllUsers } = require('../models/userModel');
 const { getLoggedInUser } = require('../utils/mailUtils');
 
-console.log("JWT_SECRET =", process.env.JWT_SECRET);
 const jwtSecret = process.env.JWT_SECRET;
 const jwtExpiry = process.env.JWT_EXPIRES_IN || '1d';
 
@@ -20,12 +19,18 @@ function getUserByPhone(phone) {
   return users.find(u => u.phone === phone);
 }
 
+function isValidPassword(password) {
+  const length = password.length >= 8;
+  const upper = /[A-Z]/.test(password);
+  const lower = /[a-z]/.test(password);
+  const number = /\d/.test(password);
+  const special = /[!@#$%^&*]/.test(password);
+  return length && upper && lower && number && special;
+}
+
 function registerUser(req, res) {
   if (!req.body || typeof req.body !== 'object') {
-    return res.status(400).json({
-      status: "error",
-      message: "Missing or invalid request body."
-    });
+    return res.status(400).json({ status: "error", message: "Missing or invalid request body." });
   }
 
   let {
@@ -33,93 +38,73 @@ function registerUser(req, res) {
     lastName,
     username,
     password,
-    picture,
     phone,
     birthday,
     gender,
   } = req.body;
 
+  const profilePictureFile = req.file;
+  const picture = profilePictureFile ? `/uploads/${profilePictureFile.filename}` : null;
+
+  // Validate required string fields
+  if (!firstName || typeof firstName !== 'string' ||
+      !username || typeof username !== 'string' ||
+      !password || typeof password !== 'string') {
+    return res.status(400).json({ status: "error", message: "Missing or invalid required fields: firstName, username, password." });
+  }
+
+  // Auto-complete email domain if missing
   if (!username.includes("@")) {
     username = `${username}@doar.com`;
   }
 
   if (!username.endsWith("@doar.com")) {
-    return res.status(400).json({
-      status: "error",
-      message: "Only '@doar.com' emails are allowed for registration."
-    });
+    return res.status(400).json({ status: "error", message: "Only '@doar.com' emails are allowed for registration." });
   }
 
-  if (typeof firstName !== 'string' || typeof lastName !== 'string') {
-    return res.status(400).json({
-      status: "error",
-      message: "First name and last name must be strings."
-    });
-  }
-
-  const allowedFields = ['firstName', 'lastName', 'username', 'password', 'picture', 'phone', 'birthday', 'gender'];
+  // Allow only known fields
+  const allowedFields = ['firstName', 'lastName', 'username', 'password', 'phone', 'birthday', 'gender'];
   for (const key of Object.keys(req.body)) {
     if (!allowedFields.includes(key)) {
-      return res.status(400).json({
-        status: "error",
-        message: `Unexpected field in request: ${key}`
-      });
+      return res.status(400).json({ status: "error", message: `Unexpected field in request: ${key}` });
     }
   }
 
-  if (!firstName || !lastName || !username || !password) {
-    return res.status(400).json({
-      status: "error",
-      message: "First name, last name, username (email), and password are required."
-    });
-  }
-
+  // Validate gender value
   if (gender && !["male", "female", "other"].includes(gender.toLowerCase())) {
-    return res.status(400).json({
-      status: "error",
-      message: "Invalid gender. Must be 'male', 'female', or 'other'."
-    });
+    return res.status(400).json({ status: "error", message: "Invalid gender. Must be 'male', 'female', or 'other'." });
   }
 
+  // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(username)) {
-    return res.status(400).json({
-      status: "error",
-      message: "Invalid email format."
-    });
+    return res.status(400).json({ status: "error", message: "Invalid email format." });
   }
 
-  const exists = getUserByUsername(username);
-  if (exists) {
-    return res.status(409).json({
-      status: "error",
-      message: "Username (email) is already in use."
-    });
+  // Validate phone format
+  if (phone && !/^05\d{8}$/.test(phone)) {
+    return res.status(400).json({ status: "error", message: "Invalid phone number. Use format like 0501234567." });
   }
 
-  const phoneRegex = /^05\d{8}$/;
-  if (phone && !phoneRegex.test(phone)) {
-    return res.status(400).json({
-      status: "error",
-      message: "Invalid phone number format. Use Israeli mobile format like 0501234567."
-    });
-  }
-
+  // Validate birthday
   if (birthday) {
     const birthDate = new Date(birthday);
     if (isNaN(birthDate) || birthDate > new Date()) {
-      return res.status(400).json({
-        status: "error",
-        message: "Invalid birthday. Must be a past date in YYYY-MM-DD format."
-      });
+      return res.status(400).json({ status: "error", message: "Invalid birthday. Must be a past date." });
     }
   }
 
-  if (password.length < 6) {
+  // Validate password complexity
+  if (!isValidPassword(password)) {
     return res.status(400).json({
       status: "error",
-      message: "Password must be at least 6 characters long."
+      message: "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character."
     });
+  }
+
+  // Check for username uniqueness
+  if (getUserByUsername(username)) {
+    return res.status(409).json({ status: "error", message: "Username (email) is already in use." });
   }
 
   const newUser = {
@@ -128,7 +113,7 @@ function registerUser(req, res) {
     lastName,
     username,
     password,
-    picture: picture || null,
+    picture,
     phone: phone || null,
     birthday: birthday || null,
     gender: gender || null,
@@ -153,19 +138,13 @@ function registerUser(req, res) {
 
 function loginUser(req, res) {
   if (!req.body || typeof req.body !== 'object') {
-    return res.status(400).json({
-      status: "error",
-      message: "Missing or invalid request body."
-    });
+    return res.status(400).json({ status: "error", message: "Missing or invalid request body." });
   }
 
   let { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({
-      status: "error",
-      message: "Username and password are required."
-    });
+    return res.status(400).json({ status: "error", message: "Username and password are required." });
   }
 
   const phoneRegex = /^05\d{8}$/;
@@ -180,26 +159,14 @@ function loginUser(req, res) {
   }
 
   if (!user) {
-    return res.status(404).json({
-      status: "error",
-      message: "User not found."
-    });
+    return res.status(404).json({ status: "error", message: "User not found." });
   }
 
   if (user.password !== password) {
-    return res.status(401).json({
-      status: "error",
-      message: "Incorrect username or password."
-    });
+    return res.status(401).json({ status: "error", message: "Incorrect username or password." });
   }
 
-  const token = jwt.sign(
-    { id: user.id, username: user.username },
-    jwtSecret,
-    { expiresIn: jwtExpiry }
-  );
-
-
+  const token = jwt.sign({ id: user.id, username: user.username }, jwtSecret, { expiresIn: jwtExpiry });
 
   return res.status(200).json({
     status: "success",
@@ -224,19 +191,9 @@ function getUserById(req, res) {
     return res.status(403).json({ error: "Access denied: You can only view your own profile." });
   }
 
-  const cleanSentMails = requestedUser.sent.map(({ id, from, to, subject, bodyPreview, date, time, status }) => ({
+  const cleanMails = (arr) => arr.map(({ id, from, to, subject, bodyPreview, date, time, status }) => ({
     id, from, to, subject, bodyPreview, date, time, status
   }));
-
-  const cleanReceivedMails = requestedUser.inbox.map(({ id, from, to, subject, bodyPreview, date, time, status }) => ({
-    id, from, to, subject, bodyPreview, date, time, status
-  }));
-
-  const cleanDraftMails = requestedUser.drafts.map(({ id, from, to, subject, bodyPreview, date, time, status }) => ({
-    id, from, to, subject, bodyPreview, date, time, status
-  }));
-
-  const { id, firstName, lastName, username, picture, phone, birthday, labels, gender } = requestedUser;
 
   const FIFTEEN_DAYS = 15 * 24 * 60 * 60 * 1000;
   const now = Date.now();
@@ -244,20 +201,21 @@ function getUserById(req, res) {
     .filter(mail => now - mail.deletedAt < FIFTEEN_DAYS)
     .map(({ deletedAt, ...rest }) => rest);
 
+  const { id, firstName, lastName, username, picture, phone, birthday, labels, gender } = requestedUser;
+
   res.status(200).json({
     status: "success",
     user: {
       id, firstName, lastName, username, picture, phone, birthday, gender,
-      inbox: cleanReceivedMails,
-      sent: cleanSentMails,
-      drafts: cleanDraftMails,
-      labels,
+      inbox: cleanMails(requestedUser.inbox || []),
+      sent: cleanMails(requestedUser.sent || []),
+      drafts: cleanMails(requestedUser.drafts || []),
+      labels: labels || [],
       starred: requestedUser.starred || [],
       spam: requestedUser.spam || [],
       trash: cleanTrash
     }
   });
-
 }
 
 module.exports = { registerUser, loginUser, getUserById };

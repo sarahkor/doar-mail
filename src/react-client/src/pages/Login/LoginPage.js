@@ -1,8 +1,8 @@
+
 // Description: Login page component for the Doar application
 import { useState } from "react";
 import logo from "../../assets/images/doar-logo.png";
 import { useNavigate, NavLink } from "react-router-dom";
-
 
 // LoginPage component
 function LoginPage() {
@@ -10,7 +10,6 @@ function LoginPage() {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -21,24 +20,20 @@ function LoginPage() {
   // Validates the username and checks if it exists in the system
   const handleNext = async (e) => {
     e.preventDefault();
-
     if (formData.username.trim() === "") {
       setError("Please enter your email or phone");
       return;
     }
-
     const isPhone = /^05\d{8}$/.test(formData.username);
     const email = formData.username.includes("@") || isPhone
       ? formData.username
       : `${formData.username}@doar.com`;
-
     try {
       const response = await fetch("/api/tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: email, password: "__check__" }) 
       });
-
       if (response.status === 404) {
         setError("Couldn't find your Doar account");
       } else if (response.status === 401 || response.ok) {
@@ -58,19 +53,16 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     const isPhone = /^05\d{8}$/.test(formData.username);
     const email = formData.username.includes("@") || isPhone
       ? formData.username
       : `${formData.username}@doar.com`;
-
     try {
       const response = await fetch("/api/tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: email, password: formData.password }),
       });
-
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.token); 
@@ -79,7 +71,6 @@ function LoginPage() {
         const err = await response.json();
         setError(err.message || "Incorrect username or password");
       }
-
     } catch {
       setError("An error occurred. Please try again.");
     }
@@ -104,7 +95,6 @@ function LoginPage() {
           <h3 className="fw-semibold">Sign in</h3>
           <p className="text-muted">with your Doar account to continue</p>
         </div>
-
         {/* Right column – form */}
         <div className="col-md-6 p-5 bg-white">
           <form onSubmit={step === 1 ? handleNext : handleSubmit} style={{ marginTop: "7rem" }}>
@@ -126,7 +116,6 @@ function LoginPage() {
                 </div>
               </>
             )}
-
             {step === 2 && (
               <>
                 <p className="mb-2 fw-bold">
@@ -136,7 +125,6 @@ function LoginPage() {
                       ? formData.username
                       : `${formData.username}@doar.com`}
                 </p>
-
                 <input
                   type="password"
                   name="password"
@@ -158,5 +146,4 @@ function LoginPage() {
     </div>
   );
 }
-
 export default LoginPage;
