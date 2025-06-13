@@ -74,21 +74,6 @@ function EditLabelDialog({ label, onClose, onUpdate, existingLabels = [] }) {
         setParentId(newParentId);
     };
 
-    // Test function to manually verify API
-    const testAPI = async () => {
-        console.log('🧪 Testing API manually...');
-        try {
-            const testParentId = availableParents.length > 0 ? availableParents[0].id : null;
-            console.log(`🧪 Test API call with parentId: ${testParentId}`);
-            const result = await renameLabel(label.id, labelName, testParentId);
-            console.log('🧪 Test API result:', result);
-            alert('API test successful! Check console for details.');
-        } catch (error) {
-            console.error('🧪 Test API failed:', error);
-            alert('API test failed! Check console for details.');
-        }
-    };
-
     /* ---------- רינדור ---------- */
     return (
         <div className="modal-overlay">
@@ -138,9 +123,6 @@ function EditLabelDialog({ label, onClose, onUpdate, existingLabels = [] }) {
                     <div className="action-buttons">
                         <button type="button" className="cancel-button" onClick={onClose} disabled={loading}>
                             Cancel
-                        </button>
-                        <button type="button" onClick={testAPI} style={{ background: '#ff9800', color: '#fff', marginRight: '8px' }}>
-                            Test API
                         </button>
                         <button
                             type="submit"

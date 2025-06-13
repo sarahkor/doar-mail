@@ -3,7 +3,6 @@ import './LabelSidebar.css';
 import LabelItem from './LabelItem';
 import NewLabelDialog from './NewLabelDialog';
 import { getLabels } from '../api/labelsApi';
-import { renameLabel } from '../api/labelsApi';
 
 const buildTree = (items) => {
     console.log('🌳 Building tree from labels:', items);
@@ -140,34 +139,6 @@ function LabelSidebar() {
         }
     };
 
-    // Test function to directly test the API
-    const testLabelHierarchy = async () => {
-        console.log('🧪 Starting direct API test...');
-        if (labels.length < 2) {
-            alert('Need at least 2 labels to test hierarchy. Create some labels first.');
-            return;
-        }
-
-        const label1 = labels[0];
-        const label2 = labels[1];
-
-        console.log(`🧪 Testing: Setting "${label2.name}" as child of "${label1.name}"`);
-
-        try {
-            // Test 1: Set label2 as child of label1
-            const result = await renameLabel(label2.id, label2.name, label1.id);
-            console.log('🧪 API call result:', result);
-
-            // Refresh labels to see if it worked
-            await fetchLabels();
-
-            alert(`Test completed! Check console for details. Expected: "${label2.name}" should be child of "${label1.name}"`);
-        } catch (error) {
-            console.error('🧪 Test failed:', error);
-            alert('Test failed! Check console for error details.');
-        }
-    };
-
     /* ───────────── JSX ───────────── */
     return (
         <div className="label-sidebar">
@@ -179,20 +150,6 @@ function LabelSidebar() {
                         onClick={() => setShowModal(true)}
                     >
                         +
-                    </button>
-                    <button
-                        onClick={testLabelHierarchy}
-                        style={{
-                            background: '#ff9800',
-                            color: 'white',
-                            border: 'none',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            marginLeft: '8px',
-                            fontSize: '12px'
-                        }}
-                    >
-                        Test API
                     </button>
                     <span className="tooltip">Create new label</span>
                 </div>
