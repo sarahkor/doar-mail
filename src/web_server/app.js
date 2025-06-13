@@ -4,14 +4,14 @@ require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 const express = require('express');
 const app = express();
 const multer = require('multer');
-const upload = multer();
+const upload = multer(); // Initialize multer for file uploads
 
 app.set('json spaces', 2);
 
 // Middlewares
 app.use(express.json());
 
-
+// CORS Middleware
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
@@ -43,28 +43,27 @@ const trashRoute = require('./routes/trash');
 const starredRoute = require('./routes/starred');
 const { loginUser } = require('./controllers/userController');
 
+// API Endpoints
 app.use('/api/blacklist', blacklistRoute);
 app.use('/api/users', userRoute);
 app.use('/api/mails', mailRoute);
 app.use('/api/labels', labelRoute);
-app.post('/api/tokens', loginUser);
 app.use('/api/inbox', inboxRoute);
 app.use('/api/drafts', draftsRoute);
 app.use('/api/sent', sentRoute);
 app.use('/api/spam', spamRoute);
 app.use('/api/trash', trashRoute);
 app.use('/api/starred', starredRoute);
+app.post('/api/tokens', loginUser);
 
-
+// Static React App
 app.use(express.static(path.join(__dirname, '..', 'react-client', 'build')));
-
 
 app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'react-client', 'build', 'index.html'));
 });
 
-
-// Dev session & user
+// Dev session & user for testing
 process.env.DISABLE_AUTH = 'true';
 const { addUser } = require('./models/userModel');
 const sessions = require('./models/sessions');
@@ -83,6 +82,9 @@ const devUser = {
   sent: [],
   drafts: [],
   labels: [],
+  starred: [],
+  spam: [],
+  trash: []
 };
 
 addUser(devUser);
