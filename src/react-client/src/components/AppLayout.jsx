@@ -18,7 +18,7 @@ function AppLayout({ children }) {
           display: "flex",
           flex: 1,
           height: "100%",
-          overflow: "hidden", // <--- Prevent scrolling here
+          overflow: "hidden",
         }}
       >
         <LabelSidebar />
