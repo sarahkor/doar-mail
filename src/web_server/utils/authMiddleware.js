@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { findUserById } = require('../models/userModel');
 
-const jwtSecret = process.env.JWT_SECRET;
+const jwtSecret = process.env.JWT_SECRET || 'dev-secret-key';
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];

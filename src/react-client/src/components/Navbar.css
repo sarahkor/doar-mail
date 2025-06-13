@@ -38,6 +38,7 @@
     min-width: 200px;
     justify-content: flex-end;
     margin-top: 6px;
+    position: relative;
 }
 
 .menu-button {
@@ -61,11 +62,29 @@
     display: flex;
     align-items: center;
     margin: 0;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.gmail-logo:hover {
+    background-color: var(--hover-bg);
+    transform: scale(1.02);
+}
+
+.gmail-logo:active {
+    transform: scale(0.98);
 }
 
 .gmail-logo img {
     height: 80px;
     width: auto;
+    transition: opacity 0.2s ease;
+}
+
+.gmail-logo:hover img {
+    opacity: 0.9;
 }
 
 .navbar-icon-button {
@@ -96,6 +115,7 @@
 
 .user-avatar {
     margin-left: 8px;
+    position: relative;
 }
 
 .avatar-circle {
@@ -111,6 +131,7 @@
     font-weight: 500;
     cursor: pointer;
     transition: box-shadow 0.2s ease;
+    overflow: hidden;
 }
 
 .avatar-circle:hover {
@@ -126,6 +147,10 @@
     box-shadow: 0 1px 3px rgba(255, 255, 255, 0.2);
 }
 
+[data-theme="dark"] .gmail-logo:hover {
+    background-color: var(--hover-bg);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .navbar {
@@ -139,6 +164,10 @@
 
     .gmail-logo img {
         height: 32px;
+    }
+
+    .gmail-logo {
+        padding: 4px;
     }
 }
 

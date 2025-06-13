@@ -46,6 +46,18 @@ function registerUser(req, res) {
   const profilePictureFile = req.file;
   const picture = profilePictureFile ? `/uploads/${profilePictureFile.filename}` : null;
 
+  console.log('📸 Profile picture upload debug:');
+  console.log('📸 File received:', !!profilePictureFile);
+  if (profilePictureFile) {
+    console.log('📸 File details:', {
+      filename: profilePictureFile.filename,
+      originalname: profilePictureFile.originalname,
+      size: profilePictureFile.size,
+      path: profilePictureFile.path
+    });
+    console.log('📸 Picture URL will be:', picture);
+  }
+
   // Validate required string fields
   if (!firstName || typeof firstName !== 'string' ||
     !username || typeof username !== 'string' ||

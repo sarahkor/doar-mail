@@ -1,10 +1,18 @@
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
 
 const express = require('express');
 const app = express();
 const multer = require('multer');
 const upload = multer(); // Initialize multer for file uploads
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('📁 Created uploads directory:', uploadsDir);
+}
 
 app.set('json spaces', 2);
 
@@ -30,6 +38,9 @@ app.use((err, req, res, next) => {
   next();
 });
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes
 const blacklistRoute = require('./routes/blacklistRoutes');
 const userRoute = require('./routes/userRoutes');
@@ -48,51 +59,26 @@ const { loginUser } = require('./controllers/userController');
 app.use('/api/blacklist', blacklistRoute);
 app.use('/api/users', userRoute);
 app.use('/api/mails', mailRoute);
-app.use('/api/labels', labelRoute);
 app.use('/api/inbox', inboxRoute);
 app.use('/api/drafts', draftsRoute);
 app.use('/api/sent', sentRoute);
 app.use('/api/spam', spamRoute);
 app.use('/api/trash', trashRoute);
 app.use('/api/starred', starredRoute);
+app.use('/api/labels', labelRoute);
 app.use('/api/search', searchRoute);
+
+// Special login endpoint
 app.post('/api/tokens', loginUser);
 
-// Static React App
-app.use(express.static(path.join(__dirname, '..', 'react-client', 'build')));
-
-app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'react-client', 'build', 'index.html'));
+// Serve React app
+app.use(express.static(path.join(__dirname, '../../react-client/build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../react-client/build', 'index.html'));
 });
 
-// Dev session & user for testing
-process.env.DISABLE_AUTH = 'true';
-const { addUser } = require('./models/userModel');
-const sessions = require('./models/sessions');
-
-const devUser = {
-  id: 'dev-user',
-  firstName: 'Dev',
-  lastName: 'User',
-  username: 'dev@example.com',
-  password: 'dev123',
-  picture: null,
-  phone: null,
-  birthday: null,
-  gender: null,
-  inbox: [],
-  sent: [],
-  drafts: [],
-  labels: [],
-  starred: [],
-  spam: [],
-  trash: []
-};
-
-addUser(devUser);
-sessions.add('dev-user');
-
 // Start server
-app.listen(8080, () => {
-  console.log('Server running on http://localhost:8080');
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });

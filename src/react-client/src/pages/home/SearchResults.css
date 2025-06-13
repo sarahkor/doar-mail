@@ -29,26 +29,6 @@
     transition: color 0.3s ease;
 }
 
-.search-type-description {
-    margin-bottom: 8px;
-    font-size: 14px;
-}
-
-.search-type-text {
-    color: #1a73e8;
-    font-weight: 500;
-    font-size: 13px;
-    background: rgba(26, 115, 232, 0.1);
-    padding: 2px 8px;
-    border-radius: 12px;
-    transition: background-color 0.3s ease;
-}
-
-[data-theme='dark'] .search-type-text {
-    color: #8ab4f8;
-    background: rgba(138, 180, 248, 0.15);
-}
-
 .search-query-display {
     margin-bottom: 8px;
     font-size: 14px;
@@ -68,6 +48,17 @@
     border-radius: 4px;
     font-size: 13px;
     transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.search-description {
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.search-description-text {
+    color: var(--text-secondary);
+    font-style: italic;
+    transition: color 0.3s ease;
 }
 
 .search-results-count {

@@ -3,12 +3,22 @@ import './LabelSidebar.css';
 import LabelItem from './LabelItem';
 import NewLabelDialog from './NewLabelDialog';
 import { getLabels } from '../api/labelsApi';
+import { renameLabel } from '../api/labelsApi';
 
 const buildTree = (items) => {
     console.log('🌳 Building tree from labels:', items);
+    console.log('🌳 Raw items before processing:', items.map(l => ({ id: l.id, name: l.name, parentId: l.parentId })));
+
     const map = new Map();
     // Ensure all IDs are treated as numbers for consistency
-    items.forEach(l => map.set(Number(l.id), { ...l, id: Number(l.id), parentId: l.parentId ? Number(l.parentId) : null, children: [] }));
+    items.forEach(l => {
+        const processedLabel = { ...l, id: Number(l.id), parentId: l.parentId ? Number(l.parentId) : null, children: [] };
+        console.log(`🏷️ Processing label "${l.name}": original parentId=${l.parentId}, processed parentId=${processedLabel.parentId}`);
+        map.set(Number(l.id), processedLabel);
+    });
+
+    console.log('📋 Map contents:', Array.from(map.entries()));
+
     const roots = [];
     map.forEach(l => {
         if (l.parentId) {
@@ -59,19 +69,21 @@ function LabelSidebar() {
         </li>
     );
 
-    /* ───────────── טעינת לייבלים בתחילה ───────────── */
-    useEffect(() => {
-        fetchLabels();
-    }, []);
-
     const fetchLabels = async () => {
         try {
+            console.log('🔄 Fetching labels from API...');
             const fetchedLabels = await getLabels();
+            console.log('✅ Fetched labels:', fetchedLabels);
             setLabels(fetchedLabels);
         } catch (err) {
             console.error('Failed to fetch labels:', err);
         }
     };
+
+    /* ───────────── טעינת לייבלים בתחילה ───────────── */
+    useEffect(() => {
+        fetchLabels();
+    }, []);
 
     /* ───────────── יצירת לייבל חדש ───────────── */
     const handleCreateLabel = async (newLabel) => {
@@ -95,10 +107,19 @@ function LabelSidebar() {
     };
 
     /* ───────────── עדכון לייבל קיים ───────────── */
-    const handleLabelUpdate = (updatedLabel) => {
-        setLabels(prev =>
-            prev.map(l => (l.id === updatedLabel.id ? updatedLabel : l))
-        );
+    const handleLabelUpdate = async (updatedLabel) => {
+        console.log('🔄 handleLabelUpdate called with:', updatedLabel);
+        // For label updates that might involve hierarchy changes, refetch all data
+        try {
+            await fetchLabels();
+            console.log('✅ Labels refreshed after update');
+        } catch (error) {
+            console.error('Failed to refresh labels after update:', error);
+            // Fallback to local update only
+            setLabels(prev =>
+                prev.map(l => (l.id === updatedLabel.id ? updatedLabel : l))
+            );
+        }
     };
 
     /* ───────────── מחיקת לייבל ───────────── */
@@ -119,6 +140,34 @@ function LabelSidebar() {
         }
     };
 
+    // Test function to directly test the API
+    const testLabelHierarchy = async () => {
+        console.log('🧪 Starting direct API test...');
+        if (labels.length < 2) {
+            alert('Need at least 2 labels to test hierarchy. Create some labels first.');
+            return;
+        }
+
+        const label1 = labels[0];
+        const label2 = labels[1];
+
+        console.log(`🧪 Testing: Setting "${label2.name}" as child of "${label1.name}"`);
+
+        try {
+            // Test 1: Set label2 as child of label1
+            const result = await renameLabel(label2.id, label2.name, label1.id);
+            console.log('🧪 API call result:', result);
+
+            // Refresh labels to see if it worked
+            await fetchLabels();
+
+            alert(`Test completed! Check console for details. Expected: "${label2.name}" should be child of "${label1.name}"`);
+        } catch (error) {
+            console.error('🧪 Test failed:', error);
+            alert('Test failed! Check console for error details.');
+        }
+    };
+
     /* ───────────── JSX ───────────── */
     return (
         <div className="label-sidebar">
@@ -130,6 +179,20 @@ function LabelSidebar() {
                         onClick={() => setShowModal(true)}
                     >
                         +
+                    </button>
+                    <button
+                        onClick={testLabelHierarchy}
+                        style={{
+                            background: '#ff9800',
+                            color: 'white',
+                            border: 'none',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            marginLeft: '8px',
+                            fontSize: '12px'
+                        }}
+                    >
+                        Test API
                     </button>
                     <span className="tooltip">Create new label</span>
                 </div>

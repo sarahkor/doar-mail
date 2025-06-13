@@ -1,10 +1,10 @@
 .mail-item {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 12px;
-  text-decoration: none;
-  color: inherit;
   border-bottom: 1px solid #ccc;
+  position: relative;
 }
 
 .mail-item:hover {
@@ -19,6 +19,14 @@
   font-weight: bold;
 }
 
+.mail-link {
+  display: flex;
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+
 .mail-from {
   flex: 0 0 180px;
   overflow: hidden;
@@ -31,6 +39,14 @@
   padding: 0 12px;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+}
+
+.mail-subject-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .mail-subject {
@@ -38,6 +54,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .mail-preview {
@@ -48,11 +66,64 @@
   text-overflow: ellipsis;
 }
 
+.mail-labels {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.mail-label-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: white;
+  border-radius: 12px;
+  opacity: 0.85;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .mail-time {
   flex: 0 0 70px;
   font-size: 12px;
   color: #999;
   text-align: right;
+}
+
+.mail-actions {
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  margin-left: 8px;
+}
+
+.mail-item:hover .mail-actions {
+  opacity: 1;
+}
+
+.label-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.label-button:hover {
+  background-color: #e0e0e0;
 }
 
 [data-theme='dark'] .mail-item {
@@ -79,4 +150,17 @@
 [data-theme='dark'] .mail-from,
 [data-theme='dark'] .mail-time {
   color: #ccc;
+}
+
+[data-theme='dark'] .label-button {
+  color: #e8eaed;
+}
+
+[data-theme='dark'] .label-button:hover {
+  background-color: #3c4043;
+  color: #ffffff;
+}
+
+[data-theme='dark'] .mail-label-tag {
+  opacity: 0.9;
 }

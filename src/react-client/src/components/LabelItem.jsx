@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LabelItem.css';
 import { renameLabel, deleteLabel, updateLabelColor } from '../api/labelsApi';
 import EditLabelDialog from './EditLabelDialog';
@@ -12,6 +13,7 @@ const COLOR_OPTIONS = [
 ];
 
 function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect, onColorChange, onLabelUpdate, onLabelDelete, existingLabels, onLabelAdd, allLabels = [] }) {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [showColors, setShowColors] = useState(false);
@@ -44,6 +46,11 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
     };
   }, [menuOpen]);
 
+  const handleLabelClick = () => {
+    navigate(`/home/labels/${label.id}`);
+    if (onSelect) onSelect();
+  };
+
   const toggleMenu = (e) => {
     e.stopPropagation();
     setMenuOpen(!menuOpen);
@@ -70,6 +77,12 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
     try {
       await updateLabelColor(label.id, color);
       if (onColorChange) onColorChange(label.id, color);
+
+      // Dispatch a custom event to notify other components about the label update
+      window.dispatchEvent(new CustomEvent('labelUpdated', {
+        detail: { labelId: label.id, color: color }
+      }));
+
       setShowColors(false);
       setMenuOpen(false);
       console.log('Color changed successfully');
@@ -98,15 +111,10 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
     <div className={`label-item-container ${isSelected ? 'selected' : ''}`}>
       <div
         className="label-item"
-        onClick={onSelect}
+        onClick={handleLabelClick}
         style={{ paddingLeft: `${indentationPx}px` }}
       >
         <div className="label-content">
-          {hasChildren ? (
-            <span className="label-arrow">▸</span>
-          ) : (
-            <span className="label-arrow-placeholder"></span>
-          )}
           <svg className="label-icon" width="20" height="20" viewBox="0 0 20 20">
             <path
               d="M3.5 4A1.5 1.5 0 0 0 2 5.5v9A1.5 1.5 0 0 0 3.5 16h8.379a1.5 1.5 0 0 0 1.06-.44l4.122-4.12a1.5 1.5 0 0 0 0-2.122L13.939 5.19A1.5 1.5 0 0 0 12.879 4.75H3.5z"
@@ -200,7 +208,10 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
         <EditLabelDialog
           label={label}
           onClose={() => setShowEditModal(false)}
-          onUpdate={onLabelUpdate}
+          onUpdate={(updatedLabel) => {
+            console.log('🔄 LabelItem received updated label:', updatedLabel);
+            onLabelUpdate(updatedLabel);
+          }}
           existingLabels={existingLabels}
         />
       )}

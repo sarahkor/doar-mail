@@ -3,8 +3,9 @@ import './AdvancedSearchDialog.css';
 
 function AdvancedSearchDialog({ onClose, onSearch }) {
     const [searchParams, setSearchParams] = useState({
-        subject: '',
         from: '',
+        to: '',
+        subject: '',
         content: ''
     });
 
@@ -18,12 +19,11 @@ function AdvancedSearchDialog({ onClose, onSearch }) {
     const handleSearch = (e) => {
         e.preventDefault();
 
-        // Filter out empty search parameters and trim whitespace
+        // Filter out empty search parameters
         const activeSearchParams = {};
         Object.keys(searchParams).forEach(key => {
-            const trimmedValue = searchParams[key].trim();
-            if (trimmedValue) {
-                activeSearchParams[key] = trimmedValue;
+            if (searchParams[key].trim()) {
+                activeSearchParams[key] = searchParams[key].trim();
             }
         });
 
@@ -36,13 +36,13 @@ function AdvancedSearchDialog({ onClose, onSearch }) {
 
     const handleClear = () => {
         setSearchParams({
-            subject: '',
             from: '',
+            to: '',
+            subject: '',
             content: ''
         });
     };
 
-    // Check if there are any non-empty search terms
     const hasSearchTerms = Object.values(searchParams).some(value => value.trim());
 
     return (
@@ -54,8 +54,28 @@ function AdvancedSearchDialog({ onClose, onSearch }) {
                 </div>
 
                 <form onSubmit={handleSearch} className="advanced-search-form">
-                    <div className="search-help-text">
-                        <p>Search supports partial matches and multiple words. You can combine any of these fields:</p>
+                    <div className="search-field">
+                        <label htmlFor="from-input">From</label>
+                        <input
+                            id="from-input"
+                            type="text"
+                            placeholder="Search by sender email address"
+                            value={searchParams.from}
+                            onChange={(e) => handleInputChange('from', e.target.value)}
+                            className="search-input-field"
+                        />
+                    </div>
+
+                    <div className="search-field">
+                        <label htmlFor="to-input">To</label>
+                        <input
+                            id="to-input"
+                            type="text"
+                            placeholder="Search by recipient email address"
+                            value={searchParams.to}
+                            onChange={(e) => handleInputChange('to', e.target.value)}
+                            className="search-input-field"
+                        />
                     </div>
 
                     <div className="search-field">
@@ -63,21 +83,9 @@ function AdvancedSearchDialog({ onClose, onSearch }) {
                         <input
                             id="subject-input"
                             type="text"
-                            placeholder="e.g., 'meeting today' or 'project update'"
+                            placeholder="Search in email subject"
                             value={searchParams.subject}
                             onChange={(e) => handleInputChange('subject', e.target.value)}
-                            className="search-input-field"
-                        />
-                    </div>
-
-                    <div className="search-field">
-                        <label htmlFor="from-input">From</label>
-                        <input
-                            id="from-input"
-                            type="text"
-                            placeholder="e.g., 'john@example.com' or 'John Smith'"
-                            value={searchParams.from}
-                            onChange={(e) => handleInputChange('from', e.target.value)}
                             className="search-input-field"
                         />
                     </div>
@@ -87,21 +95,11 @@ function AdvancedSearchDialog({ onClose, onSearch }) {
                         <input
                             id="content-input"
                             type="text"
-                            placeholder="e.g., 'quarterly report' or 'vacation request'"
+                            placeholder="Search in email content"
                             value={searchParams.content}
                             onChange={(e) => handleInputChange('content', e.target.value)}
                             className="search-input-field"
                         />
-                    </div>
-
-                    <div className="search-tips">
-                        <h4>Search Tips:</h4>
-                        <ul>
-                            <li><strong>Partial matching:</strong> Type part of a word to find matches</li>
-                            <li><strong>Multiple words:</strong> All words must be found (e.g., "project update")</li>
-                            <li><strong>Combine fields:</strong> Use any combination of subject, sender, and content</li>
-                            <li><strong>Case insensitive:</strong> Search works regardless of upper/lower case</li>
-                        </ul>
                     </div>
 
                     <div className="advanced-search-actions">

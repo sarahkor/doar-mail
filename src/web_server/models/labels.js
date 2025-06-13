@@ -2,7 +2,9 @@ const { getMailById } = require('./mails');
 let labelIdCounter = 0;
 
 const listLabelsByUser = (user) => {
-  return user.labels || [];
+  const labels = user.labels || [];
+  console.log(`📋 listLabelsByUser: Found ${labels.length} labels for user:`, labels);
+  return labels;
 }
 
 const createLabel = (user, { name, color, parentId }) => {
@@ -47,13 +49,30 @@ const deleteLabel = (user, labelId) => {
   return false;
 };
 
-const editLabel = (user, labelId, { name, color }) => {
+const editLabel = (user, labelId, { name, color, parentId }) => {
   const label = getLabelById(user, labelId);
   if (!label) return null;
 
-  if (name !== undefined) label.name = name;
-  if (color !== undefined) label.color = color;
+  console.log(`🔧 editLabel: Editing label ID ${labelId}`);
+  console.log(`🔧 Current label:`, label);
+  console.log(`🔧 Changes requested:`, { name, color, parentId });
 
+  if (name !== undefined) {
+    console.log(`🔧 Changing name from "${label.name}" to "${name}"`);
+    label.name = name;
+  }
+  if (color !== undefined) {
+    console.log(`🔧 Changing color from "${label.color}" to "${color}"`);
+    label.color = color;
+  }
+  if (parentId !== undefined) {
+    const oldParentId = label.parentId;
+    // Handle parentId - can be null to remove parent, or a number to set parent
+    label.parentId = parentId ? parseInt(parentId) : null;
+    console.log(`🔧 Changing parentId from ${oldParentId} to ${label.parentId}`);
+  }
+
+  console.log(`🔧 Final label after edit:`, label);
   return label;
 };
 

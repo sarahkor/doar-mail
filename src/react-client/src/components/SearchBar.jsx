@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './SearchBar.css';
 import AdvancedSearchDialog from './AdvancedSearchDialog';
 
@@ -7,11 +7,17 @@ function SearchBar({ onSearch, searchResults, isSearching, onClearSearch }) {
     const [isFocused, setIsFocused] = useState(false);
     const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
 
+    // Clear search input when search is cleared externally (e.g., logo click)
+    useEffect(() => {
+        if (searchResults === null) {
+            setSearchQuery('');
+        }
+    }, [searchResults]);
+
     const handleSimpleSearch = (e) => {
         e.preventDefault();
-        const trimmedQuery = searchQuery.trim();
-        if (trimmedQuery) {
-            onSearch({ query: trimmedQuery });
+        if (searchQuery.trim()) {
+            onSearch({ query: searchQuery.trim() });
         }
     };
 
@@ -68,9 +74,9 @@ function SearchBar({ onSearch, searchResults, isSearching, onClearSearch }) {
                         </button>
                     )}
 
-                    <button 
-                        type="button" 
-                        className="filter-button" 
+                    <button
+                        type="button"
+                        className="filter-button"
                         title="Advanced search options"
                         onClick={openAdvancedSearch}
                     >

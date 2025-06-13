@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SearchBar from './SearchBar';
+import ProfileMenu from './ProfileMenu';
 import './Navbar.css';
 import doarLogo from '../assets/images/doar-logo.svg';
 import composeIcon from '../assets/icons/compose.svg';
 
-function Navbar({ onComposeClick }) {
+function Navbar({ onComposeClick, onSearch, searchResults, isSearching, onClearSearch }) {
+    const navigate = useNavigate();
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const [user, setUser] = useState(null);
+    const [userLoading, setUserLoading] = useState(true);
 
     // Check for saved theme preference or default to light mode
     useEffect(() => {
@@ -21,6 +27,41 @@ function Navbar({ onComposeClick }) {
         }
     }, []);
 
+    // Fetch user data when component mounts
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    console.log('No token found');
+                    setUserLoading(false);
+                    return;
+                }
+
+                console.log('Fetching user data...');
+                const response = await fetch('/api/users/me', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                console.log('Response status:', response.status);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('User data received:', data);
+                    setUser(data.user);
+                } else {
+                    console.log('Failed to fetch user data:', response.status);
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            } finally {
+                setUserLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
     const toggleDarkMode = () => {
         const newTheme = !isDarkMode;
         setIsDarkMode(newTheme);
@@ -34,10 +75,46 @@ function Navbar({ onComposeClick }) {
         }
     };
 
+    const toggleProfileMenu = () => {
+        console.log('Profile menu clicked, current state:', showProfileMenu);
+        console.log('User data:', user);
+        setShowProfileMenu(!showProfileMenu);
+    };
+
+    const handleLogoClick = () => {
+        // Clear any active search when logo is clicked
+        if (onClearSearch) {
+            onClearSearch();
+        }
+        navigate('/home/inbox');
+    };
+
+    // Close profile menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (showProfileMenu && !event.target.closest('.profile-menu') && !event.target.closest('.avatar-circle')) {
+                setShowProfileMenu(false);
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [showProfileMenu]);
+
+    const getProfileImageUrl = (user) => {
+        if (user && user.picture && user.picture.startsWith('/uploads/')) {
+            return `http://localhost:8080${user.picture}`;
+        }
+        if (user && user.firstName) {
+            return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName || '')}+${encodeURIComponent(user.lastName || '')}&background=1a73e8&color=fff&size=32`;
+        }
+        return `https://ui-avatars.com/api/?name=User&background=1a73e8&color=fff&size=32`;
+    };
+
     return (
         <div className="navbar">
             <div className="navbar-left">
-                <div className="gmail-logo">
+                <div className="gmail-logo" onClick={handleLogoClick}>
                     <img src={doarLogo} alt="Doar" height="160" className="logo" />
                 </div>
                 <button className="compose-button" onClick={onComposeClick}>
@@ -47,7 +124,12 @@ function Navbar({ onComposeClick }) {
             </div>
 
             <div className="navbar-center">
-                <SearchBar />
+                <SearchBar
+                    onSearch={onSearch}
+                    searchResults={searchResults}
+                    isSearching={isSearching}
+                    onClearSearch={onClearSearch}
+                />
             </div>
 
             <div className="navbar-right">
@@ -64,6 +146,30 @@ function Navbar({ onComposeClick }) {
                         </svg>
                     )}
                 </button>
+                <div className="user-avatar">
+                    <div className="avatar-circle" onClick={toggleProfileMenu}>
+                        {userLoading ? (
+                            <span>?</span>
+                        ) : (
+                            <img
+                                src={getProfileImageUrl(user)}
+                                alt="Profile"
+                                style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                                onError={(e) => {
+                                    console.log('Image failed to load, using fallback');
+                                    e.target.src = `https://ui-avatars.com/api/?name=User&background=1a73e8&color=fff&size=32`;
+                                }}
+                            />
+                        )}
+                    </div>
+                </div>
+                {showProfileMenu && (
+                    <ProfileMenu
+                        user={user}
+                        isLoading={userLoading}
+                        onClose={() => setShowProfileMenu(false)}
+                    />
+                )}
             </div>
         </div>
     );

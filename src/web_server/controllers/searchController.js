@@ -3,7 +3,7 @@ const { searchMailsByUser, advancedSearchMails } = require('../models/mails');
 exports.searchMails = (req, res) => {
     try {
         const user = req.user;
-        const { q, subject, from, content } = req.query;
+        const { q, subject, from, to, content } = req.query;
 
         let results = [];
 
@@ -12,17 +12,18 @@ exports.searchMails = (req, res) => {
             results = searchMailsByUser(user, q);
         }
         // Advanced search
-        else if (subject || from || content) {
+        else if (subject || from || to || content) {
             const searchParams = {};
             if (subject) searchParams.subject = subject;
             if (from) searchParams.from = from;
+            if (to) searchParams.to = to;
             if (content) searchParams.content = content;
 
             results = advancedSearchMails(user, searchParams);
         }
         else {
             return res.status(400).json({
-                error: 'No search parameters provided. Use "q" for simple search or "subject", "from", "content" for advanced search.'
+                error: 'No search parameters provided. Use "q" for simple search or "subject", "from", "to", "content" for advanced search.'
             });
         }
 

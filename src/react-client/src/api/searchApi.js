@@ -19,11 +19,16 @@ export async function searchMails(searchParams) {
     if (searchParams.from) {
         queryParams.append('from', searchParams.from);
     }
+    if (searchParams.to) {
+        queryParams.append('to', searchParams.to);
+    }
     if (searchParams.content) {
         queryParams.append('content', searchParams.content);
     }
 
-    const response = await fetch(`/api/search?${queryParams.toString()}`, {
+    const url = `/api/search?${queryParams.toString()}`;
+
+    const response = await fetch(url, {
         headers: getAuthHeaders()
     });
 
@@ -31,5 +36,7 @@ export async function searchMails(searchParams) {
         throw new Error('Search failed');
     }
 
-    return response.json();
+    const result = await response.json();
+
+    return result;
 } 

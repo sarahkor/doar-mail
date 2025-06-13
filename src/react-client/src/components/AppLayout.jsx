@@ -3,7 +3,7 @@ import Navbar from './Navbar';
 import LabelSidebar from './LabelSidebar';
 import ComposeDialog from './ComposeDialog';
 
-function AppLayout({ children }) {
+function AppLayout({ children, onSearch, searchResults, isSearching, onClearSearch }) {
   const [showCompose, setShowCompose] = useState(false);
 
   const openCompose = () => setShowCompose(true);
@@ -11,7 +11,13 @@ function AppLayout({ children }) {
 
   return (
     <div className="App" style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
-      <Navbar onComposeClick={openCompose} />
+      <Navbar
+        onComposeClick={openCompose}
+        onSearch={onSearch}
+        searchResults={searchResults}
+        isSearching={isSearching}
+        onClearSearch={onClearSearch}
+      />
       <div
         className="app-content"
         style={{
