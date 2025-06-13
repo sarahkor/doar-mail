@@ -1,61 +1,59 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Inbox from './Inbox';
 import ComposeDialog from '../../components/ComposeDialog';
-import mailIcon from '../../assets/icons/mail.svg';
+import mailIcon from '../../assets/icons/inbox.svg';
 import Toast from '../../components/Toast';
 import '../../components/Toast.css';
 import MailDetail from './MailDetail';
+import MailFolder from './MailFolder'; // new generic folder page
+
+const FOLDER_CONFIGS = [
+  { path: "inbox", endpoint: "/api/inbox", title: "Inbox" },
+  { path: "sent", endpoint: "/api/sent", title: "Sent" },
+  { path: "drafts", endpoint: "/api/drafts", title: "Drafts" },
+  { path: "spam", endpoint: "/api/spam", title: "Spam" },
+  { path: "trash", endpoint: "/api/trash", title: "Trash" },
+  { path: "starred", endpoint: "/api/starred", title: "Starred" },
+  { path: "all", endpoint: "/api/mails/all", title: "All Mail" }
+];
 
 function HomePage() {
   const [showCompose, setShowCompose] = useState(false);
-  const [mails, setMails] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [showToast, setShowToast] = useState(false);
-  const prevMailCount = useRef(0);
   const [senderName, setSenderName] = useState('');
   const [composeTo, setComposeTo] = useState('');
 
-
+  // Toast: still only for inbox, but you could generalize
+  const prevMailCount = useRef(0);
   const firstLoad = useRef(true);
 
-  const fetchInbox = async () => {
-    const token = sessionStorage.getItem("token");
-    try {
-      const response = await fetch("/api/inbox", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error("Failed to fetch inbox");
-      const data = await response.json();
+  // For new mail notification, we just poll the inbox
+  React.useEffect(() => {
+    async function fetchInbox() {
+      const token = sessionStorage.getItem("token");
+      try {
+        const response = await fetch("/api/inbox", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!response.ok) return;
+        const data = await response.json();
 
-      // Only show toast if this isn't the first load
-      if (!firstLoad.current && data.mails.length > prevMailCount.current) {
-        const latestMail = data.mails[0];
-        setSenderName(latestMail.fromName || latestMail.from);
+        if (!firstLoad.current && data.mails.length > prevMailCount.current) {
+          const latestMail = data.mails[0];
+          setSenderName(latestMail.fromName || latestMail.from);
 
-        setShowToast(true);
-        document.title = 'New mail!';
+          setShowToast(true);
+          document.title = 'New mail!';
+          setTimeout(() => {
+            setShowToast(false);
+            document.title = 'Inbox - Doar';
+          }, 3000);
+        }
 
-        setTimeout(() => {
-          setShowToast(false);
-          document.title = 'Inbox - Doar';
-        }, 3000);
-      }
-
-      prevMailCount.current = data.mails.length;
-      setMails(data.mails);
-
-      // After the first load, flip the flag so we get future notifications
-      if (firstLoad.current) firstLoad.current = false;
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+        prevMailCount.current = data.mails.length;
+        if (firstLoad.current) firstLoad.current = false;
+      } catch { }
     }
-  };
-
-  useEffect(() => {
     fetchInbox();
     const interval = setInterval(fetchInbox, 5000);
     return () => clearInterval(interval);
@@ -66,7 +64,6 @@ function HomePage() {
       {showCompose && (
         <ComposeDialog
           onClose={() => setShowCompose(false)}
-          refreshInbox={fetchInbox}
           to={composeTo}
         />
       )}
@@ -78,26 +75,31 @@ function HomePage() {
         </Toast>
       )}
 
-      {loading ? (
-        <p>Loading inbox...</p>
-      ) : error ? (
-        <p className="text-danger">{error}</p>
-      ) : (
-        <Routes>
-          <Route index element={<Navigate to="inbox" />} />
-          <Route path="inbox" element={<Inbox mails={mails} />} />
+      <Routes>
+        <Route index element={<Navigate to="inbox" />} />
+        {FOLDER_CONFIGS.map(({ path, endpoint, title }) => (
           <Route
-            path="inbox/:mailId"
-            element={<MailDetail onCompose={(to) => {
+            key={path}
+            path={path}
+            element={
+              <MailFolder endpoint={endpoint} title={title} folder={path} />
+            }
+          />
+        ))}
+        {/* One detail route for ALL folders */}
+        <Route
+          path=":folder/:mailId"
+          element={
+            <MailDetail onCompose={(to) => {
               setShowCompose(false);
               setTimeout(() => {
                 setComposeTo(to);
                 setShowCompose(true);
               }, 0);
-            }} />}
-          />
-        </Routes>
-      )}
+            }} />
+          }
+        />
+      </Routes>
     </div>
   );
 }

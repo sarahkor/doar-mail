@@ -87,7 +87,7 @@
 /* Focus styles */
 .search-container.focused .search-icon-button,
 .search-container.focused .filter-button {
-    color: #1a73e8;
+    color: #faa4ea;
 }
 
 /* Dark mode specific adjustments */
