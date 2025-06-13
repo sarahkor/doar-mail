@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Inbox from './Inbox';
+import LabelView from './LabelView';
 import ComposeDialog from '../../components/ComposeDialog';
+import SearchResults from './SearchResults';
 import mailIcon from '../../assets/icons/mail.svg';
 import Toast from '../../components/Toast';
 import '../../components/Toast.css';
 import MailDetail from './MailDetail';
 
-function HomePage() {
+function HomePage({ searchResults, isSearching, searchParams, onClearSearch }) {
   const [showCompose, setShowCompose] = useState(false);
   const [mails, setMails] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,6 @@ function HomePage() {
   const prevMailCount = useRef(0);
   const [senderName, setSenderName] = useState('');
   const [composeTo, setComposeTo] = useState('');
-
 
   const firstLoad = useRef(true);
 
@@ -61,6 +62,9 @@ function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
+  // Determine what to show in the main content area
+  const showSearchResults = searchResults !== null;
+
   return (
     <div style={{ padding: '2rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
       {showCompose && (
@@ -83,20 +87,32 @@ function HomePage() {
       ) : error ? (
         <p className="text-danger">{error}</p>
       ) : (
-        <Routes>
-          <Route index element={<Navigate to="inbox" />} />
-          <Route path="inbox" element={<Inbox mails={mails} />} />
-          <Route
-            path="inbox/:mailId"
-            element={<MailDetail onCompose={(to) => {
-              setShowCompose(false);
-              setTimeout(() => {
-                setComposeTo(to);
-                setShowCompose(true);
-              }, 0);
-            }} />}
-          />
-        </Routes>
+        <>
+          {showSearchResults ? (
+            <SearchResults
+              results={searchResults}
+              isSearching={isSearching}
+              searchParams={searchParams}
+              onClearSearch={onClearSearch}
+            />
+          ) : (
+            <Routes>
+              <Route index element={<Navigate to="inbox" />} />
+              <Route path="inbox" element={<Inbox mails={mails} />} />
+              <Route path="labels/:labelId" element={<LabelView />} />
+              <Route
+                path="inbox/:mailId"
+                element={<MailDetail onCompose={(to) => {
+                  setShowCompose(false);
+                  setTimeout(() => {
+                    setComposeTo(to);
+                    setShowCompose(true);
+                  }, 0);
+                }} />}
+              />
+            </Routes>
+          )}
+        </>
       )}
     </div>
   );

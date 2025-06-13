@@ -41,6 +41,7 @@ const sentRoute = require('./routes/sent');
 const spamRoute = require('./routes/spam');
 const trashRoute = require('./routes/trash');
 const starredRoute = require('./routes/starred');
+const searchRoute = require('./routes/searchRoutes');
 const { loginUser } = require('./controllers/userController');
 
 // API Endpoints
@@ -54,6 +55,7 @@ app.use('/api/sent', sentRoute);
 app.use('/api/spam', spamRoute);
 app.use('/api/trash', trashRoute);
 app.use('/api/starred', starredRoute);
+app.use('/api/search', searchRoute);
 app.post('/api/tokens', loginUser);
 
 // Static React App

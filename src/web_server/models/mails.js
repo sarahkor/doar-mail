@@ -130,14 +130,70 @@ const deleteMailById = (user, id) => {
   return true;
 };
 
+// Helper function for smart text matching
+const smartTextMatch = (text, searchTerm) => {
+  if (!text || !searchTerm) return false;
+
+  // Normalize both strings: lowercase, trim, remove extra spaces
+  const normalizedText = text.toLowerCase().trim().replace(/\s+/g, ' ');
+  const normalizedSearch = searchTerm.toLowerCase().trim().replace(/\s+/g, ' ');
+
+  // If search term is empty after normalization, return false
+  if (!normalizedSearch) return false;
+
+  // Split search term into words for multi-word search
+  const searchWords = normalizedSearch.split(' ').filter(word => word.length > 0);
+
+  // Check if all search words are found in the text (AND logic for multiple words)
+  return searchWords.every(word => normalizedText.includes(word));
+};
+
 const searchMailsByUser = (user, query) => {
-  const lowerQuery = query.toLowerCase();
-  return [...user.sent, ...user.inbox, ...user.drafts].filter(mail =>
-    mail.to?.toLowerCase().includes(lowerQuery) ||
-    mail.from?.toLowerCase().includes(lowerQuery) ||
-    mail.subject?.toLowerCase().includes(lowerQuery) ||
-    mail.bodyPreview?.toLowerCase().includes(lowerQuery)
+  if (!query || !query.trim()) return [];
+
+  const allMails = [...user.sent, ...user.inbox, ...user.drafts];
+
+  return allMails.filter(mail =>
+    smartTextMatch(mail.to, query) ||
+    smartTextMatch(mail.from, query) ||
+    smartTextMatch(mail.fromName, query) ||
+    smartTextMatch(mail.subject, query) ||
+    smartTextMatch(mail.bodyPreview, query)
   );
+};
+
+const advancedSearchMails = (user, searchParams) => {
+  const allMails = [...user.sent, ...user.inbox, ...user.drafts];
+
+  // If no search parameters provided, return empty array
+  if (!searchParams || Object.keys(searchParams).length === 0) {
+    return [];
+  }
+
+  return allMails.filter(mail => {
+    let matches = true;
+
+    // Check subject search - must match if provided
+    if (searchParams.subject && searchParams.subject.trim()) {
+      const subjectMatch = smartTextMatch(mail.subject, searchParams.subject);
+      matches = matches && subjectMatch;
+    }
+
+    // Check from (sender) search - must match if provided
+    if (searchParams.from && searchParams.from.trim()) {
+      const fromMatch = smartTextMatch(mail.from, searchParams.from) ||
+        smartTextMatch(mail.fromName, searchParams.from);
+      matches = matches && fromMatch;
+    }
+
+    // Check content search - must match if provided
+    if (searchParams.content && searchParams.content.trim()) {
+      const contentMatch = smartTextMatch(mail.bodyPreview, searchParams.content);
+      matches = matches && contentMatch;
+    }
+
+    return matches;
+  });
 };
 
 const toggleStarred = (user, mailId) => {
@@ -210,7 +266,7 @@ const reportAsSpam = async (user, mailId) => {
     if (index !== -1) {
       mail = user[box][index];
 
-      // Prevent reporting a draft (shouldn’t happen, but double check)
+      // Prevent reporting a draft (shouldn't happen, but double check)
       if (mail.status === 'draft') return false;
 
       // Remove from current box
@@ -286,6 +342,7 @@ module.exports = {
   updateMailById,
   deleteMailById,
   searchMailsByUser,
+  advancedSearchMails,
   toggleStarred,
   getTrash,
   permanentlyDeleteFromTrash,
