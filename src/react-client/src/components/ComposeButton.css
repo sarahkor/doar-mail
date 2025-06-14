@@ -1,0 +1,51 @@
+.compose-button {
+  width: 70%;
+  display: flex;
+  align-items: center;
+  /* vertical centering */
+  justify-content: center;
+  /* horizontal centering */
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  background-color: var(--bg-compose-light);
+  color: var(--text-compose-light);
+  box-shadow: var(--shadow);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+/* Icon next to text */
+.compose-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.compose-text {
+  display: inline-block;
+  margin-left: 4px;
+}
+
+/* Hover effect */
+.compose-button:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Dark mode overrides */
+[data-theme='dark'] .compose-button {
+  background-color: var(--bg-compose-dark);
+  color: var(--text-compose-dark);
+}
+
+[data-theme='dark'] .compose-button:hover {
+  background-color: var(--hover-bg-dark);
+}
+
+[data-theme='dark'] .compose-icon {
+  filter: brightness(0) invert(1);
+}

@@ -1,5 +1,4 @@
 .navbar {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -8,12 +7,9 @@
     background-color: var(--bg-primary);
     border-bottom: 1px solid var(--border-color);
     box-shadow: var(--shadow);
-    position: sticky;
     top: 0;
-    z-index: 1000;
     transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     margin: 0;
-    position: sticky;
 }
 
 .navbar-left {
@@ -29,6 +25,7 @@
     flex: 1;
     max-width: 720px;
     margin-top: 6px;
+    margin-bottom: -100px;
 }
 
 .navbar-right {

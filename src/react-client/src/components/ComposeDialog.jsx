@@ -1,17 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ComposeDialog.css';
 import trashIcon from '../assets/icons/trash.svg';
 import attachmentIcon from '../assets/icons/attachment.svg';
 
-function ComposeDialog({ onClose, refreshInbox, to = '' }) {
-  const [form, setForm] = useState({
+function sanitizeDraft(draft, to) {
+  return {
+    to: draft?.to || to || '',
+    subject: draft?.subject === '(no subject)' ? '' : (draft?.subject || ''),
+    bodyPreview: draft?.bodyPreview === 'No content.' ? '' : (draft?.bodyPreview || '')
+  };
+}
+
+function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
+  const [form, setForm] = useState(draft ? sanitizeDraft(draft, to) : {
     to: to || '',
     subject: '',
     bodyPreview: ''
   });
+
   const [file, setFile] = useState(null);
   const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState({ to: "" });
+  const [error, setError] = useState({ to: '' });
+  const [existingAttachments, setExistingAttachments] = useState(draft?.attachments || []);
+
+  useEffect(() => {
+    if (draft) {
+      setForm(sanitizeDraft(draft, to));
+      setExistingAttachments(draft.attachments || []);
+    }
+  }, [draft, to]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,80 +40,119 @@ function ComposeDialog({ onClose, refreshInbox, to = '' }) {
   };
 
   const handleSubmit = async () => {
-    setIsSending(true);
-    const formData = new FormData();
-    formData.append('to', form.to.trim());
-    formData.append('subject', form.subject);
-    formData.append('bodyPreview', form.bodyPreview);
-    formData.append('status', 'sent');
-    if (file) {
-      formData.append('attachments', file);
+    const isDraft = draft?.status === 'draft';
+    const cleanTo = form.to.trim();
+
+    // ✅ Reject send if no recipient
+    if (!cleanTo) {
+      setError({ to: "Please enter a recipient email address." });
+      return;
     }
 
-    try {
-      const response = await fetch('/api/mails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem('token')}`
-        },
-        body: formData
-      });
+    setIsSending(true);
 
-      const data = await response.json();
+    try {
+      let response, data;
+      if (draft && draft.id) {
+        const payload = {
+          subject: form.subject,
+          bodyPreview: form.bodyPreview,
+          status: 'sent',
+          to: cleanTo
+        };
+
+        response = await fetch(`/api/mails/${draft.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        data = response.status !== 204 ? await response.json() : {};
+      } else {
+        const formData = new FormData();
+        formData.append('to', cleanTo);
+        formData.append('subject', form.subject);
+        formData.append('bodyPreview', form.bodyPreview);
+        formData.append('status', 'sent');
+        if (file) formData.append('attachments', file);
+
+        response = await fetch('/api/mails', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`
+          },
+          body: formData
+        });
+
+        data = await response.json();
+      }
 
       if (!response.ok) {
-        const message = data.error.toLowerCase();
+        const message = (data?.error || '').toLowerCase();
 
-        if (response.status === 400) {
-          if (message.includes("missing required") && message.includes("to")) {
-            setError({ to: "Please enter a recipient email address." });
-          } else if (message.includes("recipient does not exist")) {
-            setError({ to: "The recipient was not found. Please check the address." });
-          } else if (message.includes("@doar.com")) {
-            setError({ to: "You can only send mail to Doar users (e.g. user@doar.com)." });
-          } else {
-            alert(data.error || "Failed to send mail.");
-          }
+        if (message.includes("recipient")) {
+          setError({ to: message.includes("exist") ? "Recipient does not exist." : "Recipient required." });
+        } else if (message.includes("@doar.com")) {
+          setError({ to: "Recipient must be a Doar user (e.g., user@doar.com)." });
         } else {
-          alert(data.error || "Failed to send mail.");
+          alert(data?.error || "Failed to send mail.");
         }
         return;
       }
 
-      refreshInbox?.();  // Refresh inbox if provided
-      onClose();         // Close dialog after successful send
-
+      refreshInbox?.();
+      onClose();
     } catch (err) {
-      alert('Network error: failed to send mail.');
+      alert("Network error: failed to send mail.");
     } finally {
       setIsSending(false);
     }
   };
 
   const handleCancel = async () => {
-    const hasContent = form.to.trim() || form.subject.trim() || form.bodyPreview.trim() || file;
-    if (!hasContent) return onClose();
-
-    const formData = new FormData();
-    formData.append('to', form.to.trim());
-    formData.append('subject', form.subject);
-    formData.append('bodyPreview', form.bodyPreview);
-    formData.append('status', 'draft');
-    if (file) {
-      formData.append('attachments', file);
-    }
+    const isTrulyEmpty = !form.to.trim() && !form.subject.trim() && !form.bodyPreview.trim() && !file;
+    if (isTrulyEmpty) return onClose(); // nothing to save
 
     try {
-      await fetch('/api/mails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem('token')}`
-        },
-        body: formData
-      });
+      if (draft?.id) {
+        const payload = {
+          subject: form.subject,
+          bodyPreview: form.bodyPreview,
+          status: 'draft',
+          to: form.to || '' // ✅ Always include 'to', even if empty
+        };
+
+        await fetch(`/api/mails/${draft.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`
+          },
+          body: JSON.stringify(payload)
+        });
+      } else {
+        const formData = new FormData();
+        formData.append('to', form.to || ''); // ✅ Always include 'to'
+        formData.append('subject', form.subject);
+        formData.append('bodyPreview', form.bodyPreview);
+        formData.append('status', 'draft');
+        if (file) formData.append('attachments', file);
+
+        await fetch('/api/mails', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`
+          },
+          body: formData
+        });
+      }
     } catch (err) {
-      console.warn('Failed to save draft:', err);
+      console.warn("Failed to save draft:", err);
     } finally {
+      refreshInbox?.();
       onClose();
     }
   };
@@ -104,14 +160,14 @@ function ComposeDialog({ onClose, refreshInbox, to = '' }) {
   return (
     <div className="compose-overlay">
       <div className="compose-dialog">
-        <h3 className="compose-title">New Mail</h3>
-
+        <h3 className="compose-title">{draft ? "Edit Draft" : "New Mail"}</h3>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
           }}
           encType="multipart/form-data"
+          noValidate
         >
           <label htmlFor="to" className="visually-hidden">To</label>
           <input
@@ -133,9 +189,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '' }) {
           />
           {error.to && <div id="to-error" className="input-error">{error.to}</div>}
 
-          <label htmlFor="subject" className="visually-hidden">Subject</label>
           <input
-            id="subject"
             type="text"
             name="subject"
             placeholder="Subject"
@@ -144,9 +198,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '' }) {
             className="compose-input"
           />
 
-          <label htmlFor="bodyPreview" className="visually-hidden">Body</label>
           <textarea
-            id="bodyPreview"
             name="bodyPreview"
             placeholder="Body"
             value={form.bodyPreview}
@@ -175,6 +227,22 @@ function ComposeDialog({ onClose, refreshInbox, to = '' }) {
                 >
                   {file.name}
                 </a>
+              )}
+              {existingAttachments.length > 0 && (
+                <div className="existing-attachments">
+                  {existingAttachments.map((att, idx) => (
+                    <a
+                      key={idx}
+                      className="attached-filename"
+                      href={`data:${att.mimetype};base64,${att.buffer}`}
+                      download={att.originalName}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {att.originalName}
+                    </a>
+                  ))}
+                </div>
               )}
               <label htmlFor="file-input" title="Attach a file">
                 <img src={attachmentIcon} alt="Attach" className="attachment-icon" />

@@ -1,11 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ComposeDialog from '../../components/ComposeDialog';
-import mailIcon from '../../assets/icons/inbox.svg';
+import mailIcon from '../../assets/icons/message.svg';
 import Toast from '../../components/Toast';
 import '../../components/Toast.css';
 import MailDetail from './MailDetail';
-import MailFolder from './MailFolder'; // new generic folder page
+import MailFolder from './MailFolder';
 
 const FOLDER_CONFIGS = [
   { path: "inbox", endpoint: "/api/inbox", title: "Inbox" },
@@ -60,7 +60,7 @@ function HomePage() {
   }, []);
 
   return (
-    <div style={{ padding: '2rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ padding: '1rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
       {showCompose && (
         <ComposeDialog
           onClose={() => setShowCompose(false)}

@@ -2,20 +2,21 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import './MailFoldersSidebar.css';
 import inboxIcon from '../assets/icons/inbox.svg';
-//import sentIcon from '../assets/icons/sent.svg';
+import sentIcon from '../assets/icons/sent.svg';
 import draftsIcon from '../assets/icons/draft.svg';
 import spamIcon from '../assets/icons/spam.svg';
 import trashIcon from '../assets/icons/trash.svg';
 import starredIcon from '../assets/icons/star.svg';
+import allMailIcon from '../assets/icons/allmail.svg';
 
 const FOLDERS = [
   { label: "Inbox", path: "/home/inbox", icon: inboxIcon },
-  { label: "Sent", path: "/home/sent" },
+  { label: "Sent", path: "/home/sent", icon: sentIcon },
   { label: "Drafts", path: "/home/drafts", icon: draftsIcon },
   { label: "Spam", path: "/home/spam", icon: spamIcon },
   { label: "Trash", path: "/home/trash", icon: trashIcon },
   { label: "Starred", path: "/home/starred", icon: starredIcon },
-  { label: "All Mail", path: "/home/all" },
+  { label: "All Mail", path: "/home/all", icon: allMailIcon },
 ];
 
 export default function MailFoldersSidebar({ selected }) {
