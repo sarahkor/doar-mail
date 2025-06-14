@@ -358,14 +358,15 @@ exports.getSpam = (req, res) => {
 };
 exports.getDrafts = (req, res) => {
   try {
-    const sorted = sortByRecent(req.user.drafts || []);
+    const allDrafts = req.user.drafts || [];
+    const onlyRealDrafts = allDrafts.filter(mail => mail.status === 'draft');
+    const sorted = sortByRecent(onlyRealDrafts);
     const paginated = paginateMails(sorted, req.query.page);
     res.status(200).json(paginated);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch drafts.' });
   }
 };
-
 exports.getInbox = (req, res) => {
   try {
     const sorted = sortByRecent(req.user.inbox || []);
@@ -388,11 +389,16 @@ exports.getSent = (req, res) => {
 
 exports.getAllMails = (req, res) => {
   try {
+    const seen = new Set();
     const all = [
       ...(req.user.inbox || []),
       ...(req.user.sent || []),
       ...(req.user.drafts || [])
-    ];
+    ].filter(mail => {
+      if (seen.has(mail.id)) return false;
+      seen.add(mail.id);
+      return true;
+    });
     const sorted = sortByRecent(all);
     const paginated = paginateMails(sorted, req.query.page);
     res.status(200).json(paginated);

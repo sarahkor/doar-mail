@@ -1,0 +1,13 @@
+.star-icon {
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  vertical-align: middle;
+  transition: filter 0.15s;
+}
+
+.star-icon:hover,
+.star-icon:focus {
+  filter: brightness(1.4);
+  outline: none;
+}

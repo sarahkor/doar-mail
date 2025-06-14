@@ -1,4 +1,6 @@
 /* CSS Variables for theming */
+
+
 :root {
   --bg-primary: #ffffff;
   --bg-secondary: #f8f9fa;
@@ -25,19 +27,14 @@
 }
 
 .App {
-  height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: 'Google Sans', Roboto, Arial, sans-serif;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  height: 100vh;
 }
 
 .app-content {
+  display: flex;
   flex: 1;
-  overflow: hidden;
-  background-color: var(--bg-primary);
 }
 
 /* Remove default styles that aren't needed */

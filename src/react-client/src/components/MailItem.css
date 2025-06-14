@@ -80,3 +80,44 @@
 [data-theme='dark'] .mail-time {
   color: #ccc;
 }
+
+.draft-label {
+  background-color: #ffd6d6;
+  color: red;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.mail-meta {
+  display: flex;
+  align-items: center;
+}
+
+.star-icon {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Make the star icon white in dark mode */
+[data-theme='dark'] .star-icon {
+  filter: brightness(0) invert(1);
+}
+
+.trash-icon {
+  margin-left: 8px;
+}
+
+[data-theme='dark'] .trash-icon {
+  filter: brightness(0) invert(1);
+}
+
+.spam-icon {
+  margin-left: 4px;
+}
+
+[data-theme='dark'] .spam-icon {
+  filter: brightness(0) invert(1);
+}
