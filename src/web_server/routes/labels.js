@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const labelController = require('../controllers/labels');
-const authenticateToken = require('../utils/authMiddleware'); // ✅ add this
+const authenticateToken = require('../utils/authMiddleware');
 
 router.route('/')
   .get(authenticateToken, labelController.listLabels)

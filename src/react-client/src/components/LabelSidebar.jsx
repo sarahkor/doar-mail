@@ -3,6 +3,7 @@ import './LabelSidebar.css';
 import LabelItem from './LabelItem';
 import NewLabelDialog from './NewLabelDialog';
 import { getLabels } from '../api/labelsApi';
+import MailFoldersSidebar from './MailFoldersSidebar';
 
 const buildTree = (items) => {
     console.log('🌳 Building tree from labels:', items);
@@ -142,6 +143,13 @@ function LabelSidebar() {
     /* ───────────── JSX ───────────── */
     return (
         <div className="label-sidebar">
+            {/* PAGE BUTTONS SECTION */}
+            <MailFoldersSidebar />
+
+            {/* Divider, optional */}
+            <hr style={{ margin: "16px 0" }} />
+
+            {/* LABELS SECTION */}
             <div className="label-header">
                 <span>Labels</span>
                 <div className="add-label-wrapper">
@@ -154,11 +162,9 @@ function LabelSidebar() {
                     <span className="tooltip">Create new label</span>
                 </div>
             </div>
-
             <ul className="label-list">
                 {buildTree(labels).map(root => renderLabel(root))}
             </ul>
-
             {showModal && (
                 <NewLabelDialog
                     onClose={() => setShowModal(false)}
@@ -169,5 +175,4 @@ function LabelSidebar() {
         </div>
     );
 }
-
 export default LabelSidebar;

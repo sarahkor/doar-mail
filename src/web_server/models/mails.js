@@ -22,6 +22,7 @@ const createMail = ({ sender, recipient, subject, bodyPreview, status = 'draft',
     date: new Date(timestamp).toLocaleDateString('en-GB'),
     time: new Date(timestamp).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
     status,
+    starred: false,
     read: false,
     attachments
   };
@@ -40,11 +41,12 @@ const createMail = ({ sender, recipient, subject, bodyPreview, status = 'draft',
   return newMail;
 };
 
-
 const getMailById = (user, id) => {
   const mail =
     user.sent.find(m => m.id === id) ||
     user.inbox.find(m => m.id === id) ||
+    user.spam.find(m => m.id === id) ||
+    user.trash.find(m => m.id === id) ||
     user.drafts.find(m => m.id === id);
 
   // Mark as read only if recipient (not sender) opens it
@@ -101,14 +103,14 @@ const getTrash = (user) => {
 
 
 const deleteMailById = (user, id) => {
-  const allSources = ['sent', 'inbox', 'drafts'];
+  const allSources = ['sent', 'inbox', 'drafts', 'spam'];
   let mail = null;
 
   for (const box of allSources) {
-    const index = user[box].findIndex(m => m.id === id);
+    const index = user[box]?.findIndex(m => m.id === id);
     if (index !== -1) {
-      mail = user[box].splice(index, 1)[0]; // Remove & retrieve
-      break;
+      const removed = user[box].splice(index, 1)[0];
+      if (!mail) mail = removed; // save the first one to keep
     }
   }
 
@@ -119,10 +121,10 @@ const deleteMailById = (user, id) => {
     label.mailIds = label.mailIds.filter(mailId => mailId !== id);
   });
 
-  // Remove from starred if starred
+  // Remove from starred list
   user.starred = user.starred?.filter(m => m.id !== id);
 
-  // Add to trash with deletion timestamp
+  // Add to trash
   if (!user.trash) user.trash = [];
   mail.deletedAt = Date.now();
   user.trash.push(mail);
@@ -260,25 +262,27 @@ const advancedSearchMails = (user, searchParams) => {
 };
 
 const toggleStarred = (user, mailId) => {
-  if (!user.starred) user.starred = [];
-
-  // Find mail in current user's inbox, sent, or drafts
   const mail =
     user.sent.find(m => m.id === mailId) ||
     user.inbox.find(m => m.id === mailId) ||
+    user.spam?.find(m => m.id === mailId) ||
     user.drafts.find(m => m.id === mailId);
 
   if (!mail) return null;
 
-  const alreadyStarred = user.starred.some(m => m.id === mailId);
+  // Toggle the mail's own field
+  mail.starred = !mail.starred;
 
-  if (alreadyStarred) {
-    user.starred = user.starred.filter(m => m.id !== mailId);
-    return { mail, starred: false };
-  } else {
+  // Maintain the user's starred list for fast access (optional)
+  if (!user.starred) user.starred = [];
+
+  if (mail.starred) {
     user.starred.push(mail);
-    return { mail, starred: true };
+  } else {
+    user.starred = user.starred.filter(m => m.id !== mailId);
   }
+
+  return { mail, starred: mail.starred };
 };
 
 const permanentlyDeleteFromTrash = (user, mailId) => {

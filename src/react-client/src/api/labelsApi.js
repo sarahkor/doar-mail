@@ -1,6 +1,8 @@
-function getAuthHeaders(contentType = null) {
-    const headers = { Authorization: `Bearer ${sessionStorage.getItem('token')}` };
-    if (contentType) headers['Content-Type'] = contentType;
+function getAuthHeaders(contentType) {
+    const token = sessionStorage.getItem("token");
+    if (!token) throw new Error("Not authenticated");
+    const headers = { Authorization: `Bearer ${token}` };
+    if (contentType) headers["Content-Type"] = contentType;
     return headers;
 }
 
@@ -32,8 +34,8 @@ export async function addLabel(name, color = 'gray', parentId = null) {
     return response.json();
 }
 
-export async function updateLabelColor(labelId, color) {
-    const response = await fetch(`/api/labels/${labelId}`, {
+export async function updateLabelColor(id, color) {
+    const response = await fetch(`/api/labels/${id}`, {
         method: 'PATCH',
         headers: getAuthHeaders('application/json'),
         body: JSON.stringify({ color }),

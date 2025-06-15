@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import Navbar from './Navbar';
-import LabelSidebar from './LabelSidebar';
+import ComposeButton from './ComposeButton';
 import ComposeDialog from './ComposeDialog';
+import LabelSidebar from './LabelSidebar';
+import './AppLayout.css';
 
 function AppLayout({ children, onSearch, searchResults, isSearching, onClearSearch }) {
   const [showCompose, setShowCompose] = useState(false);
-
   const openCompose = () => setShowCompose(true);
   const closeCompose = () => setShowCompose(false);
 
   return (
-    <div className="App" style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className="App" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar
         onComposeClick={openCompose}
         onSearch={onSearch}
@@ -18,28 +19,18 @@ function AppLayout({ children, onSearch, searchResults, isSearching, onClearSear
         isSearching={isSearching}
         onClearSearch={onClearSearch}
       />
-      <div
-        className="app-content"
-        style={{
-          display: "flex",
-          flex: 1,
-          height: "100%",
-          overflow: "hidden", // <--- Prevent scrolling here
-        }}
-      >
-        <LabelSidebar />
-        <div
-          className="main-scroll-content"
-          style={{
-            flexGrow: 1,
-            padding: "0 20px 20px 20px",
-            position: "relative",
-            overflowY: "auto", // <--- Only scroll this column!
-            height: "100vh",   // <--- Fill vertical space under navbar
-          }}
-        >
+
+      <div className="app-content">
+        <aside className="sidebar-wrapper">
+          <div className="compose-container">
+            <ComposeButton onClick={openCompose} />
+          </div>
+          <LabelSidebar />
+        </aside>
+
+        <main className="main-scroll-content">
           {children}
-        </div>
+        </main>
       </div>
       {showCompose && <ComposeDialog onClose={closeCompose} />}
     </div>

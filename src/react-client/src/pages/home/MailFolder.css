@@ -1,0 +1,43 @@
+.folder-scroll-container {
+  flex-grow: 1;
+  overflow-y: scroll;
+  padding-right: 8px;
+  min-height: 1px;
+}
+
+/* Optional scrollbar styling */
+.folder-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.folder-scroll-container::-webkit-scrollbar-thumb {
+  background: #aaa;
+  border-radius: 4px;
+}
+
+.folder-wrapper h2 {
+  position: sticky;
+  top: 64px;
+  background: var(--bg-primary);
+  z-index: 3;
+  margin: 0;
+  border-bottom: none;
+  font-size: 1.5rem;
+}
+
+.folder-title {
+  position: sticky;
+  top: 64px;
+  /* right under your fixed navbar */
+  background: var(--bg-primary);
+  z-index: 3;
+  /* above the scroll area */
+  margin: 0;
+  /* reset any default */
+  padding: 16px 24px;
+  /* comfortable padding */
+  font-size: 1.5rem;
+  /* tweak as you like */
+  border-bottom: 1px solid var(--border-color);
+  /* optional divider */
+}
