@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './LabelEmailDialog.css';
 import { getLabels, addMailToLabel, removeMailFromLabel } from '../api/labelsApi';
+import labelIcon from '../assets/icons/label2.svg';
 
 function LabelEmailDialog({ mail, onClose, onSuccess }) {
     const [labels, setLabels] = useState([]);
@@ -20,7 +21,7 @@ function LabelEmailDialog({ mail, onClose, onSuccess }) {
             // Check which labels this mail is already in
             const mailLabelIds = [];
             for (const label of fetchedLabels) {
-                if (label.mailIds && label.mailIds.includes(mail.id)) {
+                if (label.mailIds && label.mailIds.some(id => parseInt(id) === parseInt(mail.id))) {
                     mailLabelIds.push(label.id);
                 }
             }
@@ -37,13 +38,26 @@ function LabelEmailDialog({ mail, onClose, onSuccess }) {
         try {
             const isCurrentlyLabeled = mailLabels.includes(labelId);
 
+            // Ensure mail.id is a number for consistency
+            const numericMailId = parseInt(mail.id);
+
+            console.log('🏷️ Label toggle:', {
+                labelId,
+                mailId: mail.id,
+                numericMailId,
+                mailIdType: typeof mail.id,
+                numericMailIdType: typeof numericMailId,
+                isCurrentlyLabeled,
+                action: isCurrentlyLabeled ? 'remove' : 'add'
+            });
+
             if (isCurrentlyLabeled) {
                 // Remove mail from label
-                await removeMailFromLabel(labelId, mail.id);
+                await removeMailFromLabel(labelId, numericMailId);
                 setMailLabels(prev => prev.filter(id => id !== labelId));
             } else {
                 // Add mail to label
-                await addMailToLabel(labelId, mail.id);
+                await addMailToLabel(labelId, numericMailId);
                 setMailLabels(prev => [...prev, labelId]);
             }
 
@@ -94,7 +108,19 @@ function LabelEmailDialog({ mail, onClose, onSuccess }) {
                                     <div className="label-info">
                                         <div
                                             className="label-color-indicator"
-                                            style={{ backgroundColor: label.color }}
+                                            style={{
+                                                width: 16,
+                                                height: 16,
+                                                backgroundColor: label.color,
+                                                maskImage: `url(${labelIcon})`,
+                                                WebkitMaskImage: `url(${labelIcon})`,
+                                                maskSize: 'contain',
+                                                WebkitMaskSize: 'contain',
+                                                maskRepeat: 'no-repeat',
+                                                WebkitMaskRepeat: 'no-repeat',
+                                                maskPosition: 'center',
+                                                WebkitMaskPosition: 'center'
+                                            }}
                                         ></div>
                                         <span className="label-name">{label.name}</span>
                                     </div>

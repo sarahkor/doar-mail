@@ -77,19 +77,38 @@ const editLabel = (user, labelId, { name, color, parentId }) => {
 };
 
 const addMailToLabel = (user, labelId, mailId) => {
-  const label = getLabelById(user, labelId);
-  if (!label) return false;
+  console.log('🏷️ addMailToLabel model:', { labelId, mailId, mailIdType: typeof mailId });
 
-  const mail = getMailById(user, mailId);
-  if (!mail) return false;
+  const label = getLabelById(user, labelId);
+  if (!label) {
+    console.log('❌ Label not found:', labelId);
+    return false;
+  }
+
+  // Ensure mailId is a number for consistency
+  const numericMailId = parseInt(mailId);
+  if (isNaN(numericMailId)) {
+    console.log('❌ Invalid mail ID:', mailId);
+    return false;
+  }
+
+  const mail = getMailById(user, numericMailId);
+  if (!mail) {
+    console.log('❌ Mail not found:', numericMailId);
+    return false;
+  }
 
   if (!label.mailIds) label.mailIds = [];
 
-  if (!label.mailIds.includes(mailId)) {
-    label.mailIds.push(mailId);
+  // Check if mail is already in label (ensure both are numbers)
+  const alreadyExists = label.mailIds.some(id => parseInt(id) === numericMailId);
+  if (!alreadyExists) {
+    label.mailIds.push(numericMailId);
+    console.log('✅ Mail added to label successfully');
     return true;
   }
 
+  console.log('⚠️ Mail already in label');
   return false;
 }
 
@@ -114,13 +133,30 @@ const labelNameExists = (user, name, excludeId = null) => {
 };
 
 const removeMailFromLabel = (user, labelId, mailId) => {
-  const label = (user.labels || []).find(l => l.id === labelId);
-  if (!label) return false;
+  console.log('🗑️ removeMailFromLabel model:', { labelId, mailId, mailIdType: typeof mailId });
 
-  const index = label.mailIds.indexOf(mailId);
-  if (index === -1) return false;
+  const label = (user.labels || []).find(l => l.id === labelId);
+  if (!label) {
+    console.log('❌ Label not found:', labelId);
+    return false;
+  }
+
+  // Ensure mailId is a number for consistency
+  const numericMailId = parseInt(mailId);
+  if (isNaN(numericMailId)) {
+    console.log('❌ Invalid mail ID:', mailId);
+    return false;
+  }
+
+  // Find the index using numeric comparison
+  const index = label.mailIds.findIndex(id => parseInt(id) === numericMailId);
+  if (index === -1) {
+    console.log('❌ Mail not found in label:', numericMailId);
+    return false;
+  }
 
   label.mailIds.splice(index, 1); // Remove mailId from label
+  console.log('✅ Mail removed from label successfully');
   return true;
 };
 

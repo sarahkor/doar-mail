@@ -12,15 +12,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 24px 8px 0;
+  padding: 10px 24px 10px 0;
   cursor: pointer;
   position: relative;
   transition: background-color 0.2s ease;
+  border-radius: 0 24px 24px 0;
+  margin-bottom: 2px;
   /* Padding-left will be set inline via style prop for indentation */
 }
 
 .label-item:hover {
-  background-color: var(--hover-bg);
+  background: var(--sidebar-selected-bg, #f4e3f1);
+  color: var(--sidebar-selected-color, #000000);
+}
+
+[data-theme='dark'] .label-item:hover {
+  background: #2b2b2b;
+  color: #fff;
 }
 
 .label-content {
@@ -30,8 +38,6 @@
   min-width: 0;
   /* Allows text truncation */
 }
-
-
 
 .label-icon {
   margin-right: 12px;
@@ -50,11 +56,16 @@
 .label-name {
   flex: 1;
   font-size: 14px;
-  color: var(--text-primary);
+  font-weight: 500;
+  color: #444;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: color 0.3s ease;
+}
+
+[data-theme='dark'] .label-name {
+  color: #fff;
 }
 
 .label-name.bold {

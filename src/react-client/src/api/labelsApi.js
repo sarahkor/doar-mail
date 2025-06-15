@@ -78,25 +78,38 @@ export async function deleteLabel(labelId) {
 }
 
 export async function addMailToLabel(labelId, mailId) {
+    console.log('📡 addMailToLabel API call:', { labelId, mailId, mailIdType: typeof mailId });
+
     const response = await fetch(`/api/labels/${labelId}/mails`, {
         method: 'POST',
         headers: getAuthHeaders('application/json'),
         body: JSON.stringify({ mailId }),
     });
+
     if (!response.ok) {
         const errorText = await response.text();
+        console.error('❌ addMailToLabel failed:', errorText);
         throw new Error(errorText || 'Failed to add mail to label');
     }
-    return response.json();
+
+    const result = await response.json();
+    console.log('✅ addMailToLabel success:', result);
+    return result;
 }
 
 export async function removeMailFromLabel(labelId, mailId) {
+    console.log('📡 removeMailFromLabel API call:', { labelId, mailId, mailIdType: typeof mailId });
+
     const response = await fetch(`/api/labels/${labelId}/${mailId}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
     });
+
     if (!response.ok) {
         const errorText = await response.text();
+        console.error('❌ removeMailFromLabel failed:', errorText);
         throw new Error(errorText || 'Failed to remove mail from label');
     }
+
+    console.log('✅ removeMailFromLabel success');
 }

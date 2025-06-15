@@ -182,12 +182,14 @@ exports.addMailToLabel = (req, res) => {
     const user = req.user;
     const body = req.body || {};
 
-    if (typeof body.mailId !== 'number') {
-      return res.status(400).json({ error: 'mailId must be a number' });
+    // Convert mailId to number if it's a string
+    const mailId = parseInt(body.mailId);
+    if (isNaN(mailId)) {
+      return res.status(400).json({ error: 'mailId must be a valid number' });
     }
 
     const labelId = parseInt(req.params.id);
-    const added = Label.addMailToLabel(user, labelId, body.mailId);
+    const added = Label.addMailToLabel(user, labelId, mailId);
 
     if (!added) {
       return res.status(400).json({
@@ -197,6 +199,7 @@ exports.addMailToLabel = (req, res) => {
 
     res.status(200).json({ message: 'Mail added to label successfully' });
   } catch (err) {
+    console.error('Error in addMailToLabel:', err);
     res.status(500).json({ error: 'Failed to add mail to label.' });
   }
 };

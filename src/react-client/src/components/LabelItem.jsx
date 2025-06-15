@@ -5,12 +5,15 @@ import { renameLabel, deleteLabel, updateLabelColor } from '../api/labelsApi';
 import EditLabelDialog from './EditLabelDialog';
 import DeleteLabelDialog from './DeleteLabelDialog';
 import NewLabelDialog from './NewLabelDialog';
+import labelIcon from '../assets/icons/label2.svg';
 
 const COLOR_OPTIONS = [
   '#f28b82', '#fbbc04', '#fff475', '#ccff90',
   '#a7ffeb', '#cbf0f8', '#aecbfa', '#d7aefb',
   '#fdcfe8', '#e6c9a8', '#e8eaed',
 ];
+
+
 
 function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect, onColorChange, onLabelUpdate, onLabelDelete, existingLabels, onLabelAdd, allLabels = [] }) {
   const navigate = useNavigate();
@@ -115,15 +118,24 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
         style={{ paddingLeft: `${indentationPx}px` }}
       >
         <div className="label-content">
-          <svg className="label-icon" width="20" height="20" viewBox="0 0 20 20">
-            <path
-              d="M3.5 4A1.5 1.5 0 0 0 2 5.5v9A1.5 1.5 0 0 0 3.5 16h8.379a1.5 1.5 0 0 0 1.06-.44l4.122-4.12a1.5 1.5 0 0 0 0-2.122L13.939 5.19A1.5 1.5 0 0 0 12.879 4.75H3.5z"
-              fill={label.color}
-              stroke="var(--border-color)"
-              strokeWidth="0.5"
-            />
-            <circle cx="6" cy="10" r="1.5" fill="white" opacity="0.9" />
-          </svg>
+          <div
+            className="label-icon"
+            style={{
+              width: 20,
+              height: 20,
+              marginRight: 12,
+              verticalAlign: 'middle',
+              backgroundColor: label.color,
+              maskImage: `url(${labelIcon})`,
+              WebkitMaskImage: `url(${labelIcon})`,
+              maskSize: 'contain',
+              WebkitMaskSize: 'contain',
+              maskRepeat: 'no-repeat',
+              WebkitMaskRepeat: 'no-repeat',
+              maskPosition: 'center',
+              WebkitMaskPosition: 'center'
+            }}
+          />
           <span className={`label-name ${isSelected ? 'bold' : ''}`}>
             {label.name}
           </span>

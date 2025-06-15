@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import MailItem from '../../components/MailItem';
 import './LabelView.css';
+import labelIcon from '../../assets/icons/label2.svg';
 
 function LabelView() {
     const { labelId } = useParams();
@@ -86,8 +87,20 @@ function LabelView() {
             <div className="label-header-section">
                 <div className="label-title-container">
                     <div
-                        className="label-color-dot"
-                        style={{ backgroundColor: label.color }}
+                        className="label-color-icon"
+                        style={{
+                            width: 24,
+                            height: 24,
+                            backgroundColor: label.color,
+                            maskImage: `url(${labelIcon})`,
+                            WebkitMaskImage: `url(${labelIcon})`,
+                            maskSize: 'contain',
+                            WebkitMaskSize: 'contain',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskPosition: 'center',
+                            WebkitMaskPosition: 'center'
+                        }}
                     ></div>
                     <h2 className="label-title">{label.name}</h2>
                 </div>

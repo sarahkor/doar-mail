@@ -4,6 +4,7 @@ import LabelItem from './LabelItem';
 import NewLabelDialog from './NewLabelDialog';
 import { getLabels } from '../api/labelsApi';
 import MailFoldersSidebar from './MailFoldersSidebar';
+import labelIcon from '../assets/icons/label2.svg';
 
 const buildTree = (items) => {
     console.log('🌳 Building tree from labels:', items);
@@ -146,12 +147,16 @@ function LabelSidebar() {
             {/* PAGE BUTTONS SECTION */}
             <MailFoldersSidebar />
 
-            {/* Divider, optional */}
-            <hr style={{ margin: "16px 0" }} />
-
             {/* LABELS SECTION */}
             <div className="label-header">
-                <span>Labels</span>
+                <div className="label-title-with-icon">
+                    <img
+                        src={labelIcon}
+                        alt="Labels icon"
+                        className="label-section-icon"
+                    />
+                    <span className="label-section-title">Labels</span>
+                </div>
                 <div className="add-label-wrapper">
                     <button
                         className="add-button"

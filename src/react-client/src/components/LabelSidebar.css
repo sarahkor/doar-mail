@@ -88,7 +88,34 @@
   align-items: center;
   font-weight: normal;
   margin-bottom: 10px;
-  padding-left: 5px;
+  padding: 10px 24px;
+  
+}
+
+.label-title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.label-section-icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
+.label-section-title {
+  font-weight: 500;
+  color: #444;
+  font-size: var(--bs-body-font-size);
+}
+
+[data-theme='dark'] .label-section-title {
+  color: #fff;
+}
+
+[data-theme='dark'] .label-section-icon {
+  filter: brightness(0) invert(1);
 }
 
 .add-label-wrapper {
