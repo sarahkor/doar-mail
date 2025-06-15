@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Inbox from './Inbox';
 import LabelView from './LabelView';
 import ComposeDialog from '../../components/ComposeDialog';
 import SearchResults from './SearchResults';
-import mailIcon from '../../assets/icons/mail.svg';
+import mailIcon from '../../assets/icons/message.svg';
 import Toast from '../../components/Toast';
 import '../../components/Toast.css';
 import MailDetail from './MailDetail';
