@@ -4,12 +4,22 @@ import LabelItem from './LabelItem';
 import NewLabelDialog from './NewLabelDialog';
 import { getLabels } from '../api/labelsApi';
 import MailFoldersSidebar from './MailFoldersSidebar';
+import labelIcon from '../assets/icons/label2.svg';
 
 const buildTree = (items) => {
     console.log('🌳 Building tree from labels:', items);
+    console.log('🌳 Raw items before processing:', items.map(l => ({ id: l.id, name: l.name, parentId: l.parentId })));
+
     const map = new Map();
     // Ensure all IDs are treated as numbers for consistency
-    items.forEach(l => map.set(Number(l.id), { ...l, id: Number(l.id), parentId: l.parentId ? Number(l.parentId) : null, children: [] }));
+    items.forEach(l => {
+        const processedLabel = { ...l, id: Number(l.id), parentId: l.parentId ? Number(l.parentId) : null, children: [] };
+        console.log(`🏷️ Processing label "${l.name}": original parentId=${l.parentId}, processed parentId=${processedLabel.parentId}`);
+        map.set(Number(l.id), processedLabel);
+    });
+
+    console.log('📋 Map contents:', Array.from(map.entries()));
+
     const roots = [];
     map.forEach(l => {
         if (l.parentId) {
@@ -60,19 +70,21 @@ function LabelSidebar() {
         </li>
     );
 
-    /* ───────────── טעינת לייבלים בתחילה ───────────── */
-    useEffect(() => {
-        fetchLabels();
-    }, []);
-
     const fetchLabels = async () => {
         try {
+            console.log('🔄 Fetching labels from API...');
             const fetchedLabels = await getLabels();
+            console.log('✅ Fetched labels:', fetchedLabels);
             setLabels(fetchedLabels);
         } catch (err) {
             console.error('Failed to fetch labels:', err);
         }
     };
+
+    /* ───────────── טעינת לייבלים בתחילה ───────────── */
+    useEffect(() => {
+        fetchLabels();
+    }, []);
 
     /* ───────────── יצירת לייבל חדש ───────────── */
     const handleCreateLabel = async (newLabel) => {
@@ -96,10 +108,19 @@ function LabelSidebar() {
     };
 
     /* ───────────── עדכון לייבל קיים ───────────── */
-    const handleLabelUpdate = (updatedLabel) => {
-        setLabels(prev =>
-            prev.map(l => (l.id === updatedLabel.id ? updatedLabel : l))
-        );
+    const handleLabelUpdate = async (updatedLabel) => {
+        console.log('🔄 handleLabelUpdate called with:', updatedLabel);
+        // For label updates that might involve hierarchy changes, refetch all data
+        try {
+            await fetchLabels();
+            console.log('✅ Labels refreshed after update');
+        } catch (error) {
+            console.error('Failed to refresh labels after update:', error);
+            // Fallback to local update only
+            setLabels(prev =>
+                prev.map(l => (l.id === updatedLabel.id ? updatedLabel : l))
+            );
+        }
     };
 
     /* ───────────── מחיקת לייבל ───────────── */
@@ -126,12 +147,16 @@ function LabelSidebar() {
             {/* PAGE BUTTONS SECTION */}
             <MailFoldersSidebar />
 
-            {/* Divider, optional */}
-            <hr style={{ margin: "16px 0" }} />
-
             {/* LABELS SECTION */}
             <div className="label-header">
-                <span>Labels</span>
+                <div className="label-title-with-icon">
+                    <img
+                        src={labelIcon}
+                        alt="Labels icon"
+                        className="label-section-icon"
+                    />
+                    <span className="label-section-title">Labels</span>
+                </div>
                 <div className="add-label-wrapper">
                     <button
                         className="add-button"

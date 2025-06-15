@@ -1,0 +1,109 @@
+.label-view-wrapper {
+    background: var(--bg-primary);
+    border-radius: 22px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.11), 0 1.5px 6px rgba(0, 0, 0, 0.08);
+    padding: 32px 24px 24px 24px;
+    min-height: 60vh;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.label-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.label-title-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.label-color-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-right: 4px;
+}
+
+.label-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+}
+
+.label-mail-count {
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    padding: 4px 12px;
+    border-radius: 16px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.label-mails-container {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.no-mails-message {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.no-mails-message p {
+    margin: 8px 0;
+    font-size: 16px;
+}
+
+.no-mails-message p:first-child {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.mails-list {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .label-view-wrapper {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3), 0 1.5px 6px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme='dark'] .label-header-section {
+    border-color: #444;
+}
+
+[data-theme='dark'] .mails-list {
+    border-color: #444;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .label-view-wrapper {
+        padding: 20px 16px;
+        border-radius: 16px;
+    }
+
+    .label-header-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .label-title {
+        font-size: 20px;
+    }
+
+    .no-mails-message {
+        padding: 40px 16px;
+    }
+}

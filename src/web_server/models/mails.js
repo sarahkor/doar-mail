@@ -133,13 +133,132 @@ const deleteMailById = (user, id) => {
 };
 
 const searchMailsByUser = (user, query) => {
-  const lowerQuery = query.toLowerCase();
-  return [...user.sent, ...user.inbox, ...user.drafts].filter(mail =>
-    mail.to?.toLowerCase().includes(lowerQuery) ||
-    mail.from?.toLowerCase().includes(lowerQuery) ||
-    mail.subject?.toLowerCase().includes(lowerQuery) ||
-    mail.bodyPreview?.toLowerCase().includes(lowerQuery)
-  );
+  const searchQuery = query.toLowerCase().trim();
+  const searchWords = searchQuery.split(/\s+/);
+
+  const allMails = [...user.sent, ...user.inbox, ...user.drafts];
+
+  const matchingMails = allMails.filter(mail => {
+    // Get all searchable fields
+    const mailTo = (mail.to || '').toLowerCase();
+    const mailFrom = (mail.from || '').toLowerCase();
+    const mailFromName = (mail.fromName || '').toLowerCase();
+    const mailSubject = (mail.subject || '').toLowerCase();
+    const mailContent = (mail.bodyPreview || '').toLowerCase();
+
+    // Combine all searchable text
+    const allText = `${mailTo} ${mailFrom} ${mailFromName} ${mailSubject} ${mailContent}`;
+
+    // Smart matching: check if search query or individual words are found
+    const exactMatch = allText.includes(searchQuery);
+    const wordMatch = searchWords.every(word => allText.includes(word));
+
+    // Also check individual fields for better relevance
+    const subjectMatch = mailSubject.includes(searchQuery) ||
+      searchWords.some(word => mailSubject.includes(word));
+    const fromMatch = mailFrom.includes(searchQuery) ||
+      mailFromName.includes(searchQuery) ||
+      searchWords.some(word => mailFrom.includes(word) || mailFromName.includes(word));
+    const toMatch = mailTo.includes(searchQuery) ||
+      searchWords.some(word => mailTo.includes(word));
+    const contentMatch = mailContent.includes(searchQuery) ||
+      searchWords.some(word => mailContent.includes(word));
+
+    const isMatch = exactMatch || wordMatch || subjectMatch || fromMatch || toMatch || contentMatch;
+
+    // Return true if any matching strategy succeeds
+    return isMatch;
+  });
+
+  // Remove duplicates by using a Map with email ID as key
+  const uniqueMailsMap = new Map();
+  matchingMails.forEach(mail => {
+    uniqueMailsMap.set(mail.id, mail);
+  });
+
+  // Convert back to array
+  return Array.from(uniqueMailsMap.values());
+};
+
+const advancedSearchMails = (user, searchParams) => {
+  const allMails = [...user.sent, ...user.inbox, ...user.drafts];
+
+  const matchingMails = allMails.filter(mail => {
+    // If no search parameters are provided, return no results
+    if (!searchParams.subject && !searchParams.from && !searchParams.to && !searchParams.content) {
+      return false;
+    }
+
+    let allFieldsMatch = true;
+
+    // Check subject search (if provided)
+    if (searchParams.subject) {
+      const subjectQuery = searchParams.subject.toLowerCase().trim();
+      const mailSubject = (mail.subject || '').toLowerCase();
+
+      // Smart subject matching: supports partial words and multiple words
+      const subjectMatch = subjectQuery.split(/\s+/).every(word =>
+        mailSubject.includes(word)
+      ) || mailSubject.includes(subjectQuery);
+
+      allFieldsMatch = allFieldsMatch && subjectMatch;
+    }
+
+    // Check from (sender) search (if provided)
+    if (searchParams.from) {
+      const fromQuery = searchParams.from.toLowerCase().trim();
+      const mailFrom = (mail.from || '').toLowerCase();
+      const mailFromName = (mail.fromName || '').toLowerCase();
+
+      // Smart from matching: check email address and display name
+      const fromMatch = mailFrom.includes(fromQuery) ||
+        mailFromName.includes(fromQuery) ||
+        fromQuery.split(/\s+/).some(word =>
+          mailFrom.includes(word) || mailFromName.includes(word)
+        );
+
+      allFieldsMatch = allFieldsMatch && fromMatch;
+    }
+
+    // Check to (recipient) search (if provided)
+    if (searchParams.to) {
+      const toQuery = searchParams.to.toLowerCase().trim();
+      const mailTo = (mail.to || '').toLowerCase();
+
+      // Smart to matching: supports partial words and multiple words
+      const toMatch = mailTo.includes(toQuery) ||
+        toQuery.split(/\s+/).some(word =>
+          mailTo.includes(word)
+        );
+
+      allFieldsMatch = allFieldsMatch && toMatch;
+    }
+
+    // Check content search (if provided)
+    if (searchParams.content) {
+      const contentQuery = searchParams.content.toLowerCase().trim();
+      const mailContent = (mail.bodyPreview || '').toLowerCase();
+
+      // Smart content matching: supports partial words and phrases
+      const contentMatch = contentQuery.split(/\s+/).every(word =>
+        mailContent.includes(word)
+      ) || mailContent.includes(contentQuery);
+
+      allFieldsMatch = allFieldsMatch && contentMatch;
+    }
+
+    // Mail matches if ALL specified search criteria match
+    return allFieldsMatch;
+  });
+
+  // Remove duplicates by using a Map with email ID as key
+  const uniqueMailsMap = new Map();
+  matchingMails.forEach(mail => {
+    uniqueMailsMap.set(mail.id, mail);
+  });
+
+  // Convert back to array
+  return Array.from(uniqueMailsMap.values());
 };
 
 const toggleStarred = (user, mailId) => {
@@ -214,7 +333,7 @@ const reportAsSpam = async (user, mailId) => {
     if (index !== -1) {
       mail = user[box][index];
 
-      // Prevent reporting a draft (shouldn’t happen, but double check)
+      // Prevent reporting a draft (shouldn't happen, but double check)
       if (mail.status === 'draft') return false;
 
       // Remove from current box
@@ -290,6 +409,7 @@ module.exports = {
   updateMailById,
   deleteMailById,
   searchMailsByUser,
+  advancedSearchMails,
   toggleStarred,
   getTrash,
   permanentlyDeleteFromTrash,

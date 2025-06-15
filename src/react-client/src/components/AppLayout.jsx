@@ -5,18 +5,24 @@ import ComposeDialog from './ComposeDialog';
 import LabelSidebar from './LabelSidebar';
 import './AppLayout.css';
 
-function AppLayout({ children }) {
+function AppLayout({ children, onSearch, searchResults, isSearching, onClearSearch }) {
   const [showCompose, setShowCompose] = useState(false);
   const openCompose = () => setShowCompose(true);
   const closeCompose = () => setShowCompose(false);
 
   return (
     <div className="App" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
+      <Navbar
+        onComposeClick={openCompose}
+        onSearch={onSearch}
+        searchResults={searchResults}
+        isSearching={isSearching}
+        onClearSearch={onClearSearch}
+      />
 
       <div className="app-content">
         <aside className="sidebar-wrapper">
-          <div className="compose-container"> {/* ✅ now inside sidebar */}
+          <div className="compose-container">
             <ComposeButton onClick={openCompose} />
           </div>
           <LabelSidebar />

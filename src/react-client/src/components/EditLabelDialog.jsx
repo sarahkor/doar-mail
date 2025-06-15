@@ -4,9 +4,31 @@ import { renameLabel } from '../api/labelsApi';
 
 function EditLabelDialog({ label, onClose, onUpdate, existingLabels = [] }) {
     const [labelName, setLabelName] = useState(label.name);
-    const [parentId, setParentId] = useState('');
-    const [isNested, setIsNested] = useState(false);
+    const [parentId, setParentId] = useState(label.parentId ? label.parentId.toString() : '');
+    const [isNested, setIsNested] = useState(!!label.parentId);
     const [loading, setLoading] = useState(false);
+
+    console.log(`🔧 EditLabelDialog initialized - Label: "${label.name}", Current parentId: ${label.parentId}, isNested: ${!!label.parentId}`);
+
+    // Filter out current label and its descendants to prevent circular references
+    const getAvailableParents = () => {
+        const getDescendantIds = (labelId, labels) => {
+            const descendants = [];
+            const children = labels.filter(l => l.parentId === labelId);
+            children.forEach(child => {
+                descendants.push(child.id);
+                descendants.push(...getDescendantIds(child.id, labels));
+            });
+            return descendants;
+        };
+
+        const excludeIds = [label.id, ...getDescendantIds(label.id, existingLabels)];
+        const available = existingLabels.filter(l => !excludeIds.includes(l.id));
+        console.log(`🔧 Available parents for "${label.name}":`, available.map(l => ({ id: l.id, name: l.name })));
+        return available;
+    };
+
+    const availableParents = getAvailableParents();
 
     // Save is disabled only if:
     // - loading
@@ -14,17 +36,42 @@ function EditLabelDialog({ label, onClose, onUpdate, existingLabels = [] }) {
     // - isNested is true and no parentId is selected
     const saveDisabled = loading || labelName.trim() === '' || (isNested && !parentId);
 
+    console.log(`🔧 Form state - labelName: "${labelName}", parentId: "${parentId}", isNested: ${isNested}, saveDisabled: ${saveDisabled}`);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (saveDisabled) return;
+        console.log(`🔧 Form submitted - labelName: "${labelName}", parentId: "${parentId}", isNested: ${isNested}`);
+        if (saveDisabled) {
+            console.log(`❌ Form submission blocked - saveDisabled: ${saveDisabled}`);
+            return;
+        }
         setLoading(true);
         try {
-            const updatedLabel = await renameLabel(label.id, labelName);
+            const parentIdToSend = isNested ? parseInt(parentId) : null;
+            console.log(`🔄 EditLabelDialog submitting: name="${labelName}", parentId=${parentIdToSend} (isNested: ${isNested}, raw parentId: "${parentId}")`);
+            const updatedLabel = await renameLabel(label.id, labelName, parentIdToSend);
+            console.log(`✅ EditLabelDialog received updated label:`, updatedLabel);
             if (onUpdate) onUpdate(updatedLabel);
             onClose();
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleNestedChange = (e) => {
+        const checked = e.target.checked;
+        console.log(`🔧 Nested checkbox changed to: ${checked}`);
+        setIsNested(checked);
+        if (!checked) {
+            console.log(`🔧 Clearing parentId because nested is false`);
+            setParentId('');
+        }
+    };
+
+    const handleParentChange = (e) => {
+        const newParentId = e.target.value;
+        console.log(`🔧 Parent dropdown changed to: "${newParentId}"`);
+        setParentId(newParentId);
     };
 
     /* ---------- רינדור ---------- */
@@ -51,10 +98,7 @@ function EditLabelDialog({ label, onClose, onUpdate, existingLabels = [] }) {
                                 type="checkbox"
                                 id="nest-label"
                                 checked={isNested}
-                                onChange={(e) => {
-                                    setIsNested(e.target.checked);
-                                    if (!e.target.checked) setParentId('');
-                                }}
+                                onChange={handleNestedChange}
                             />
                             <label htmlFor="nest-label" className="nest-label">
                                 Nest label under:
@@ -65,12 +109,12 @@ function EditLabelDialog({ label, onClose, onUpdate, existingLabels = [] }) {
                         id="parent-select"
                         className="select-dropdown"
                         value={parentId}
-                        onChange={(e) => setParentId(e.target.value)}
+                        onChange={handleParentChange}
                         style={{ marginTop: 8 }}
                         disabled={!isNested}
                     >
                         <option value="">Please select a parent...</option>
-                        {existingLabels.map((l) => (
+                        {availableParents.map((l) => (
                             <option key={l.id} value={l.id}>
                                 {l.name}
                             </option>

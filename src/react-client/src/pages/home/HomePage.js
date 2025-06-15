@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import LabelView from './LabelView';
 import ComposeDialog from '../../components/ComposeDialog';
+import SearchResults from './SearchResults';
 import mailIcon from '../../assets/icons/message.svg';
 import Toast from '../../components/Toast';
 import '../../components/Toast.css';
@@ -17,7 +19,7 @@ const FOLDER_CONFIGS = [
   { path: "all", endpoint: "/api/mails/all", title: "All Mail" }
 ];
 
-function HomePage() {
+function HomePage({ searchResults, isSearching, searchParams, onClearSearch }) {
   const [showCompose, setShowCompose] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [senderName, setSenderName] = useState('');
@@ -59,6 +61,9 @@ function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
+  // Determine what to show in the main content area
+  const showSearchResults = searchResults !== null;
+
   return (
     <div style={{ padding: '1rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
       {showCompose && (
@@ -75,31 +80,41 @@ function HomePage() {
         </Toast>
       )}
 
-      <Routes>
-        <Route index element={<Navigate to="inbox" />} />
-        {FOLDER_CONFIGS.map(({ path, endpoint, title }) => (
+      {showSearchResults ? (
+        <SearchResults
+          results={searchResults}
+          isSearching={isSearching}
+          searchParams={searchParams}
+          onClearSearch={onClearSearch}
+        />
+      ) : (
+        <Routes>
+          <Route index element={<Navigate to="inbox" />} />
+          {FOLDER_CONFIGS.map(({ path, endpoint, title }) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <MailFolder endpoint={endpoint} title={title} folder={path} />
+              }
+            />
+          ))}
+          <Route path="labels/:labelId" element={<LabelView />} />
+          {/* One detail route for ALL folders */}
           <Route
-            key={path}
-            path={path}
+            path=":folder/:mailId"
             element={
-              <MailFolder endpoint={endpoint} title={title} folder={path} />
+              <MailDetail onCompose={(to) => {
+                setShowCompose(false);
+                setTimeout(() => {
+                  setComposeTo(to);
+                  setShowCompose(true);
+                }, 0);
+              }} />
             }
           />
-        ))}
-        {/* One detail route for ALL folders */}
-        <Route
-          path=":folder/:mailId"
-          element={
-            <MailDetail onCompose={(to) => {
-              setShowCompose(false);
-              setTimeout(() => {
-                setComposeTo(to);
-                setShowCompose(true);
-              }, 0);
-            }} />
-          }
-        />
-      </Routes>
+        </Routes>
+      )}
     </div>
   );
 }

@@ -125,6 +125,33 @@ exports.editLabel = (req, res) => {
       return res.status(400).json({ error: `A label named '${body.name}' already exists.` });
     }
 
+    // Validate parentId if provided
+    if (body.parentId !== undefined) {
+      if (body.parentId !== null) {
+        const parentLabel = Label.getLabelById(user, parseInt(body.parentId));
+        if (!parentLabel) {
+          return res.status(400).json({ error: `Parent label with ID ${body.parentId} not found.` });
+        }
+
+        // Prevent setting a label as its own parent or creating circular references
+        if (parseInt(body.parentId) === labelId) {
+          return res.status(400).json({ error: 'A label cannot be its own parent.' });
+        }
+
+        // Check if the proposed parent is actually a descendant of this label
+        const isDescendant = (potentialParentId, currentLabelId) => {
+          const potentialParent = Label.getLabelById(user, potentialParentId);
+          if (!potentialParent || !potentialParent.parentId) return false;
+          if (potentialParent.parentId === currentLabelId) return true;
+          return isDescendant(potentialParent.parentId, currentLabelId);
+        };
+
+        if (isDescendant(parseInt(body.parentId), labelId)) {
+          return res.status(400).json({ error: 'Cannot create circular reference: the selected parent is a child of this label.' });
+        }
+      }
+    }
+
     const updated = Label.editLabel(user, labelId, body);
     if (!updated) return res.status(404).json({ error: 'Label not found' });
 
@@ -155,12 +182,14 @@ exports.addMailToLabel = (req, res) => {
     const user = req.user;
     const body = req.body || {};
 
-    if (typeof body.mailId !== 'number') {
-      return res.status(400).json({ error: 'mailId must be a number' });
+    // Convert mailId to number if it's a string
+    const mailId = parseInt(body.mailId);
+    if (isNaN(mailId)) {
+      return res.status(400).json({ error: 'mailId must be a valid number' });
     }
 
     const labelId = parseInt(req.params.id);
-    const added = Label.addMailToLabel(user, labelId, body.mailId);
+    const added = Label.addMailToLabel(user, labelId, mailId);
 
     if (!added) {
       return res.status(400).json({
@@ -170,6 +199,7 @@ exports.addMailToLabel = (req, res) => {
 
     res.status(200).json({ message: 'Mail added to label successfully' });
   } catch (err) {
+    console.error('Error in addMailToLabel:', err);
     res.status(500).json({ error: 'Failed to add mail to label.' });
   }
 };

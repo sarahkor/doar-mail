@@ -2,7 +2,9 @@ const { getMailById } = require('./mails');
 let labelIdCounter = 0;
 
 const listLabelsByUser = (user) => {
-  return user.labels || [];
+  const labels = user.labels || [];
+  console.log(`📋 listLabelsByUser: Found ${labels.length} labels for user:`, labels);
+  return labels;
 }
 
 const createLabel = (user, { name, color, parentId }) => {
@@ -47,30 +49,66 @@ const deleteLabel = (user, labelId) => {
   return false;
 };
 
-const editLabel = (user, labelId, { name, color }) => {
+const editLabel = (user, labelId, { name, color, parentId }) => {
   const label = getLabelById(user, labelId);
   if (!label) return null;
 
-  if (name !== undefined) label.name = name;
-  if (color !== undefined) label.color = color;
+  console.log(`🔧 editLabel: Editing label ID ${labelId}`);
+  console.log(`🔧 Current label:`, label);
+  console.log(`🔧 Changes requested:`, { name, color, parentId });
 
+  if (name !== undefined) {
+    console.log(`🔧 Changing name from "${label.name}" to "${name}"`);
+    label.name = name;
+  }
+  if (color !== undefined) {
+    console.log(`🔧 Changing color from "${label.color}" to "${color}"`);
+    label.color = color;
+  }
+  if (parentId !== undefined) {
+    const oldParentId = label.parentId;
+    // Handle parentId - can be null to remove parent, or a number to set parent
+    label.parentId = parentId ? parseInt(parentId) : null;
+    console.log(`🔧 Changing parentId from ${oldParentId} to ${label.parentId}`);
+  }
+
+  console.log(`🔧 Final label after edit:`, label);
   return label;
 };
 
 const addMailToLabel = (user, labelId, mailId) => {
-  const label = getLabelById(user, labelId);
-  if (!label) return false;
+  console.log('🏷️ addMailToLabel model:', { labelId, mailId, mailIdType: typeof mailId });
 
-  const mail = getMailById(user, mailId);
-  if (!mail) return false;
+  const label = getLabelById(user, labelId);
+  if (!label) {
+    console.log('❌ Label not found:', labelId);
+    return false;
+  }
+
+  // Ensure mailId is a number for consistency
+  const numericMailId = parseInt(mailId);
+  if (isNaN(numericMailId)) {
+    console.log('❌ Invalid mail ID:', mailId);
+    return false;
+  }
+
+  const mail = getMailById(user, numericMailId);
+  if (!mail) {
+    console.log('❌ Mail not found:', numericMailId);
+    return false;
+  }
 
   if (!label.mailIds) label.mailIds = [];
 
-  if (!label.mailIds.includes(mailId)) {
-    label.mailIds.push(mailId);
+  // Check if mail is already in label (ensure both are numbers)
+  const alreadyExists = label.mailIds.some(id => parseInt(id) === numericMailId);
+  if (!alreadyExists) {
+    label.mailIds.push(numericMailId);
+    console.log('✅ Mail added to label successfully');
     return true;
   }
 
+  console.log('⚠️ Mail already in label');
   return false;
 }
 
@@ -95,13 +133,30 @@ const labelNameExists = (user, name, excludeId = null) => {
 };
 
 const removeMailFromLabel = (user, labelId, mailId) => {
-  const label = (user.labels || []).find(l => l.id === labelId);
-  if (!label) return false;
+  console.log('🗑️ removeMailFromLabel model:', { labelId, mailId, mailIdType: typeof mailId });
 
-  const index = label.mailIds.indexOf(mailId);
-  if (index === -1) return false;
+  const label = (user.labels || []).find(l => l.id === labelId);
+  if (!label) {
+    console.log('❌ Label not found:', labelId);
+    return false;
+  }
+
+  // Ensure mailId is a number for consistency
+  const numericMailId = parseInt(mailId);
+  if (isNaN(numericMailId)) {
+    console.log('❌ Invalid mail ID:', mailId);
+    return false;
+  }
+
+  // Find the index using numeric comparison
+  const index = label.mailIds.findIndex(id => parseInt(id) === numericMailId);
+  if (index === -1) {
+    console.log('❌ Mail not found in label:', numericMailId);
+    return false;
+  }
 
   label.mailIds.splice(index, 1); // Remove mailId from label
+  console.log('✅ Mail removed from label successfully');
   return true;
 };
 
