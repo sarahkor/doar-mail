@@ -56,6 +56,7 @@ function RegisterPasswordPage() {
     formPayload.append("firstName", fullData.firstName || "");
     formPayload.append("lastName", fullData.lastName || "");
     formPayload.append("phone", fullData.phone || "");
+    formPayload.append("birthday", fullData.dob || "");
     formPayload.append("gender", fullData.gender || "");
 
     if (fullData.profilePicture) {

@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ProfileDetails from './ProfileDetails';
 import './ProfileMenu.css';
 
 function ProfileMenu({ user, isLoading, onClose }) {
     const navigate = useNavigate();
+    const [showProfileDetails, setShowProfileDetails] = useState(false);
 
     const handleLogout = () => {
         sessionStorage.removeItem('token');
         navigate('/login');
+    };
+
+    const handleShowProfileDetails = () => {
+        setShowProfileDetails(true);
+    };
+
+    const handleCloseProfileDetails = () => {
+        setShowProfileDetails(false);
     };
 
     const getProfileImageUrl = (user) => {
@@ -46,6 +56,12 @@ function ProfileMenu({ user, isLoading, onClose }) {
                     </div>
                     <div className="profile-email">Loading...</div>
                     <div className="profile-greeting">Hi, User</div>
+                    <button className="profile-details-button" onClick={handleShowProfileDetails} disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" className="profile-details-icon">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor" />
+                        </svg>
+                        See Profile Details
+                    </button>
                     <button className="logout-button" onClick={handleLogout}>
                         <svg width="20" height="20" viewBox="0 0 24 24" className="logout-icon">
                             <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" fill="currentColor" />
@@ -81,6 +97,12 @@ function ProfileMenu({ user, isLoading, onClose }) {
                 <div className="profile-greeting">
                     Hi, {displayFirstName}
                 </div>
+                <button className="profile-details-button" onClick={handleShowProfileDetails}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" className="profile-details-icon">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor" />
+                    </svg>
+                    See Profile Details
+                </button>
                 <button className="logout-button" onClick={handleLogout}>
                     <svg width="20" height="20" viewBox="0 0 24 24" className="logout-icon">
                         <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" fill="currentColor" />
@@ -88,6 +110,11 @@ function ProfileMenu({ user, isLoading, onClose }) {
                     Log out
                 </button>
             </div>
+            <ProfileDetails
+                user={user}
+                isOpen={showProfileDetails}
+                onClose={handleCloseProfileDetails}
+            />
         </div>
     );
 }
