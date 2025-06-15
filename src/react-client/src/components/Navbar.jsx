@@ -103,7 +103,7 @@ function Navbar({ onComposeClick, onSearch, searchResults, isSearching, onClearS
             return `http://localhost:8080${user.picture}`;
         }
         if (user && user.firstName) {
-            return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName || '')}+${encodeURIComponent(user.lastName || '')}&background=1a73e8&color=fff&size=32`;
+            return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName || '')}+${encodeURIComponent(user.lastName || '')}&background=f69fd5&color=fff&size=32`;
         }
         return `https://ui-avatars.com/api/?name=User&background=1a73e8&color=fff&size=32`;
     };

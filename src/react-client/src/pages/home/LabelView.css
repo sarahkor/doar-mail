@@ -1,22 +1,38 @@
+/* 1. The “card” container, flexed to fill its parent */
 .label-view-wrapper {
-    background: var(--bg-primary);
-    border-radius: 22px;
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.11), 0 1.5px 6px rgba(0, 0, 0, 0.08);
-    padding: 32px 24px 24px 24px;
-    min-height: 60vh;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.label-header-section {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border-color);
+    flex-direction: column;
+    flex: 1;
+    /* fill the available area */
+    min-height: 0;
+    /* allow children to shrink/scroll */
+    background: var(--bg-primary);
+    border-radius: 16px;
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.05),
+        0 1px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    /* clip overflow */
+    padding: 24px;
 }
 
-.label-title-container {
+/* 2. Header pinned at the top */
+.label-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: inherit;
+    /* same as the card */
+    z-index: 2;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+
+/* 3. Title + icon */
+.label-title {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -25,41 +41,50 @@
 .label-color-icon {
     width: 24px;
     height: 24px;
-    flex-shrink: 0;
-    margin-right: 4px;
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    background-color: currentColor;
+    /* we'll set color on h2 */
 }
 
-.label-title {
+.label-title h2 {
     margin: 0;
-    font-size: 24px;
-    font-weight: 500;
+    font-size: 1.5rem;
+    font-weight: 600;
     color: var(--text-primary);
-    transition: color 0.3s ease;
 }
 
-.label-mail-count {
-    font-size: 14px;
+/* 4. Count bubble on the right */
+.label-count {
+    font-size: 0.875rem;
     color: var(--text-secondary);
     background: var(--bg-secondary);
     padding: 4px 12px;
     border-radius: 16px;
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* 5. Scrollable mail list */
 .label-mails-container {
-    max-height: 70vh;
+    flex: 1;
+    /* take all remaining vertical space */
+    min-height: 0;
+    /* allows flex children to scroll */
     overflow-y: auto;
 }
 
+/* 6. “No mails” fallback lives inside the scroll region */
 .no-mails-message {
     text-align: center;
-    padding: 60px 20px;
+    padding: 48px 0;
     color: var(--text-secondary);
 }
 
 .no-mails-message p {
     margin: 8px 0;
-    font-size: 16px;
 }
 
 .no-mails-message p:first-child {
@@ -67,43 +92,85 @@
     color: var(--text-primary);
 }
 
-.mails-list {
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-}
-
-/* Dark mode adjustments */
+/* 7. Dark‐mode tweaks */
 [data-theme='dark'] .label-view-wrapper {
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3), 0 1.5px 6px rgba(0, 0, 0, 0.2);
+    background: var(--bg-primary-dark);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.4),
+        0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
-[data-theme='dark'] .label-header-section {
-    border-color: #444;
+[data-theme='dark'] .label-header {
+    border-bottom-color: var(--border-dark);
 }
 
-[data-theme='dark'] .mails-list {
-    border-color: #444;
+[data-theme='dark'] .no-mails-message {
+    color: #aaa;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-    .label-view-wrapper {
-        padding: 20px 16px;
-        border-radius: 16px;
-    }
+.label-mails-container::-webkit-scrollbar {
+    width: 6px;
+}
 
-    .label-header-section {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
+/* thumb styling */
+.label-mails-container::-webkit-scrollbar-thumb {
+    background: #aaa;
+    border-radius: 4px;
+}
 
-    .label-title {
-        font-size: 20px;
-    }
+/* dark mode thumb */
+[data-theme='dark'] .label-mails-container::-webkit-scrollbar-thumb {
+    background: #555;
+}
 
-    .no-mails-message {
-        padding: 40px 16px;
-    }
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-container .tooltip-text {
+    visibility: hidden;
+    opacity: 0;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    position: absolute;
+    top: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    transition: opacity 0.2s ease;
+}
+
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip-container .tooltip-text.right-align {
+    left: auto;
+    right: 0;
+    transform: translateX(0);
+}
+
+.empty-trash-icon {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+    margin-left: 8px;
+    margin-bottom: 6px;
+}
+
+.empty-trash-icon:hover {
+    opacity: 1;
+}
+
+[data-theme='dark'] .empty-trash-icon {
+    filter: brightness(0) invert(1);
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import MailItem from '../../components/MailItem';
+import ComposeDialog from '../../components/ComposeDialog';
 import './LabelView.css';
 import labelIcon from '../../assets/icons/label2.svg';
 
@@ -10,65 +11,21 @@ function LabelView() {
     const [label, setLabel] = useState(null);
     const [mails, setMails] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [error, setError] = useState('');
+    const [editingDraft, setEditingDraft] = useState(null);
+    const [showCompose, setShowCompose] = useState(false);
 
-    useEffect(() => {
-        fetchLabelWithMails();
-    }, [labelId, location.pathname]); // Re-fetch when labelId or route changes
-
-    // Listen for label updates from other components
-    useEffect(() => {
-        const handleLabelUpdate = (event) => {
-            if (event.detail.labelId === parseInt(labelId)) {
-                // If the current label was updated, refetch its data
-                fetchLabelWithMails();
-            }
-        };
-
-        // Listen for the custom event
-        window.addEventListener('labelUpdated', handleLabelUpdate);
-
-        // Cleanup listener on unmount
-        return () => {
-            window.removeEventListener('labelUpdated', handleLabelUpdate);
-        };
-    }, [labelId]);
-
-    // Also re-fetch when the component becomes visible again
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (!document.hidden) {
-                fetchLabelWithMails();
-            }
-        };
-
-        const handleFocus = () => {
-            fetchLabelWithMails();
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('focus', handleFocus);
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('focus', handleFocus);
-        };
-    }, [labelId]);
-
+    // Fetch label data + mails
     const fetchLabelWithMails = async () => {
         try {
             setLoading(true);
-            const token = sessionStorage.getItem("token");
-            const response = await fetch(`/api/labels/${labelId}`, {
+            const token = sessionStorage.getItem('token');
+            const res = await fetch(`/api/labels/${labelId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            if (!response.ok) {
-                throw new Error("Failed to fetch label");
-            }
-
-            const data = await response.json();
-            console.log('Fetched label data:', data); // Debug log
+            if (!res.ok) throw new Error('Failed to fetch label');
+            const data = await res.json();
             setLabel(data);
             setMails(data.mails || []);
         } catch (err) {
@@ -78,33 +35,59 @@ function LabelView() {
         }
     };
 
+    useEffect(() => {
+        fetchLabelWithMails();
+    }, [labelId, location.pathname]);
+
+    // Listen for custom labelUpdated events
+    useEffect(() => {
+        const handleLabelUpdate = (event) => {
+            if (event.detail.labelId === parseInt(labelId)) {
+                fetchLabelWithMails();
+            }
+        };
+        window.addEventListener('labelUpdated', handleLabelUpdate);
+        return () => window.removeEventListener('labelUpdated', handleLabelUpdate);
+    }, [labelId]);
+
+    // Refetch when tab regains focus
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (!document.hidden) fetchLabelWithMails();
+        };
+        const handleFocus = () => fetchLabelWithMails();
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, [labelId]);
+
+    const handleDraftClick = (mail) => {
+        setEditingDraft(mail);
+        setShowCompose(true);
+    };
+
     if (loading) return <p>Loading label...</p>;
     if (error) return <p className="text-danger">{error}</p>;
     if (!label) return <p>Label not found.</p>;
 
     return (
         <div className="label-view-wrapper">
-            <div className="label-header-section">
-                <div className="label-title-container">
+            <div className="label-header">
+                <div className="label-title">
                     <div
                         className="label-color-icon"
                         style={{
-                            width: 24,
-                            height: 24,
                             backgroundColor: label.color,
                             maskImage: `url(${labelIcon})`,
-                            WebkitMaskImage: `url(${labelIcon})`,
-                            maskSize: 'contain',
-                            WebkitMaskSize: 'contain',
-                            maskRepeat: 'no-repeat',
-                            WebkitMaskRepeat: 'no-repeat',
-                            maskPosition: 'center',
-                            WebkitMaskPosition: 'center'
+                            WebkitMaskImage: `url(${labelIcon})`
                         }}
-                    ></div>
-                    <h2 className="label-title">{label.name}</h2>
+                    />
+                    <h2>{label.name}</h2>
                 </div>
-                <div className="label-mail-count">
+                <div className="label-count">
                     {mails.length} {mails.length === 1 ? 'email' : 'emails'}
                 </div>
             </div>
@@ -116,15 +99,35 @@ function LabelView() {
                         <p>Apply this label to emails to see them here.</p>
                     </div>
                 ) : (
-                    <div className="mails-list">
-                        {mails.map(mail => (
-                            <MailItem key={mail.id} mail={mail} />
-                        ))}
-                    </div>
+                    mails.map(mail => (
+                        <MailItem
+                            key={mail.id}
+                            mail={mail}
+                            folder={mail.status === 'draft' ? 'drafts' : 'inbox'} // Use inbox or something valid
+                            onClick={
+                                mail.status === 'draft'
+                                    ? () => handleDraftClick(mail)
+                                    : undefined // Let MailItem use <Link> for navigation
+                            }
+                            onStarToggle={fetchLabelWithMails}
+                            onTrash={fetchLabelWithMails}
+                        />
+                    ))
+                )}
+
+                {showCompose && editingDraft && (
+                    <ComposeDialog
+                        onClose={() => {
+                            setShowCompose(false);
+                            setEditingDraft(null);
+                        }}
+                        draft={editingDraft}
+                        refreshInbox={fetchLabelWithMails}
+                    />
                 )}
             </div>
         </div>
     );
 }
 
-export default LabelView; 
+export default LabelView;

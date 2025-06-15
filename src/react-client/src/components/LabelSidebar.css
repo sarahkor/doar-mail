@@ -56,7 +56,7 @@
 
 /* Scrollbar styling */
 .label-sidebar::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .label-sidebar::-webkit-scrollbar-track {
@@ -89,7 +89,7 @@
   font-weight: normal;
   margin-bottom: 10px;
   padding: 10px 24px;
-  
+
 }
 
 .label-title-with-icon {
@@ -189,4 +189,49 @@
 /* Simple visual line for nested structure */
 .label-sublist {
   position: relative;
+}
+
+.label-item,
+.more-button,
+.create-label-button,
+.add-button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 2) When you tap/click, force your hover color instead of gray */
+.label-item:active,
+.create-label-button:active,
+.add-button:active,
+.more-button:active {
+  background-color: var(--hover-bg) !important;
+}
+
+/* 3) Remove any outline if you prefer (optional) */
+.label-item:focus,
+.create-label-button:focus,
+.add-button:focus,
+.more-button:focus {
+  outline: none;
+}
+
+
+.label-item-container.selected {
+  /* use the exact same pink you use on hover */
+  background-color: var(--sidebar-selected-bg, #f4e3f1) !important;
+  border-radius: 0 24px 24px 0;
+}
+
+.label-item,
+.more-button,
+.create-label-button,
+.add-button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* when the user actually clicks/taps, keep your pink */
+.label-item:active,
+.label-item-container.selected,
+.more-button-wrapper:active .label-item,
+.more-button:active {
+  background-color: var(--sidebar-selected-bg, #f4e3f1) !important;
 }

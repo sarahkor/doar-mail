@@ -68,23 +68,29 @@
 }
 
 .send-button {
-  background-color: #042655;
+  background-color: #f69fd5;
   color: white;
 }
 
 .send-button:hover {
-  background-color: #2f77e2;
+  background-color: #f4c4e1;
 }
 
 
 .cancel-button {
-  background-color: #e0e0e0;
-  color: #333;
+  background-color: #bbb;
+  color: #ffffff;
 }
 
 .cancel-button:hover {
   background-color: #d0d0d0;
 }
+
+.compose-dialog .cancel-button {
+  background-color: #bbb;
+  color: #fff;
+}
+
 
 .attachment-icon {
   width: 20px;

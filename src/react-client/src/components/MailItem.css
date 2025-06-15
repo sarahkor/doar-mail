@@ -32,6 +32,8 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  margin-left: 8px;
+  margin-top: 8px;
 }
 
 .mail-content {
@@ -90,23 +92,32 @@
   flex-shrink: 0;
 }
 
-.mail-time {
-  flex: 0 0 70px;
-  font-size: 12px;
-  color: #999;
-  text-align: right;
-}
-
-.mail-actions {
+.mail-right {
   display: flex;
   align-items: center;
-  opacity: 0;
+  justify-content: flex-end;
+  width: 100px;
+  /* adjust as needed */
+  flex-shrink: 0;
+  position: relative;
+}
+
+
+.mail-time {
+  position: absolute;
+  right: 0;
+  font-size: 12px;
+  color: #999;
+  opacity: 1;
   transition: opacity 0.2s ease;
-  margin-left: 8px;
 }
 
 .mail-item:hover .mail-actions {
   opacity: 1;
+}
+
+.mail-item:hover .mail-time {
+  opacity: 0;
 }
 
 .label-button {
@@ -114,16 +125,11 @@
   border: none;
   cursor: pointer;
   padding: 6px;
-  border-radius: 4px;
   font-size: 16px;
   transition: background-color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.label-button:hover {
-  background-color: #e0e0e0;
 }
 
 [data-theme='dark'] .mail-item {
@@ -172,6 +178,8 @@
   padding: 2px 6px;
   font-size: 0.75rem;
   font-weight: 600;
+  margin-left: 8px;
+  margin-top: 8px;
 }
 
 .mail-meta {
@@ -183,6 +191,7 @@
   width: 16px;
   height: 16px;
   cursor: pointer;
+  margin-top: 8px;
 }
 
 /* Make the star icon white in dark mode */
@@ -204,4 +213,184 @@
 
 [data-theme='dark'] .spam-icon {
   filter: brightness(0) invert(1);
+}
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-container .tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+
+  padding: 6px 10px;
+  /* Better spacing */
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+
+  position: absolute;
+  top: 125%;
+  transform: translateX(-50%);
+  z-index: 999;
+
+  white-space: nowrap;
+  min-width: max-content;
+  max-width: 300px;
+  min-height: 24px;
+  /* Prevent overflow but allow flexibility */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: opacity 0.3s ease;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Avoid clipping on right edge */
+.tooltip-container .tooltip-text.right-align {
+  left: auto;
+  right: 0;
+  transform: translateX(0);
+}
+
+/* Avoid clipping on left edge */
+.tooltip-container .tooltip-text.left-align {
+  left: 0;
+  right: auto;
+  transform: translateX(0);
+}
+
+.tooltip-container .tooltip-text.shift-up {
+  top: -125%;
+  bottom: auto;
+}
+
+.mail-actions {
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  margin-left: 8px;
+  gap: 4px;
+}
+
+.mail-item:hover .mail-actions {
+  opacity: 1;
+}
+
+.star-icon,
+.trash-icon,
+.spam-icon {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+[data-theme='dark'] .star-icon,
+[data-theme='dark'] .trash-icon,
+[data-theme='dark'] .spam-icon,
+[data-theme='dark'] .untrash-icon,
+[data-theme='dark'] .label-icon {
+  filter: brightness(0) invert(1);
+}
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-container .tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  max-width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  position: absolute;
+  z-index: 999;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip-container .tooltip-text.right-align {
+  left: auto;
+  right: 0;
+  transform: translateX(0);
+}
+
+.tooltip-container .tooltip-text.left-align {
+  left: 0;
+  transform: translateX(0);
+}
+
+.unspam-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.unspam-icon:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.mail-actions img,
+.mail-actions svg,
+.spam-icon,
+.trash-icon,
+.unspam-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.mail-actions img:hover,
+.mail-actions svg:hover,
+.spam-icon:hover,
+.trash-icon:hover,
+.unspam-icon:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.unspam-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.5;
+}
+
+.label-button svg {
+  margin-top: 4px;
+}
+
+.untrash-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.untrash-icon:hover {
+  opacity: 1;
 }
