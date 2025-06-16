@@ -1,0 +1,25 @@
+# Dockerfile.react-client - Builds and serves the React client
+FROM node:20 AS build
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files and install dependencies
+COPY src/react-client/package*.json ./
+RUN npm install
+
+# Copy the rest of the React code
+COPY src/react-client .
+
+# Build the React app
+RUN npm run build
+
+# Serve the built files using Nginx
+FROM nginx:alpine
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Expose default Nginx port
+EXPOSE 80
+
+# Run Nginx
+CMD ["nginx", "-g", "daemon off;"]
