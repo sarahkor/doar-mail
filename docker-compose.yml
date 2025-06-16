@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  web-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.web-server
+    container_name: web-container
+    ports:
+      - "8080:8080"
+    volumes:
+      - gmail_data:/app/data
+    networks:
+      - gmailnet
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - cpp-server
+
+  react-client:
+    build:
+      context: .
+      dockerfile: Dockerfile.react-client
+    container_name: client-container
+    ports:
+      - "3000:80"
+    networks:
+      - gmailnet
+    restart: always
+    depends_on:
+      - web-server
+
+  cpp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: server-container
+    networks:
+      - gmailnet
+    volumes:
+      - gmail_data:/server/data
+    stdin_open: true
+    tty: true
+    command: ["./build/server", "12345", "8", "1", "2"]
+
+volumes:
+  gmail_data:
+
+networks:
+  gmailnet:
