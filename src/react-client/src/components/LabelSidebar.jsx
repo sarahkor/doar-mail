@@ -5,6 +5,7 @@ import NewLabelDialog from './NewLabelDialog';
 import { getLabels } from '../api/labelsApi';
 import MailFoldersSidebar from './MailFoldersSidebar';
 import labelIcon from '../assets/icons/label2.svg';
+import { useLocation } from 'react-router-dom';
 
 const buildTree = (items) => {
     console.log('🌳 Building tree from labels:', items);
@@ -46,6 +47,12 @@ function LabelSidebar() {
     const [showModal, setShowModal] = useState(false);
     const [labels, setLabels] = useState([]);
     const [selectedLabelId, setSelectedLabelId] = useState(null);
+    const location = useLocation();
+    useEffect(() => {
+        if (!location.pathname.startsWith('/home/labels')) {
+            setSelectedLabelId(null);
+        }
+    }, [location.pathname]);
 
     const renderLabel = (node, depth = 0) => (
         <li key={node.id}>

@@ -204,3 +204,43 @@
 [data-theme="dark"] .label-tooltip {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
+
+.label-item,
+.more-button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove any default active background on press */
+.label-item:active,
+.more-button:active {
+  background: none;
+}
+
+/* If you want to suppress the focus outline as well */
+.label-item:focus,
+.more-button:focus {
+  outline: none;
+}
+
+.label-item,
+.more-button,
+.create-label-button,
+.add-button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 2) When you tap/click, force your hover color instead of gray */
+.label-item:active,
+.create-label-button:active,
+.add-button:active,
+.more-button:active {
+  background-color: var(--hover-bg) !important;
+}
+
+/* 3) Remove any outline if you prefer (optional) */
+.label-item:focus,
+.create-label-button:focus,
+.add-button:focus,
+.more-button:focus {
+  outline: none;
+}

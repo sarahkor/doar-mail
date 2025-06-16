@@ -114,7 +114,7 @@
 .search-container.focused .filter-button,
 .search-container.has-results .search-icon-button,
 .search-container.has-results .filter-button {
-    color: #1a73e8;
+    color: #f69fd5;
 }
 
 /* Dark mode specific adjustments */

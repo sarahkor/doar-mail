@@ -25,9 +25,9 @@ function ProfileMenu({ user, isLoading, onClose }) {
             return `http://localhost:8080${user.picture}`;
         }
         if (user && user.firstName) {
-            return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName || '')}+${encodeURIComponent(user.lastName || '')}&background=1a73e8&color=fff&size=80`;
+            return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName || '')}+${encodeURIComponent(user.lastName || '')}&background=f69fd5&color=fff&size=80`;
         }
-        return `https://ui-avatars.com/api/?name=User&background=1a73e8&color=fff&size=80`;
+        return `https://ui-avatars.com/api/?name=User&background=f69fd5&color=fff&size=80`;
     };
 
     // Debug logging to see what user data we're getting

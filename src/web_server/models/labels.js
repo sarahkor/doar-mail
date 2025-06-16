@@ -77,24 +77,20 @@ const editLabel = (user, labelId, { name, color, parentId }) => {
 };
 
 const addMailToLabel = (user, labelId, mailId) => {
-  console.log('🏷️ addMailToLabel model:', { labelId, mailId, mailIdType: typeof mailId });
 
   const label = getLabelById(user, labelId);
   if (!label) {
-    console.log('❌ Label not found:', labelId);
     return false;
   }
 
   // Ensure mailId is a number for consistency
   const numericMailId = parseInt(mailId);
   if (isNaN(numericMailId)) {
-    console.log('❌ Invalid mail ID:', mailId);
     return false;
   }
 
   const mail = getMailById(user, numericMailId);
   if (!mail) {
-    console.log('❌ Mail not found:', numericMailId);
     return false;
   }
 
@@ -104,11 +100,8 @@ const addMailToLabel = (user, labelId, mailId) => {
   const alreadyExists = label.mailIds.some(id => parseInt(id) === numericMailId);
   if (!alreadyExists) {
     label.mailIds.push(numericMailId);
-    console.log('✅ Mail added to label successfully');
     return true;
   }
-
-  console.log('⚠️ Mail already in label');
   return false;
 }
 

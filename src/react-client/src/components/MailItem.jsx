@@ -1,321 +1,302 @@
+// src/components/MailItem.jsx
 import React, { useState, useEffect } from 'react';
 import './MailItem.css';
 import { Link } from 'react-router-dom';
 import LabelEmailDialog from './LabelEmailDialog';
+import ConfirmDialog from './ConfirmDialog';
 import { getLabels } from '../api/labelsApi';
 import starIcon from '../assets/icons/star.svg';
 import fullStarIcon from '../assets/icons/fullStar.svg';
 import trashIcon from '../assets/icons/trash.svg';
 import spamIcon from '../assets/icons/spam.svg';
+import unspamIcon from '../assets/icons/unspam.svg';
+import labelIcon from '../assets/icons/label3.svg';
+import restoreIcon from '../assets/icons/untrash.svg';
 
 function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRestore }) {
-  const [showLabelDialog, setShowLabelDialog] = useState(false);
+  // State
   const [mailLabels, setMailLabels] = useState([]);
+  const [showLabelDialog, setShowLabelDialog] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
-  // Fetch labels and find which ones contain this mail
+  // Fetch labels once per mail
   useEffect(() => {
-    const fetchMailLabels = async () => {
+    (async () => {
       try {
-        const allLabels = await getLabels();
-        const labelsForThisMail = allLabels.filter(label =>
-          label.mailIds && label.mailIds.includes(mail.id)
-        );
-        setMailLabels(labelsForThisMail);
-      } catch (error) {
-        console.error('Failed to fetch labels for mail:', error);
+        const all = await getLabels();
+        setMailLabels(all.filter(lbl => lbl.mailIds?.includes(mail.id)));
+      } catch (e) {
+        console.error('Failed to fetch labels:', e);
       }
-    };
-
-    fetchMailLabels();
+    })();
   }, [mail.id]);
 
+  // Compute display time or date
   const mailDate = new Date(mail.timestamp);
-  const now = new Date();
-  const isToday = mailDate.toDateString() === now.toDateString();
+  const isToday = mailDate.toDateString() === new Date().toDateString();
   const timeOrDate = isToday ? mail.time : mail.date;
-  const username = sessionStorage.getItem("username");
 
-  const handleStarClick = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Helpers to render addresses
+  const username = sessionStorage.getItem('username');
+  const renderFromLine = () => {
+    const fromLower = (mail.from || '').toLowerCase().trim();
+    if ((folder === 'inbox' || folder === 'starred') && fromLower === username?.toLowerCase()) {
+      return 'Me';
+    }
+    return mail.fromName || mail.from;
+  };
+  const renderToLine = () => {
+    if (!mail.to) return '';
+    const toLower = mail.to.toLowerCase().trim();
+    return (toLower === username?.toLowerCase() || toLower === (mail.from || '').toLowerCase())
+      ? 'To: Me'
+      : `To: ${mail.to}`;
+  };
+
+  // Handlers
+  const handleStarClick = async e => {
+    e.preventDefault(); e.stopPropagation();
     try {
       const res = await fetch(`/api/starred/${mail.id}`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` }
+        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
       });
       if (res.ok && onStarToggle) onStarToggle();
-    } catch (err) {
+    } catch {
       alert('Failed to toggle star.');
     }
   };
 
-  const handleTrashClick = async (e) => {
+  const handleRestoreClick = async e => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('Restore icon clicked!');
+
     try {
-      const res = await fetch(`/api/mails/${mail.id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`
-        }
+      const res = await fetch(`/api/trash/${mail.id}/restore`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
       });
-      if (res.ok && onTrash) onTrash();
+      if (res.ok && onRestore) {
+        onRestore();
+      } else {
+        console.error('Restore failed', res.status);
+      }
     } catch (err) {
-      alert('Failed to delete mail.');
+      console.error('Restore request error:', err);
+      alert('Failed to restore mail from trash.');
     }
   };
 
-  const handleSpamClick = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleTrashClick = e => {
+    e.preventDefault(); e.stopPropagation();
+
+    if (folder === 'trash') {
+      // open custom dialog
+      setPendingDeleteId(mail.id);
+      setConfirmOpen(true);
+      return;
+    }
+
+    // move to trash
+    fetch(`/api/mails/${mail.id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
+    })
+      .then(res => res.ok && onTrash && onTrash())
+      .catch(() => alert('Failed to move mail to trash.'));
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDeleteId) return;
+    try {
+      const res = await fetch(`/api/trash/${pendingDeleteId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
+      });
+      if (res.ok && onTrash) onTrash();
+    } catch {
+      alert('Failed to permanently delete mail.');
+    } finally {
+      setConfirmOpen(false);
+      setPendingDeleteId(null);
+    }
+  };
+
+  const handleSpamClick = async e => {
+    e.preventDefault(); e.stopPropagation();
     try {
       const res = await fetch(`/api/spam/${mail.id}`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("token")}`
-        }
+        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
       });
-      if (res.ok && onTrash) onTrash(); // reuse inbox refresh logic
-    } catch (err) {
+      if (res.ok && onTrash) onTrash();
+    } catch {
       alert('Failed to mark mail as spam.');
     }
   };
 
-  const handleLabelClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleUnspamClick = async e => {
+    e.preventDefault(); e.stopPropagation();
+    try {
+      const res = await fetch(`/api/spam/${mail.id}/unspam`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
+      });
+      if (res.ok && onTrash) onTrash();
+    } catch {
+      alert('Failed to unmark as spam.');
+    }
+  };
+
+  const handleLabelClick = e => {
+    e.preventDefault(); e.stopPropagation();
     setShowLabelDialog(true);
   };
 
-  const handleLabelSuccess = () => {
-    // Refresh labels after successful update
-    const fetchMailLabels = async () => {
-      try {
-        const allLabels = await getLabels();
-        const labelsForThisMail = allLabels.filter(label =>
-          label.mailIds && label.mailIds.includes(mail.id)
-        );
-        setMailLabels(labelsForThisMail);
-      } catch (error) {
-        console.error('Failed to fetch labels for mail:', error);
-      }
-    };
-    fetchMailLabels();
+  const handleLabelSuccess = async () => {
+    try {
+      const all = await getLabels();
+      setMailLabels(all.filter(lbl => lbl.mailIds?.includes(mail.id)));
+    } catch {
+      console.error('Failed to refresh labels');
+    }
   };
 
+  // Icon components
   const star = (
-    <img
-      src={mail.starred ? fullStarIcon : starIcon}
-      alt={mail.starred ? "Starred" : "Not starred"}
-      className="star-icon"
-      onClick={handleStarClick}
-      style={{ cursor: "pointer", marginRight: 8, verticalAlign: "middle" }}
-      draggable={false}
-      tabIndex={0}
-      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") handleStarClick(e); }}
-    />
+    <div className="tooltip-container">
+      <img
+        src={mail.starred ? fullStarIcon : starIcon}
+        alt={mail.starred ? 'Starred' : 'Not starred'}
+        className="star-icon"
+        onClick={handleStarClick}
+        draggable={false}
+      />
+      <div className="tooltip-text left-align">
+        {mail.starred ? 'Unstar mail' : 'Star mail'}
+      </div>
+    </div>
+  );
+
+  const restore = (
+    <div className="tooltip-container">
+      <img
+        src={restoreIcon}
+        alt="Restore"
+        className="untrash-icon"
+        onClick={handleRestoreClick}
+        draggable={false}
+      />
+      <div className="tooltip-text right-align">Restore from Trash</div>
+    </div>
   );
 
   const trash = (
-    <img
-      src={trashIcon}
-      alt="Delete"
-      className="trash-icon"
-      onClick={handleTrashClick}
-      style={{ cursor: "pointer", width: 16, height: 16 }}
-      draggable={false}
-    />
+    <div className="tooltip-container">
+      <img
+        src={trashIcon}
+        alt="Trash"
+        className="trash-icon"
+        onClick={handleTrashClick}
+        draggable={false}
+      />
+      <div className="tooltip-text right-align">
+        {folder === 'trash' ? 'Delete permanently' : 'Move to Trash'}
+      </div>
+    </div>
   );
 
   const spam = (
-    <img
-      src={spamIcon}
-      alt="Spam"
-      className="spam-icon"
-      onClick={handleSpamClick}
-      style={{ cursor: "pointer", width: 16, height: 16 }}
-      draggable={false}
-    />
+    <div className="tooltip-container">
+      <img
+        src={spamIcon}
+        alt="Spam"
+        className="spam-icon"
+        onClick={handleSpamClick}
+        draggable={false}
+      />
+      <div className="tooltip-text">Report as Spam</div>
+    </div>
   );
 
-  const renderToLine = () => {
-    if (!mail.to) return "";
-    return (mail.to === username || mail.to === mail.from) ? "To: Me" : `To: ${mail.to}`;
-  };
+  const unspam = (
+    <div className="tooltip-container">
+      <img
+        src={unspamIcon}
+        alt="Unspam"
+        className="unspam-icon"
+        onClick={handleUnspamClick}
+        draggable={false}
+      />
+      <div className="tooltip-text">unspam</div>
+    </div>
+  );
 
-  const renderFromLine = () => {
-    const user = (username || "").trim().toLowerCase();
-    const from = (mail.from || "").trim().toLowerCase();
+  const label = (
+    <div className="tooltip-container">
+      <img
+        src={labelIcon}
+        alt="Label"
+        className="label-icon"
+        onClick={handleLabelClick}
+        draggable={false}
+      />
+      <div className="tooltip-text">Label Mail</div>
+    </div>
+  );
 
-    if ((folder === 'inbox' || folder === 'starred') && from === user) {
-      return "Me";
-    }
-    return mail.fromName || mail.from;
-  };
-
-  // Handle different folder types
-  if (folder === 'trash') {
+  // Choose which icons show, per folder
+  const iconsByFolder = () => {
     const isDraft = mail.status === 'draft';
 
-    if (isDraft) {
-      return (
-        <>
-          <div className={`mail-item ${mail.read ? 'read' : 'unread'}`}>
-            <div
-              onClick={onClick}
-              tabIndex={0}
-              style={{ cursor: 'pointer', display: 'flex', flex: 1, alignItems: 'center' }}
-            >
-              <div className="mail-from">{renderFromLine()}</div>
-              <div className="mail-content">
-                <div className="mail-subject-row">
-                  <div className="mail-subject">{mail.subject}</div>
-                  {mailLabels.length > 0 && (
-                    <div className="mail-labels">
-                      {mailLabels.map(label => (
-                        <span
-                          key={label.id}
-                          className="mail-label-tag"
-                          style={{ backgroundColor: label.color }}
-                        >
-                          {label.name}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="mail-preview">{mail.bodyPreview}</div>
-              </div>
-              <div className="mail-time">{timeOrDate} {trash}</div>
-            </div>
-            <div className="mail-actions">
-              <button
-                className="label-button"
-                onClick={handleLabelClick}
-                title="Add labels"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="-0.5 -0.5 16 16"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  stroke="currentColor"
-                  height="16"
-                  width="16"
-                >
-                  <path
-                    d="m6.862500000000001 12.62125 -4.56125 -4.56125c-0.23125 -0.23125 -0.3625 -0.54375 -0.36687499999999995 -0.8699999999999999L1.875 2.509375A0.62625 0.62625 0 0 1 2.509375 1.875l4.680625 0.059375a1.2531249999999998 1.2531249999999998 0 0 1 0.8699999999999999 0.36687499999999995l4.56125 4.56125c0.42125 0.420625 0.745 1.224375 0.265 1.704375l-4.31875 4.31875c-0.480625 0.480625 -1.284375 0.15625 -1.705 -0.26437499999999997M5.011875 4.72l-0.44187499999999996 -0.44187499999999996"
-                    strokeWidth="1"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-          {showLabelDialog && (
-            <LabelEmailDialog
-              mail={mail}
-              onClose={() => setShowLabelDialog(false)}
-              onSuccess={handleLabelSuccess}
-            />
-          )}
-        </>
-      );
+    switch (folder) {
+      case 'trash':
+        return [restore, trash];
+      case 'spam':
+        return [unspam, trash];
+      case 'drafts':
+        return [label, trash];
+      case 'starred':
+      case 'sent':
+        return isDraft ? [label, trash] : [label, spam, trash];
+      default:
+        return isDraft ? [label, trash] : [label, spam, trash];
     }
+  };
 
-    return (
-      <>
-        <div className={`mail-item ${mail.read ? 'read' : 'unread'}`}>
-          <Link to={`/home/${folder}/${mail.id}`} className="mail-link">
-            <div className="mail-from">{renderFromLine()}</div>
-            <div className="mail-content">
-              <div className="mail-subject-row">
-                <div className="mail-subject">{mail.subject}</div>
-                {mailLabels.length > 0 && (
-                  <div className="mail-labels">
-                    {mailLabels.map(label => (
-                      <span
-                        key={label.id}
-                        className="mail-label-tag"
-                        style={{ backgroundColor: label.color }}
-                      >
-                        {label.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="mail-preview">{mail.bodyPreview}</div>
-            </div>
-            <div className="mail-time" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {timeOrDate}
-              {trash}
-              {spam}
-            </div>
-          </Link>
-          <div className="mail-actions">
-            <button
-              className="label-button"
-              onClick={handleLabelClick}
-              title="Add labels"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="-0.5 -0.5 16 16"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                stroke="currentColor"
-                height="16"
-                width="16"
-              >
-                <path
-                  d="m6.862500000000001 12.62125 -4.56125 -4.56125c-0.23125 -0.23125 -0.3625 -0.54375 -0.36687499999999995 -0.8699999999999999L1.875 2.509375A0.62625 0.62625 0 0 1 2.509375 1.875l4.680625 0.059375a1.2531249999999998 1.2531249999999998 0 0 1 0.8699999999999999 0.36687499999999995l4.56125 4.56125c0.42125 0.420625 0.745 1.224375 0.265 1.704375l-4.31875 4.31875c-0.480625 0.480625 -1.284375 0.15625 -1.705 -0.26437499999999997M5.011875 4.72l-0.44187499999999996 -0.44187499999999996"
-                  strokeWidth="1"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        {showLabelDialog && (
-          <LabelEmailDialog
-            mail={mail}
-            onClose={() => setShowLabelDialog(false)}
-            onSuccess={handleLabelSuccess}
-          />
-        )}
-      </>
-    );
-  }
+  return (
+    <>
+      {/* Custom confirmation dialog */}
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        title="Permanently delete"
+        message="Are you sure you want to permanently delete this mail?"
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
 
-  if (folder === 'drafts' || (folder === 'starred' && mail.status === 'draft')) {
-    return (
-      <>
-        <div className={`mail-item ${mail.read ? 'read' : 'unread'}`}>
+      <div className={`mail-item ${mail.read ? 'read' : 'unread'}`}>
+        {(mail.status === 'draft') ? (
+          // Drafts & starred-draft: clickable row
           <div
             onClick={onClick}
             tabIndex={0}
-            style={{ cursor: 'pointer', display: 'flex', flex: 1, alignItems: 'center' }}
+            className="mail-link"
+            style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              {star}
-              {mail.status === 'draft' && (
-                <span className="draft-label">Draft</span>
-              )}
-              <div className="mail-from">{renderToLine()}</div>
-            </div>
+            {star}
+            {mail.status === 'draft' && <span className="draft-label">Draft</span>}
+            <div className="mail-from">{renderToLine()}</div>
             <div className="mail-content">
               <div className="mail-subject-row">
                 <div className="mail-subject">{mail.subject}</div>
                 {mailLabels.length > 0 && (
                   <div className="mail-labels">
-                    {mailLabels.map(label => (
-                      <span
-                        key={label.id}
-                        className="mail-label-tag"
-                        style={{ backgroundColor: label.color }}
-                      >
-                        {label.name}
+                    {mailLabels.map(l => (
+                      <span key={l.id} className="mail-label-tag" style={{ backgroundColor: l.color }}>
+                        {l.name}
                       </span>
                     ))}
                   </div>
@@ -323,315 +304,46 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
               </div>
               <div className="mail-preview">{mail.bodyPreview}</div>
             </div>
-            <div className="mail-time">{timeOrDate} {trash}</div>
+            <div className="mail-right">
+              <div className="mail-time">{timeOrDate}</div>
+              <div className="mail-actions">
+                {iconsByFolder().map((icn, i) => React.cloneElement(icn, { key: i }))}
+              </div>
+            </div>
           </div>
-          <div className="mail-actions">
-            <button
-              className="label-button"
-              onClick={handleLabelClick}
-              title="Add labels"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="-0.5 -0.5 16 16"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                stroke="currentColor"
-                height="16"
-                width="16"
-              >
-                <path
-                  d="m6.862500000000001 12.62125 -4.56125 -4.56125c-0.23125 -0.23125 -0.3625 -0.54375 -0.36687499999999995 -0.8699999999999999L1.875 2.509375A0.62625 0.62625 0 0 1 2.509375 1.875l4.680625 0.059375a1.2531249999999998 1.2531249999999998 0 0 1 0.8699999999999999 0.36687499999999995l4.56125 4.56125c0.42125 0.420625 0.745 1.224375 0.265 1.704375l-4.31875 4.31875c-0.480625 0.480625 -1.284375 0.15625 -1.705 -0.26437499999999997M5.011875 4.72l-0.44187499999999996 -0.44187499999999996"
-                  strokeWidth="1"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        {showLabelDialog && (
-          <LabelEmailDialog
-            mail={mail}
-            onClose={() => setShowLabelDialog(false)}
-            onSuccess={handleLabelSuccess}
-          />
-        )}
-      </>
-    );
-  }
-
-  if (folder === 'starred') {
-    return (
-      <>
-        <div className={`mail-item ${mail.read ? 'read' : 'unread'}`}>
+        ) : (
+          // All other folders: Link wrapper
           <Link to={`/home/${folder}/${mail.id}`} className="mail-link">
-            <div style={{ display: "flex", alignItems: "center" }}>
-              {star}
-              <div className="mail-from">{renderFromLine()}</div>
-            </div>
-            <div className="mail-content">
-              <div className="mail-subject-row">
-                <div className="mail-subject">{mail.subject}</div>
-                {mailLabels.length > 0 && (
-                  <div className="mail-labels">
-                    {mailLabels.map(label => (
-                      <span
-                        key={label.id}
-                        className="mail-label-tag"
-                        style={{ backgroundColor: label.color }}
-                      >
-                        {label.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="mail-preview">{mail.bodyPreview}</div>
-            </div>
-            <div className="mail-time" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {timeOrDate}
-              {trash}
-              {spam}
-            </div>
-          </Link>
-          <div className="mail-actions">
-            <button
-              className="label-button"
-              onClick={handleLabelClick}
-              title="Add labels"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="-0.5 -0.5 16 16"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                stroke="currentColor"
-                height="16"
-                width="16"
-              >
-                <path
-                  d="m6.862500000000001 12.62125 -4.56125 -4.56125c-0.23125 -0.23125 -0.3625 -0.54375 -0.36687499999999995 -0.8699999999999999L1.875 2.509375A0.62625 0.62625 0 0 1 2.509375 1.875l4.680625 0.059375a1.2531249999999998 1.2531249999999998 0 0 1 0.8699999999999999 0.36687499999999995l4.56125 4.56125c0.42125 0.420625 0.745 1.224375 0.265 1.704375l-4.31875 4.31875c-0.480625 0.480625 -1.284375 0.15625 -1.705 -0.26437499999999997M5.011875 4.72l-0.44187499999999996 -0.44187499999999996"
-                  strokeWidth="1"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        {showLabelDialog && (
-          <LabelEmailDialog
-            mail={mail}
-            onClose={() => setShowLabelDialog(false)}
-            onSuccess={handleLabelSuccess}
-          />
-        )}
-      </>
-    );
-  }
-
-  if (folder === 'spam') {
-    return (
-      <>
-        <div className={`mail-item ${mail.read ? 'read' : 'unread'}`}>
-          <Link to={`/home/${folder}/${mail.id}`} className="mail-link">
-            <div style={{ display: "flex", alignItems: "center" }}>
-              {star}
-              <div className="mail-from">{renderFromLine()}</div>
-            </div>
-            <div className="mail-content">
-              <div className="mail-subject-row">
-                <div className="mail-subject">{mail.subject}</div>
-                {mailLabels.length > 0 && (
-                  <div className="mail-labels">
-                    {mailLabels.map(label => (
-                      <span
-                        key={label.id}
-                        className="mail-label-tag"
-                        style={{ backgroundColor: label.color }}
-                      >
-                        {label.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="mail-preview">{mail.bodyPreview}</div>
-            </div>
-            <div className="mail-time" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {timeOrDate}
-              {trash}
-            </div>
-          </Link>
-          <div className="mail-actions">
-            <button
-              className="label-button"
-              onClick={handleLabelClick}
-              title="Add labels"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="-0.5 -0.5 16 16"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                stroke="currentColor"
-                height="16"
-                width="16"
-              >
-                <path
-                  d="m6.862500000000001 12.62125 -4.56125 -4.56125c-0.23125 -0.23125 -0.3625 -0.54375 -0.36687499999999995 -0.8699999999999999L1.875 2.509375A0.62625 0.62625 0 0 1 2.509375 1.875l4.680625 0.059375a1.2531249999999998 1.2531249999999998 0 0 1 0.8699999999999999 0.36687499999999995l4.56125 4.56125c0.42125 0.420625 0.745 1.224375 0.265 1.704375l-4.31875 4.31875c-0.480625 0.480625 -1.284375 0.15625 -1.705 -0.26437499999999997M5.011875 4.72l-0.44187499999999996 -0.44187499999999996"
-                  strokeWidth="1"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        {showLabelDialog && (
-          <LabelEmailDialog
-            mail={mail}
-            onClose={() => setShowLabelDialog(false)}
-            onSuccess={handleLabelSuccess}
-          />
-        )}
-      </>
-    );
-  }
-
-  if (folder === 'sent') {
-    return (
-      <>
-        <div className={`mail-item ${mail.read ? 'read' : 'unread'}`}>
-          <Link to={`/home/${folder}/${mail.id}`} className="mail-link">
-            <div style={{ display: "flex", alignItems: "center" }}>
-              {star}
-              <div className="mail-from">{renderFromLine()}</div>
-            </div>
-            <div className="mail-content">
-              <div className="mail-subject-row">
-                <div className="mail-subject">{mail.subject}</div>
-                {mailLabels.length > 0 && (
-                  <div className="mail-labels">
-                    {mailLabels.map(label => (
-                      <span
-                        key={label.id}
-                        className="mail-label-tag"
-                        style={{ backgroundColor: label.color }}
-                      >
-                        {label.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div className="mail-preview">{mail.bodyPreview}</div>
-            </div>
-            <div className="mail-time" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {timeOrDate}
-              {trash}
-              {spam}
-            </div>
-          </Link>
-          <div className="mail-actions">
-            <button
-              className="label-button"
-              onClick={handleLabelClick}
-              title="Add labels"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="-0.5 -0.5 16 16"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                stroke="currentColor"
-                height="16"
-                width="16"
-              >
-                <path
-                  d="m6.862500000000001 12.62125 -4.56125 -4.56125c-0.23125 -0.23125 -0.3625 -0.54375 -0.36687499999999995 -0.8699999999999999L1.875 2.509375A0.62625 0.62625 0 0 1 2.509375 1.875l4.680625 0.059375a1.2531249999999998 1.2531249999999998 0 0 1 0.8699999999999999 0.36687499999999995l4.56125 4.56125c0.42125 0.420625 0.745 1.224375 0.265 1.704375l-4.31875 4.31875c-0.480625 0.480625 -1.284375 0.15625 -1.705 -0.26437499999999997M5.011875 4.72l-0.44187499999999996 -0.44187499999999996"
-                  strokeWidth="1"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        {showLabelDialog && (
-          <LabelEmailDialog
-            mail={mail}
-            onClose={() => setShowLabelDialog(false)}
-            onSuccess={handleLabelSuccess}
-          />
-        )}
-      </>
-    );
-  }
-
-  // Default inbox rendering with labels
-  return (
-    <>
-      <div className={`mail-item ${mail.read ? 'read' : 'unread'}`}>
-        <Link to={`/home/${folder}/${mail.id}`} className="mail-link">
-          <div style={{ display: "flex", alignItems: "center" }}>
             {star}
             <div className="mail-from">{renderFromLine()}</div>
-          </div>
-          <div className="mail-content">
-            <div className="mail-subject-row">
-              <div className="mail-subject">{mail.subject}</div>
-              {mailLabels.length > 0 && (
-                <div className="mail-labels">
-                  {mailLabels.map(label => (
-                    <span
-                      key={label.id}
-                      className="mail-label-tag"
-                      style={{ backgroundColor: label.color }}
-                    >
-                      {label.name}
-                    </span>
-                  ))}
-                </div>
-              )}
+            <div className="mail-content">
+              <div className="mail-subject-row">
+                <div className="mail-subject">{mail.subject}</div>
+                {mailLabels.length > 0 && (
+                  <div className="mail-labels">
+                    {mailLabels.map(l => (
+                      <span key={l.id} className="mail-label-tag" style={{ backgroundColor: l.color }}>
+                        {l.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="mail-preview">{mail.bodyPreview}</div>
             </div>
-            <div className="mail-preview">{mail.bodyPreview}</div>
-          </div>
-          <div className="mail-time" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {timeOrDate}
-            {trash}
-            {spam}
-          </div>
-        </Link>
-        <div className="mail-actions">
-          <button
-            className="label-button"
-            onClick={handleLabelClick}
-            title="Add labels"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="-0.5 -0.5 16 16"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              stroke="currentColor"
-              height="16"
-              width="16"
-            >
-              <path
-                d="m6.862500000000001 12.62125 -4.56125 -4.56125c-0.23125 -0.23125 -0.3625 -0.54375 -0.36687499999999995 -0.8699999999999999L1.875 2.509375A0.62625 0.62625 0 0 1 2.509375 1.875l4.680625 0.059375a1.2531249999999998 1.2531249999999998 0 0 1 0.8699999999999999 0.36687499999999995l4.56125 4.56125c0.42125 0.420625 0.745 1.224375 0.265 1.704375l-4.31875 4.31875c-0.480625 0.480625 -1.284375 0.15625 -1.705 -0.26437499999999997M5.011875 4.72l-0.44187499999999996 -0.44187499999999996"
-                strokeWidth="1"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
+            <div className="mail-right">
+              <div className="mail-time">{timeOrDate}</div>
+              <div className="mail-actions">
+                {iconsByFolder().map((icn, i) => React.cloneElement(icn, { key: i }))}
+              </div>
+            </div>
+          </Link>
+        )}
 
-      {showLabelDialog && (
-        <LabelEmailDialog
-          mail={mail}
-          onClose={() => setShowLabelDialog(false)}
-          onSuccess={handleLabelSuccess}
-        />
-      )}
+        {showLabelDialog && (
+          <LabelEmailDialog mail={mail} onClose={() => setShowLabelDialog(false)} onSuccess={handleLabelSuccess} />
+        )}
+      </div>
     </>
   );
 }
