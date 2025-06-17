@@ -48,14 +48,13 @@ function RegisterPasswordPage() {
       ...formData
     };
 
-    console.log("Submitting full registration data:", fullData);
-
     const formPayload = new FormData();
     formPayload.append("username", fullData.username);
     formPayload.append("password", fullData.password);
     formPayload.append("firstName", fullData.firstName || "");
     formPayload.append("lastName", fullData.lastName || "");
     formPayload.append("phone", fullData.phone || "");
+    formPayload.append("birthday", fullData.dob || "");
     formPayload.append("gender", fullData.gender || "");
 
     if (fullData.profilePicture) {
@@ -76,7 +75,6 @@ function RegisterPasswordPage() {
 
       navigate("/login");
     } catch (err) {
-      console.error("Registration error:", err);
       setError("Something went wrong. Please try again.");
     }
   };

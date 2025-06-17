@@ -1,21 +1,17 @@
-/* make room for the fixed navbar */
 .app-content {
   display: flex;
   flex: 1;
   overflow: hidden;
 }
 
-/* sidebar container */
 .sidebar-wrapper {
   width: 300px;
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border-color);
   background: var(--bg-primary);
-  /* no height calc here—Flexbox will stretch it */
 }
 
-/* compose button wrapper */
 .compose-container {
   padding-bottom: 8px;
   padding-left: 16px;
@@ -24,10 +20,8 @@
 
 }
 
-/* the scrolling list of labels */
 .label-sidebar {
   flex: 1;
-  /* takes remaining height under compose */
   overflow-y: auto;
 }
 

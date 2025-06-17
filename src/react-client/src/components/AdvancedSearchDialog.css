@@ -99,8 +99,8 @@
 
 .search-input-field:focus {
     outline: none;
-    border-color: #1a73e8;
-    box-shadow: 0 0 0 1px #1a73e8;
+    border-color: #f69fd5;
+    box-shadow: 0 0 0 1px #f69fd5;
 }
 
 .search-input-field::placeholder {
@@ -145,13 +145,13 @@
 }
 
 .search-button {
-    background-color: #1a73e8;
+    background-color: #f69fd5;
     border: none;
     color: white;
 }
 
 .search-button:hover:not(:disabled) {
-    background-color: #1557b0;
+    background-color: #f1b0d8;
 }
 
 .search-button:disabled {

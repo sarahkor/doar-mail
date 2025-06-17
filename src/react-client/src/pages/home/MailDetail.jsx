@@ -15,10 +15,10 @@ export default function MailDetail({ onCompose }) {
   const navigate = useNavigate();
 
   const [mail, setMail] = useState(null);
-  const [mailLabels, setMailLabels] = useState([]);    // ← labels state
+  const [mailLabels, setMailLabels] = useState([]);
   const [error, setError] = useState('');
+  const [isStarred, setIsStarred] = useState(false);
 
-  // 1) fetch the mail
   const fetchMail = useCallback(async () => {
     try {
       const token = sessionStorage.getItem('token');
@@ -32,32 +32,51 @@ export default function MailDetail({ onCompose }) {
     }
   }, [mailId]);
 
-  // 2) fetch all labels & filter down to this mail
   const fetchMailLabels = useCallback(async () => {
     try {
       const all = await getLabels();
       setMailLabels(all.filter(l => l.mailIds?.includes(Number(mailId))));
     } catch (err) {
-      console.error('Failed to fetch labels:', err);
+    }
+  }, [mailId]);
+
+  // fetch per-user starred status
+  const refreshStarred = useCallback(async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const res = await fetch(`/api/starred/${mailId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error();
+      const { starred } = await res.json();
+      setIsStarred(starred);
+    } catch (err) {
     }
   }, [mailId]);
 
   useEffect(() => {
     fetchMail();
     fetchMailLabels();
-  }, [fetchMail, fetchMailLabels]);
+    refreshStarred();
+  }, [fetchMail, fetchMailLabels, refreshStarred]);
 
+  const toggleStar = async e => {
+    e.preventDefault();
+    e.stopPropagation();
 
-  // --- action handlers (star, trash, spam, etc) ---
-  const toggleStar = async () => {
+    // optimistic flip
+    setIsStarred(prev => !prev);
+
     try {
       const token = sessionStorage.getItem('token');
-      const res = await fetch(`/api/starred/${mail.id}`, {
+      const res = await fetch(`/api/starred/${mailId}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (res.ok) setMail(m => ({ ...m, starred: !m.starred }));
+      if (!res.ok) throw new Error();
     } catch {
+      // rollback on error
+      setIsStarred(prev => !prev);
       alert('Failed to toggle star.');
     }
   };
@@ -79,19 +98,63 @@ export default function MailDetail({ onCompose }) {
     }
   };
 
-  const markSpam = async () => { /* ... same as above, navigate back ... */ };
-  const unmarkSpam = async () => { /* ... */ };
-  const restoreTrash = async () => { /* ... */ };
+  const markSpam = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const res = await fetch(`/api/spam/${mailId}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error();
+      navigate(`/home/${folder}`);
+    } catch {
+      alert('Failed to report as spam.');
+    }
+  };
+
+  const unmarkSpam = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const res = await fetch(`/api/spam/${mailId}/unspam`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error();
+      navigate(`/home/${folder}`);
+    } catch {
+      alert('Failed to unmark spam.');
+    }
+  };
+
+  const restoreTrash = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const res = await fetch(`/api/trash/${mailId}/restore`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error();
+      navigate(`/home/${folder}`);
+    } catch {
+      alert('Failed to restore mail from trash.');
+    }
+  };
 
   if (error) return <div className="mail-detail-error">{error}</div>;
-  if (!mail) return <div className="mail-detail-loading">Loading…</div>;
+  if (!mail) return <div className="mail-detail-loading"></div>;
 
   // build the toolbar buttons exactly like your MailItem iconsByFolder
   const icons = [];
+
   icons.push(
-    <button key="star" className="toolbar-btn" onClick={toggleStar}
-      title={mail.starred ? 'Unstar mail' : 'Star mail'}>
-      <img src={mail.starred ? fullStarIcon : starIcon} alt="" />
+    <button
+      key="star"
+      className="toolbar-btn"
+      onClick={toggleStar}
+      title={isStarred ? 'Unstar mail' : 'Star mail'}
+      aria-pressed={isStarred}
+    >
+      <img src={isStarred ? fullStarIcon : starIcon} alt="" />
     </button>
   );
 
@@ -144,7 +207,6 @@ export default function MailDetail({ onCompose }) {
           {mail.subject || '(no subject)'}
         </h1>
 
-        {/* ← right next to the subject */}
         {mailLabels.length > 0 && (
           <div className="mail-detail-labels">
             {mailLabels.map(lbl => (
@@ -161,23 +223,34 @@ export default function MailDetail({ onCompose }) {
       </div>
 
       <div className="mail-detail-meta">
-        <div>
+        <div className="mail-detail-meta-line">
           <strong>From:</strong>{' '}
-          <span className="mail-detail-address"
-            onClick={() => onCompose(mail.from)}>
-            {fromFull} &lt;{mail.from}&gt;
+          <span className="mail-detail-name">{fromFull}</span>{' '}
+          <span
+            className="mail-detail-email"
+            onClick={() => onCompose(mail.from)}
+          >
+            &lt;{mail.from}&gt;
           </span>
         </div>
+
         {mail.to && (
-          <div>
+          <div className="mail-detail-meta-line">
             <strong>To:</strong>{' '}
-            <span className="mail-detail-address"
-              onClick={() => onCompose(mail.to)}>
-              {toFull} &lt;{mail.to}&gt;
+            <span className="mail-detail-name">{toFull}</span>{' '}
+            <span
+              className="mail-detail-email"
+              onClick={() => onCompose(mail.to)}
+            >
+              &lt;{mail.to}&gt;
             </span>
           </div>
         )}
-        <div><strong>Date:</strong> {formattedDate}</div>
+
+        <div className="mail-detail-meta-line">
+          <strong>Date:</strong>{' '}
+          <span className="mail-detail-value">{formattedDate}</span>
+        </div>
       </div>
 
       <hr className="mail-detail-divider" />
@@ -210,4 +283,5 @@ export default function MailDetail({ onCompose }) {
       )}
     </div>
   );
+
 }

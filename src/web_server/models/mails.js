@@ -16,6 +16,7 @@ const createMail = ({ sender, recipient, subject, bodyPreview, status = 'draft',
     from: sender.username,
     fromName: `${sender.firstName} ${sender.lastName}`,
     to: recipient.username,
+    toName: `${recipient.firstName} ${recipient.lastName}`,
     subject,
     bodyPreview,
     timestamp,
@@ -344,7 +345,6 @@ const reportAsSpam = async (user, mailId) => {
   }
 
   if (!mail) return false;
-  console.log("Mail found. Blacklisting URLs...");
   if (!user.spam) user.spam = [];
   user.spam.push(mail);
   mail.status = 'spam';
@@ -359,7 +359,6 @@ const reportAsSpam = async (user, mailId) => {
     try {
       await blacklist.add(url);
     } catch (e) {
-      console.warn(`Failed to blacklist URL "${url}":`, e.message);
     }
   }
 
@@ -382,7 +381,6 @@ const unspam = async (user, mailId) => {
     try {
       await blacklist.remove(url);
     } catch (e) {
-      console.warn(`Failed to remove URL from blacklist "${url}":`, e.message);
     }
   }
 

@@ -34,7 +34,6 @@ exports.searchMails = (req, res) => {
         });
 
     } catch (error) {
-        console.error('Search error:', error);
         res.status(500).json({ error: 'Search failed' });
     }
 }; 

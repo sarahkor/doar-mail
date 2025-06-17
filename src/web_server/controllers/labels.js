@@ -199,7 +199,6 @@ exports.addMailToLabel = (req, res) => {
 
     res.status(200).json({ message: 'Mail added to label successfully' });
   } catch (err) {
-    console.error('Error in addMailToLabel:', err);
     res.status(500).json({ error: 'Failed to add mail to label.' });
   }
 };

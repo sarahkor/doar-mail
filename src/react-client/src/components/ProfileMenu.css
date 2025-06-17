@@ -45,6 +45,36 @@
   text-align: center;
 }
 
+.profile-details-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #f69fd5;
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: 500;
+  width: 100%;
+  justify-content: center;
+}
+
+.profile-details-button:hover {
+  background-color: #f1f3f4;
+}
+
+.profile-details-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.profile-details-icon {
+  flex-shrink: 0;
+}
+
 .logout-button {
   display: flex;
   align-items: center;
@@ -82,8 +112,16 @@
   color: #e8eaed;
 }
 
+[data-theme='dark'] .profile-details-button {
+  color: #f4c4e1;
+}
+
+[data-theme='dark'] .profile-details-button:hover {
+  background-color: #3c4043;
+}
+
 [data-theme='dark'] .logout-button {
-  color: #8ab4f8;
+  color: #f4c4e1;
 }
 
 [data-theme='dark'] .logout-button:hover {

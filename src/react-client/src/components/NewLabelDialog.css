@@ -1,5 +1,3 @@
-/* NewLabelDialog.css - Styled exactly like Gmail */
-
 .dialog-overlay {
   position: fixed;
   top: 0;
@@ -40,7 +38,7 @@
 }
 
 .dialog-title {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--text-primary);
   margin: 0;
@@ -88,7 +86,7 @@
 .form-input:focus,
 .form-select:focus {
   outline: none;
-  border-color: #1a73e8;
+  border-color: #f69fd5;
 }
 
 .form-input.error {
@@ -125,7 +123,7 @@
 .checkbox-input {
   width: 16px;
   height: 16px;
-  accent-color: #1a73e8;
+  accent-color: #f69fd5;
 }
 
 .checkbox-label {
@@ -143,37 +141,45 @@
 }
 
 .dialog-button {
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.3s ease;
+  width: 100px;
+  height: 40px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  background-color: var(--bg-compose-light);
+  color: var(--text-compose-light);
+  box-shadow: var(--shadow);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  gap: 10px;
+  box-sizing: border-box;
+  justify-content: center;
 }
 
 .dialog-button-secondary {
-  background: none;
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
+  background: #bbb;
+  color: #fff;
   transition: background-color 0.2s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .dialog-button-secondary:hover {
-  background-color: var(--hover-bg);
+  background-color: #d0d0d0;
 }
 
 .dialog-button-primary {
-  background-color: #1a73e8;
-  border: 1px solid #1a73e8;
+  background-color: #f69fd5;
+  border: 1px solid #f69fd5;
   color: white;
 }
 
 .dialog-button-primary:hover {
-  background-color: #1557b0;
-  border-color: #1557b0;
+  background-color: #f4c4e1;
+  border-color: #f4c4e1;
 }
 
 .dialog-button-primary:disabled {
@@ -218,4 +224,15 @@
 
 input {
   font-size: 1px;
+}
+
+.dialog-button-secondary,
+.dialog-button-primary {
+  font-size: 14px;
+}
+
+[data-theme="dark"] .form-select {
+  background-color: #5d5d5e;
+  color: #e8eaed;
+  border-color: var(--border-color);
 }

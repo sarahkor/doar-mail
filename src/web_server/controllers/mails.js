@@ -327,7 +327,6 @@ exports.markAsSpam = async (req, res) => {
 
     res.status(200).json({ message: 'Mail marked as spam and URLs blacklisted.' });
   } catch (err) {
-    console.error("Error in markAsSpam:", err);
     res.status(500).json({ error: 'Failed to mark mail as spam.' });
   }
 };
@@ -404,5 +403,20 @@ exports.getAllMails = (req, res) => {
     res.status(200).json(paginated);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch all mails.' });
+  }
+};
+
+exports.isMailStarred = (req, res) => {
+  try {
+    const user = req.user;
+    const mailId = parseInt(req.params.id, 10);
+
+    // If there's no starred array, it's not starred
+    const starredList = Array.isArray(user.starred) ? user.starred : [];
+    const isStarred = starredList.some(m => m.id === mailId);
+
+    return res.status(200).json({ starred: isStarred });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to check starred status' });
   }
 };

@@ -33,13 +33,10 @@ function NewLabelDialog({ onClose, onCreate, existingLabels = [], defaultParentI
     setLoading(true);
     try {
       const parentIdToSend = isNested ? parentId : null;
-      console.log('🔵 Creating label:', labelName, 'isNested:', isNested, 'parentId:', parentIdToSend);
       const newLabel = await addLabel(labelName, 'gray', parentIdToSend); // Pass parent ID
-      console.log('✅ Label created:', newLabel);
       onCreate(newLabel);
       onClose();
     } catch (error) {
-      console.error('❌ Failed to create label:', error);
       alert('Failed to create label: ' + error.message);
     } finally {
       setLoading(false);

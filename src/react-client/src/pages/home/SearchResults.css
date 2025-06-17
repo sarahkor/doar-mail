@@ -3,7 +3,6 @@
     flex-direction: column;
     flex: 1;
     min-height: 0;
-    /* IMPORTANT for scroll shrink */
     background: var(--bg-primary);
     border-radius: 22px;
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.11), 0 1.5px 6px rgba(0, 0, 0, 0.08);
@@ -195,7 +194,6 @@
     transition: border-color 0.3s ease;
 }
 
-/* Dark mode adjustments */
 [data-theme='dark'] .search-results-container {
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3), 0 1.5px 6px rgba(0, 0, 0, 0.2);
 }
@@ -213,7 +211,6 @@
     border-top-color: #8ab4f8;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
     .search-results-container {
         padding: 20px 16px;

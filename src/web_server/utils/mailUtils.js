@@ -26,7 +26,6 @@ const sendRequest = (command, url, port = PORT) => {
 
 
     client.on("error", (err) => {
-      console.error("Error occurred:", err);
       reject(err);
       client.destroy();
     });
@@ -73,7 +72,6 @@ const checkUrl = async (url) => {
 
     throw new Error(`Unexpected status line: "${statusLine}"`);
   } catch (error) {
-    console.error("Error in checkUrl:", error);
     throw error;
   }
 };
@@ -101,7 +99,7 @@ function sortByRecent(mails = []) {
   return mails.slice().sort((a, b) => b.timestamp - a.timestamp);
 }
 function paginateMails(mails, pageQuery) {
-  const limit = 50;
+  const limit = 30;
   const page = Math.max(0, parseInt(pageQuery) || 0);
 
   const start = page * limit;

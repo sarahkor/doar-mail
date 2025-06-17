@@ -31,24 +31,16 @@ function Navbar({ onComposeClick, onSearch, searchResults, isSearching, onClearS
             try {
                 const token = sessionStorage.getItem('token');
                 if (!token) {
-                    console.log('No token found');
                     setUserLoading(false);
                     return;
                 }
-
-                console.log('Fetching user data...');
                 const response = await fetch('/api/users/me', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
-                console.log('Response status:', response.status);
-
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('User data received:', data);
                     setUser(data.user);
-                } else {
-                    console.log('Failed to fetch user data:', response.status);
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -73,8 +65,6 @@ function Navbar({ onComposeClick, onSearch, searchResults, isSearching, onClearS
     };
 
     const toggleProfileMenu = () => {
-        console.log('Profile menu clicked, current state:', showProfileMenu);
-        console.log('User data:', user);
         setShowProfileMenu(!showProfileMenu);
     };
 
@@ -149,7 +139,6 @@ function Navbar({ onComposeClick, onSearch, searchResults, isSearching, onClearS
                                 alt="Profile"
                                 style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
                                 onError={(e) => {
-                                    console.log('Image failed to load, using fallback');
                                     e.target.src = `https://ui-avatars.com/api/?name=User&background=1a73e8&color=fff&size=32`;
                                 }}
                             />

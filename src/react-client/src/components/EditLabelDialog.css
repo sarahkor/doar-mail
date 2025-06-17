@@ -1,144 +1,169 @@
-/* =====================
-   Gmail‑style Label Modal
-   Target components:
-   - .modal-overlay          (dark backdrop)
-   - .new-label-modal        (white dialog box)
-   - .title                  (h2 title)
-   - .input-label            ("Label name:" / etc.)
-   - .input-text             (text field)
-   - .checkbox-container     (checkbox + label)
-   - .nest-label             (checkbox label text)
-   - .select-dropdown        (parent label select)
-   - .action-buttons         (Cancel / Save)
-   - .cancel-button          (secondary)
-   - .create-button          (primary Save)
-   ===================== */
-
-/* ===== Overlay ===== */
 .modal-overlay {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.54);
-    z-index: 1000;
-  }
-  
-  /* ===== Dialog ===== */
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.54);
+  z-index: 1000;
+}
+
+/* ===== Dialog ===== */
+.new-label-modal {
+  background: #fff;
+  width: 480px;
+  max-width: calc(100% - 32px);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 32px 40px 24px;
+  font-family: "Roboto", "Arial", sans-serif;
+  color: #202124;
+}
+
+.title {
+  margin: 0 0 24px;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* ===== Form elements ===== */
+.input-label,
+.nest-label {
+  font-size: 14px;
+  user-select: none;
+  padding-left: 8px;
+}
+
+.input-text,
+.select-dropdown {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-text:focus,
+.select-dropdown:focus {
+  border-color: #f69fd5;
+  box-shadow: 0 0 0 1px #f69fd5;
+  outline: none;
+}
+
+/* Disable look */
+.select-dropdown:disabled {
+  background: #f1f3f4;
+  color: #80868b;
+  cursor: not-allowed;
+}
+
+/* ===== Checkbox ===== */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.checkbox-container input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #f69fd5;
+  cursor: pointer;
+}
+
+/* ===== Action buttons ===== */
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+button.cancel-button,
+button.create-button {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+/* Cancel */
+.cancel-button {
+  background: #bbb;
+  color: #fff;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background: #d0d0d0
+}
+
+/* Save */
+.create-button {
+  background: #f69fd5;
+  color: #fff;
+}
+
+.create-button:hover:not(:disabled) {
+  background: #eab9d7;
+}
+
+.create-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
   .new-label-modal {
-    background: #fff;
-    width: 480px;
-    max-width: calc(100% - 32px);
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    padding: 32px 40px 24px;
-    font-family: "Roboto", "Arial", sans-serif;
-    color: #202124;
+    padding: 24px;
   }
-  
-  .title {
-    margin: 0 0 24px;
-    font-size: 24px;
-    font-weight: 400;
-  }
-  
-  /* ===== Form elements ===== */
-  .input-label,
-  .nest-label {
-    font-size: 14px;
-    user-select: none;
-  }
-  
-  .input-text,
-  .select-dropdown {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #dadce0;
-    border-radius: 4px;
-    background: #fff;
-    font-size: 16px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  
-  .input-text:focus,
-  .select-dropdown:focus {
-    border-color: #1967d2;
-    box-shadow: 0 0 0 1px #1967d2;
-    outline: none;
-  }
-  
-  /* Disable look */
-  .select-dropdown:disabled {
-    background: #f1f3f4;
-    color: #80868b;
-    cursor: not-allowed;
-  }
-  
-  /* ===== Checkbox ===== */
-  .checkbox-container {
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-  }
-  
-  .checkbox-container input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #1967d2;
-    cursor: pointer;
-  }
-  
-  /* ===== Action buttons ===== */
-  .action-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 16px;
-    margin-top: 32px;
-  }
-  
-  button.cancel-button,
-  button.create-button {
-    font-size: 14px;
-    font-weight: 500;
-    padding: 10px 24px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: background 0.15s, box-shadow 0.15s, opacity 0.15s;
-  }
-  
-  /* Cancel */
-  .cancel-button {
-    background: transparent;
-    color: #1967d2;
-  }
-  
-  .cancel-button:hover:not(:disabled) {
-    background: rgba(25, 103, 210, 0.08);
-  }
-  
-  /* Save */
-  .create-button {
-    background: #1a73e8;
-    color: #fff;
-  }
-  
-  .create-button:hover:not(:disabled) {
-    background: #174ea6;
-  }
-  
-  .create-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  /* Spinner SVG inherits the button font-size so keep inline styles */
-  
-  /* ===== Responsive tweak ===== */
-  @media (max-width: 600px) {
-    .new-label-modal {
-      padding: 24px;
-    }
-  }
-  
+}
+
+[data-theme="dark"] .new-label-modal {
+  background: #2c2c2c;
+  color: #f1f1f1;
+}
+
+[data-theme="dark"] .input-text,
+[data-theme="dark"] .select-dropdown {
+  background: #3a3a3a;
+  color: #fff;
+  border-color: #5f6368;
+}
+
+[data-theme="dark"] .input-text:focus,
+[data-theme="dark"] .select-dropdown:focus {
+  border-color: #f69fd5;
+  box-shadow: 0 0 0 1px #f69fd5;
+}
+
+[data-theme="dark"] .select-dropdown:disabled {
+  background: #555;
+  color: #aaa;
+}
+
+[data-theme="dark"] .cancel-button {
+  background: #666;
+  color: #eee;
+}
+
+[data-theme="dark"] .cancel-button:hover:not(:disabled) {
+  background: #7a7a7a;
+}
+
+[data-theme="dark"] .create-button {
+  background: #f69fd5;
+  color: #fff;
+}
+
+[data-theme="dark"] .create-button:hover:not(:disabled) {
+  background: #eab9d7;
+}
+
+[data-theme="dark"] .checkbox-container input[type="checkbox"] {
+  accent-color: #f69fd5;
+}

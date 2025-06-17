@@ -40,10 +40,8 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
   };
 
   const handleSubmit = async () => {
-    const isDraft = draft?.status === 'draft';
     const cleanTo = form.to.trim();
 
-    // ✅ Reject send if no recipient
     if (!cleanTo) {
       setError({ to: "Please enter a recipient email address." });
       return;
@@ -113,47 +111,89 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
   };
 
   const handleCancel = async () => {
-    const isTrulyEmpty = !form.to.trim() && !form.subject.trim() && !form.bodyPreview.trim() && !file;
-    if (isTrulyEmpty) return onClose(); // nothing to save
+    const cleanTo = form.to.trim();
+    const hasAnyContent =
+      !!cleanTo ||
+      !!form.subject.trim() ||
+      !!form.bodyPreview.trim() ||
+      !!file;
 
+    // If there’s absolutely nothing to save, just close
+    if (!hasAnyContent) {
+      return onClose();
+    }
+
+    // If some content exists but recipient is missing, show error
+    if (!cleanTo) {
+      setError({ to: "Please enter a recipient email address in order to save a draft. You can discard the email instead." });
+      return;
+    }
+
+    setIsSending(true);
     try {
-      if (draft?.id) {
-        const payload = {
-          subject: form.subject,
-          bodyPreview: form.bodyPreview,
-          status: 'draft',
-          to: form.to || '' // ✅ Always include 'to', even if empty
-        };
+      let response, data = {};
 
-        await fetch(`/api/mails/${draft.id}`, {
+      if (draft?.id) {
+        // Update existing draft
+        response = await fetch(`/api/mails/${draft.id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${sessionStorage.getItem('token')}`
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            to: cleanTo,
+            subject: form.subject,
+            bodyPreview: form.bodyPreview,
+            status: 'draft',
+          }),
         });
+        if (response.status !== 204) {
+          data = await response.json();
+        }
       } else {
+        // Create new draft
         const formData = new FormData();
-        formData.append('to', form.to || ''); // ✅ Always include 'to'
+        formData.append('to', cleanTo);
         formData.append('subject', form.subject);
         formData.append('bodyPreview', form.bodyPreview);
         formData.append('status', 'draft');
         if (file) formData.append('attachments', file);
 
-        await fetch('/api/mails', {
+        response = await fetch('/api/mails', {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${sessionStorage.getItem('token')}`
+            Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           },
-          body: formData
+          body: formData,
         });
+        data = await response.json();
       }
-    } catch (err) {
-      console.warn("Failed to save draft:", err);
-    } finally {
+
+      // Handle server-side validation errors
+      if (!response.ok) {
+        const message = (data.error || '').toLowerCase();
+        if (message.includes('recipient')) {
+          setError({ to: message.includes('exist') ? 'Recipient does not exist.' : 'Recipient required.' });
+        } else if (message.includes('@doar.com')) {
+          setError({
+            to:
+              'Recipient must be an existing Doar user (e.g., user@doar.com) to save a draft. You can discard the email instead.',
+          });
+        } else {
+          alert(data.error || 'Failed to save draft.');
+        }
+        return;
+      }
+
+      // Success
       refreshInbox?.();
       onClose();
+    } catch (err) {
+      console.warn('Failed to save draft:', err);
+      alert('Something went wrong while trying to save the draft.');
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -244,22 +284,34 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
                   ))}
                 </div>
               )}
-              <label htmlFor="file-input" title="Attach a file">
-                <img src={attachmentIcon} alt="Attach" className="attachment-icon" />
-              </label>
+
+              <div className="tooltip-container">
+                <label htmlFor="file-input">
+                  <img
+                    src={attachmentIcon}
+                    alt="Attach"
+                    className="attachment-icon"
+                  />
+                </label>
+                <div className="tooltip-text">Attach a file</div>
+              </div>
+
               <input
                 id="file-input"
                 type="file"
                 onChange={handleFileChange}
                 className="file-input-hidden"
               />
-              <img
-                src={trashIcon}
-                alt="Discard"
-                className="discard-icon"
-                title="Discard and close"
-                onClick={onClose}
-              />
+              <div className="tooltip-container">
+                <img
+                  src={trashIcon}
+                  alt="Discard"
+                  className="discard-icon"
+                  title="Discard without saving"
+                  onClick={onClose}
+                />
+                <div className="tooltip-text">Discard without saving</div>
+              </div>
             </div>
           </div>
         </form>

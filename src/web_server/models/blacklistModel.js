@@ -6,7 +6,6 @@ const add = async (url) => {
         return response;
     }
     catch (error) {
-        console.error("Error in post url:", error);
         throw error;
     }
 };
@@ -16,7 +15,6 @@ const remove = async (url) => {
         const response = await sendRequest("DELETE", url);
         return response;
     } catch (error) {
-        console.error("Error in delete url:", error);
         throw error;
     }
 };

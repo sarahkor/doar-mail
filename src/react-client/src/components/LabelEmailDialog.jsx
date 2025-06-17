@@ -41,16 +41,6 @@ function LabelEmailDialog({ mail, onClose, onSuccess }) {
             // Ensure mail.id is a number for consistency
             const numericMailId = parseInt(mail.id);
 
-            console.log('🏷️ Label toggle:', {
-                labelId,
-                mailId: mail.id,
-                numericMailId,
-                mailIdType: typeof mail.id,
-                numericMailIdType: typeof numericMailId,
-                isCurrentlyLabeled,
-                action: isCurrentlyLabeled ? 'remove' : 'add'
-            });
-
             if (isCurrentlyLabeled) {
                 // Remove mail from label
                 await removeMailFromLabel(labelId, numericMailId);
