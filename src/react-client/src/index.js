@@ -1,4 +1,3 @@
-/* provide the AuthContext to the entire app */
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
@@ -10,7 +9,6 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 
 document.documentElement.setAttribute('data-theme', 'light');
-
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

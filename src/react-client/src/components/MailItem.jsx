@@ -13,12 +13,22 @@ import labelIcon from '../assets/icons/label3.svg';
 import restoreIcon from '../assets/icons/untrash.svg';
 
 function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRestore }) {
+  const username = sessionStorage.getItem('username');
+  const isIncoming = mail.to?.toLowerCase() === username;
+  const isSentMail = mail.from?.toLowerCase() === username;
+  const showAsSent = (folder === 'sent' || (folder === 'all' && isSentMail) || (folder === 'starred' && isSentMail) || (folder === 'spam' && isSentMail) || (folder === 'trash' && isSentMail));
   // State
   const [mailLabels, setMailLabels] = useState([]);
   const [showLabelDialog, setShowLabelDialog] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [isStarred, setIsStarred] = useState(false);
+  const showUnread = !mail.read && (
+    folder === 'inbox' ||
+    (folder === 'all' && isIncoming) ||
+    (folder === 'starred' && isIncoming) ||
+    (folder === 'spam' && isIncoming)
+  );
 
   useEffect(() => {
     if (!mail.id) return;
@@ -52,7 +62,6 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
   const timeOrDate = isToday ? mail.time : mail.date;
 
   // Helpers to render addresses
-  const username = sessionStorage.getItem('username');
   const renderFromLine = () => {
     const fromLower = (mail.from || '').toLowerCase().trim();
     if ((folder === 'inbox' || folder === 'starred') && fromLower === username?.toLowerCase()) {
@@ -112,7 +121,6 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
   const handleRestoreClick = async e => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Restore icon clicked!');
 
     try {
       const res = await fetch(`/api/trash/${mail.id}/restore`, {
@@ -319,7 +327,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
         onCancel={() => setConfirmOpen(false)}
       />
 
-      <div className={`mail-item ${mail.read ? 'read' : 'unread'}`}>
+      <div className={`mail-item ${showUnread ? 'unread' : 'read'}`}>
         {(mail.status === 'draft') ? (
           // Drafts & starred-draft: clickable row
           <div
@@ -357,7 +365,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
           // All other folders: Link wrapper
           <Link to={`/home/${folder}/${mail.id}`} className="mail-link">
             {star}
-            <div className="mail-from">{folder === 'sent' ? renderToLine() : renderFromLine()}</div>
+            <div className="mail-from">{showAsSent ? renderToLine() : renderFromLine()}</div>
             <div className="mail-content">
               <div className="mail-subject-row">
                 <div className="mail-subject">{mail.subject}</div>
