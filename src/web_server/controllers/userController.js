@@ -72,9 +72,10 @@ function registerUser(req, res) {
   }
 
   // Validate gender value
-  if (gender && !["male", "female", "other"].includes(gender.toLowerCase())) {
-    return res.status(400).json({ status: "error", message: "Invalid gender. Must be 'male', 'female', or 'other'." });
-  }
+  if (gender && !["male", "female", "other", "prefer_not_to_say"].includes(gender.toLowerCase())) {
+  return res.status(400).json({ status: "error", message: "Invalid gender." });
+}
+
 
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

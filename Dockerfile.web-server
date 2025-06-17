@@ -1,23 +1,30 @@
-# Stage 1: Build React
+# Stage 1: Build React client
 FROM node:20 AS react-client
 WORKDIR /app
-COPY src/react-client/package*.json ./
-RUN npm install
-COPY src/react-client .
-RUN npm run build
+COPY src/react-client/package*.json ./src/react-client/
+RUN cd src/react-client && npm install
+COPY src/react-client ./src/react-client
+RUN cd src/react-client && npm run build
 
-# Stage 2: Web server
+# Stage 2: Build web server
 FROM node:20
 WORKDIR /app
 
+# Curl is needed for some npm packages
 RUN apt-get update && apt-get install -y curl
 
-COPY src/web_server/package*.json ./
-RUN npm install
-COPY src/web_server .
 
-#  This line copies the React build into the server
-COPY --from=react-client /app/build ./client/build
+COPY src/web_server/package*.json ./src/web_server/
+RUN cd src/web_server && npm install
+
+
+COPY src/web_server ./src/web_server
+
+
+COPY --from=react-client /app/src/react-client/build ./src/react-client/build
+
 
 EXPOSE 8080
-CMD ["node", "app.js"]
+
+# Start the server
+CMD ["node", "src/web_server/app.js"]

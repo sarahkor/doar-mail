@@ -71,10 +71,11 @@ app.use('/api/search', searchRoute);
 app.post('/api/tokens', loginUser);
 
 // Serve React app
-app.use(express.static(path.join(__dirname, '../../react-client/build')));
+app.use(express.static(path.join(__dirname, '../react-client/build')));
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../react-client/build', 'index.html'));
+  res.sendFile(path.join(__dirname, '../react-client/build', 'index.html'));
 });
+
 
 // Start server
 const PORT = process.env.PORT || 8080;
