@@ -1,4 +1,3 @@
-// src/components/MailItem.jsx
 import React, { useState, useEffect } from 'react';
 import './MailItem.css';
 import { Link } from 'react-router-dom';
@@ -19,6 +18,21 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
   const [showLabelDialog, setShowLabelDialog] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [isStarred, setIsStarred] = useState(false);
+
+  useEffect(() => {
+    if (!mail.id) return;
+    (async () => {
+      try {
+        const token = sessionStorage.getItem('token');
+        const res = await fetch(`/api/starred/${mail.id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const { starred } = await res.json();
+        setIsStarred(starred);
+      } catch (e) { console.error(e); }
+    })();
+  }, [mail.id]);
 
   // Fetch labels once per mail
   useEffect(() => {
@@ -54,16 +68,43 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
       : `To: ${mail.to}`;
   };
 
-  // Handlers
+  const refreshStarred = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const res = await fetch(`/api/starred/${mail.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const { starred } = await res.json();
+      setIsStarred(starred);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // on mount, fetch once
+  useEffect(() => {
+    if (mail.id) refreshStarred();
+  }, [mail.id]);
+
   const handleStarClick = async e => {
-    e.preventDefault(); e.stopPropagation();
+    e.preventDefault();
+    e.stopPropagation();
+
+    setIsStarred(prev => !prev);
+
     try {
       const res = await fetch(`/api/starred/${mail.id}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
       });
       if (res.ok && onStarToggle) onStarToggle();
+      else {
+        // if it actually failed, flip it back:
+        setIsStarred(prev => !prev);
+      }
     } catch {
+      // on network error, undo the flip:
+      setIsStarred(prev => !prev);
       alert('Failed to toggle star.');
     }
   };
@@ -137,6 +178,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
     }
   };
 
+
   const handleUnspamClick = async e => {
     e.preventDefault(); e.stopPropagation();
     try {
@@ -166,18 +208,18 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
 
   // Icon components
   const star = (
-    <div className="tooltip-container">
+    <button
+      className="star-button"
+      onClick={handleStarClick}
+      aria-label={isStarred ? 'Unstar mail' : 'Star mail'}
+    >
       <img
-        src={mail.starred ? fullStarIcon : starIcon}
-        alt={mail.starred ? 'Starred' : 'Not starred'}
+        src={isStarred ? fullStarIcon : starIcon}
+        alt=""
         className="star-icon"
-        onClick={handleStarClick}
         draggable={false}
       />
-      <div className="tooltip-text left-align">
-        {mail.starred ? 'Unstar mail' : 'Star mail'}
-      </div>
-    </div>
+    </button>
   );
 
   const restore = (
@@ -288,10 +330,10 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
           >
             {star}
             {mail.status === 'draft' && <span className="draft-label">Draft</span>}
-            <div className="mail-from">{renderToLine()}</div>
+            <div className="mail-from-draft">{renderToLine()}</div>
             <div className="mail-content">
-              <div className="mail-subject-row">
-                <div className="mail-subject">{mail.subject}</div>
+              <div className="mail-subject-row-draft">
+                <div className="mail-subject-draft">{mail.subject}</div>
                 {mailLabels.length > 0 && (
                   <div className="mail-labels">
                     {mailLabels.map(l => (
@@ -302,7 +344,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
                   </div>
                 )}
               </div>
-              <div className="mail-preview">{mail.bodyPreview}</div>
+              <div className="mail-preview-draft">{mail.bodyPreview}</div>
             </div>
             <div className="mail-right">
               <div className="mail-time">{timeOrDate}</div>
@@ -315,7 +357,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
           // All other folders: Link wrapper
           <Link to={`/home/${folder}/${mail.id}`} className="mail-link">
             {star}
-            <div className="mail-from">{renderFromLine()}</div>
+            <div className="mail-from">{folder === 'sent' ? renderToLine() : renderFromLine()}</div>
             <div className="mail-content">
               <div className="mail-subject-row">
                 <div className="mail-subject">{mail.subject}</div>

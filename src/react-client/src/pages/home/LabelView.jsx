@@ -69,7 +69,7 @@ function LabelView() {
         setShowCompose(true);
     };
 
-    if (loading) return <p>Loading label...</p>;
+
     if (error) return <p className="text-danger">{error}</p>;
     if (!label) return <p>Label not found.</p>;
 

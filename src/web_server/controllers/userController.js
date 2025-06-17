@@ -46,18 +46,6 @@ function registerUser(req, res) {
   const profilePictureFile = req.file;
   const picture = profilePictureFile ? `/uploads/${profilePictureFile.filename}` : null;
 
-  console.log('📸 Profile picture upload debug:');
-  console.log('📸 File received:', !!profilePictureFile);
-  if (profilePictureFile) {
-    console.log('📸 File details:', {
-      filename: profilePictureFile.filename,
-      originalname: profilePictureFile.originalname,
-      size: profilePictureFile.size,
-      path: profilePictureFile.path
-    });
-    console.log('📸 Picture URL will be:', picture);
-  }
-
   // Validate required string fields
   if (!firstName || typeof firstName !== 'string' ||
     !username || typeof username !== 'string' ||
@@ -136,12 +124,13 @@ function registerUser(req, res) {
     labels: [],
     starred: [],
     trash: [],
-    spam: []
+    spam: [],
+    read: []
   };
 
   addUser(newUser);
 
-  const { password: _, inbox, sent, drafts, labels, starred, trash, spam, ...safeUser } = newUser;
+  const { password: _, inbox, sent, drafts, labels, starred, trash, spam, read, ...safeUser } = newUser;
   res.status(201).json({
     status: "success",
     message: "Account created successfully.",

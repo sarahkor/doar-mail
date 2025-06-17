@@ -52,8 +52,6 @@ export async function renameLabel(labelId, newName, parentId = undefined) {
         body.parentId = parentId;
     }
 
-    console.log(`📡 renameLabel API call - ID: ${labelId}, body:`, body);
-
     const response = await fetch(`/api/labels/${labelId}`, {
         method: 'PATCH',
         headers: getAuthHeaders('application/json'),
@@ -63,7 +61,6 @@ export async function renameLabel(labelId, newName, parentId = undefined) {
         throw new Error('Failed to rename label');
     }
     const result = await response.json();
-    console.log(`📡 renameLabel API response:`, result);
     return result;
 }
 
@@ -78,7 +75,6 @@ export async function deleteLabel(labelId) {
 }
 
 export async function addMailToLabel(labelId, mailId) {
-    console.log('📡 addMailToLabel API call:', { labelId, mailId, mailIdType: typeof mailId });
 
     const response = await fetch(`/api/labels/${labelId}/mails`, {
         method: 'POST',
@@ -88,17 +84,14 @@ export async function addMailToLabel(labelId, mailId) {
 
     if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ addMailToLabel failed:', errorText);
         throw new Error(errorText || 'Failed to add mail to label');
     }
 
     const result = await response.json();
-    console.log('✅ addMailToLabel success:', result);
     return result;
 }
 
 export async function removeMailFromLabel(labelId, mailId) {
-    console.log('📡 removeMailFromLabel API call:', { labelId, mailId, mailIdType: typeof mailId });
 
     const response = await fetch(`/api/labels/${labelId}/${mailId}`, {
         method: 'DELETE',
@@ -107,9 +100,7 @@ export async function removeMailFromLabel(labelId, mailId) {
 
     if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ removeMailFromLabel failed:', errorText);
+        console.error('removeMailFromLabel failed:', errorText);
         throw new Error(errorText || 'Failed to remove mail from label');
     }
-
-    console.log('✅ removeMailFromLabel success');
 }

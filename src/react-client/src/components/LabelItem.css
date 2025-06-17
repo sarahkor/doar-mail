@@ -18,7 +18,6 @@
   transition: background-color 0.2s ease;
   border-radius: 0 24px 24px 0;
   margin-bottom: 2px;
-  /* Padding-left will be set inline via style prop for indentation */
 }
 
 .label-item:hover {
@@ -36,7 +35,6 @@
   align-items: center;
   flex: 1;
   min-width: 0;
-  /* Allows text truncation */
 }
 
 .label-icon {
@@ -210,13 +208,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Remove any default active background on press */
 .label-item:active,
 .more-button:active {
   background: none;
 }
 
-/* If you want to suppress the focus outline as well */
 .label-item:focus,
 .more-button:focus {
   outline: none;
@@ -229,7 +225,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* 2) When you tap/click, force your hover color instead of gray */
 .label-item:active,
 .create-label-button:active,
 .add-button:active,
@@ -237,7 +232,6 @@
   background-color: var(--hover-bg) !important;
 }
 
-/* 3) Remove any outline if you prefer (optional) */
 .label-item:focus,
 .create-label-button:focus,
 .add-button:focus,

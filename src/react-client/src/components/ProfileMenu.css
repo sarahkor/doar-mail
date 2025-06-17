@@ -51,7 +51,7 @@
   gap: 8px;
   background: none;
   border: none;
-  color: #1a73e8;
+  color: #f69fd5;
   font-size: 14px;
   padding: 8px 16px;
   border-radius: 20px;
@@ -113,7 +113,7 @@
 }
 
 [data-theme='dark'] .profile-details-button {
-  color: #8ab4f8;
+  color: #f4c4e1;
 }
 
 [data-theme='dark'] .profile-details-button:hover {
@@ -121,7 +121,7 @@
 }
 
 [data-theme='dark'] .logout-button {
-  color: #8ab4f8;
+  color: #f4c4e1;
 }
 
 [data-theme='dark'] .logout-button:hover {

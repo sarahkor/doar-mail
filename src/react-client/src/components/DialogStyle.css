@@ -1,118 +1,119 @@
 /* Overlay dark backdrop */
 .dialog-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.54);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000; /* appear above app */
-  }
-  
-  /* Dialog container */
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.54);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  /* appear above app */
+}
+
+/* Dialog container */
+.label-dialog {
+  background: #fff;
+  width: 480px;
+  max-width: 95%;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 32px 40px 24px;
+  font-family: "Roboto", "Arial", sans-serif;
+  color: #202124;
+}
+
+/* Title */
+.label-dialog h2 {
+  margin: 0 0 24px;
+  font-size: 24px;
+  font-weight: 400;
+}
+
+/* Text labels */
+.label-dialog label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+/* Text input & select */
+.label-dialog input[type="text"],
+.label-dialog select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.label-dialog input[type="text"]:focus,
+.label-dialog select:focus {
+  border-color: #1967d2;
+  /* Gmail blue */
+  outline: none;
+  box-shadow: 0 0 0 1px #1967d2;
+}
+
+/* Checkbox row */
+.label-dialog .checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 12px;
+  font-size: 14px;
+}
+
+.label-dialog input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #1967d2;
+  cursor: pointer;
+}
+
+/* Actions */
+.label-dialog .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.label-dialog button {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+/* Cancel button */
+.label-dialog .cancel-btn {
+  background: transparent;
+  color: #1967d2;
+}
+
+.label-dialog .cancel-btn:hover {
+  background: rgba(25, 103, 210, 0.08);
+}
+
+/* Save primary button */
+.label-dialog .save-btn {
+  background: #1967d2;
+  color: #fff;
+}
+
+.label-dialog .save-btn:hover {
+  background: #174ea6;
+}
+
+/* Responsive shrink */
+@media (max-width: 600px) {
   .label-dialog {
-    background: #fff;
-    width: 480px;
-    max-width: 95%;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    padding: 32px 40px 24px;
-    font-family: "Roboto", "Arial", sans-serif;
-    color: #202124;
+    width: calc(100% - 32px);
+    padding: 24px 24px 16px;
   }
-  
-  /* Title */
-  .label-dialog h2 {
-    margin: 0 0 24px;
-    font-size: 24px;
-    font-weight: 400;
-  }
-  
-  /* Text labels */
-  .label-dialog label {
-    display: block;
-    font-size: 14px;
-    margin-bottom: 4px;
-  }
-  
-  /* Text input & select */
-  .label-dialog input[type="text"],
-  .label-dialog select {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #dadce0;
-    border-radius: 4px;
-    background: #fff;
-    font-size: 16px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  
-  .label-dialog input[type="text"]:focus,
-  .label-dialog select:focus {
-    border-color: #1967d2; /* Gmail blue */
-    outline: none;
-    box-shadow: 0 0 0 1px #1967d2;
-  }
-  
-  /* Checkbox row */
-  .label-dialog .checkbox-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 20px 0 12px;
-    font-size: 14px;
-  }
-  
-  .label-dialog input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: #1967d2;
-    cursor: pointer;
-  }
-  
-  /* Actions */
-  .label-dialog .actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 16px;
-    margin-top: 32px;
-  }
-  
-  .label-dialog button {
-    font-size: 14px;
-    font-weight: 500;
-    padding: 10px 24px;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  
-  /* Cancel button */
-  .label-dialog .cancel-btn {
-    background: transparent;
-    color: #1967d2;
-  }
-  
-  .label-dialog .cancel-btn:hover {
-    background: rgba(25, 103, 210, 0.08);
-  }
-  
-  /* Save primary button */
-  .label-dialog .save-btn {
-    background: #1967d2;
-    color: #fff;
-  }
-  
-  .label-dialog .save-btn:hover {
-    background: #174ea6;
-  }
-  
-  /* Responsive shrink */
-  @media (max-width: 600px) {
-    .label-dialog {
-      width: calc(100% - 32px);
-      padding: 24px 24px 16px;
-    }
-  }
-  
+}

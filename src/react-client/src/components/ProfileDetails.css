@@ -1,182 +1,211 @@
 .profile-details-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    backdrop-filter: blur(4px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
 }
 
 .profile-details-modal {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    width: 90%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: modalSlideIn 0.3s ease-out;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease-out;
 }
 
 @keyframes modalSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px) scale(0.95);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
 
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .profile-details-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 24px 16px 24px;
-    border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .profile-details-header h2 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: #333;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
 }
 
 .close-button {
-    background: none;
-    border: none;
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    color: #666;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .close-button:hover {
-    background-color: #f1f3f4;
-    color: #333;
+  background-color: #f1f3f4;
+  color: #333;
 }
 
 .profile-details-content {
-    padding: 24px;
+  padding: 24px;
 }
 
 .profile-details-avatar {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
 }
 
 .profile-details-avatar img {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #e0e0e0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .profile-details-info {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .profile-detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .profile-detail-item:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .profile-detail-item label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .profile-detail-item span {
-    font-size: 16px;
-    color: #333;
-    font-weight: 400;
-    word-break: break-word;
+  font-size: 16px;
+  color: #333;
+  font-weight: 400;
+  word-break: break-word;
 }
 
 /* Dark mode styles */
 [data-theme='dark'] .profile-details-modal {
-    background: #202124;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background: #202124;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme='dark'] .profile-details-header {
-    border-bottom-color: #3c4043;
+  border-bottom-color: #3c4043;
 }
 
 [data-theme='dark'] .profile-details-header h2 {
-    color: #e8eaed;
+  color: #e8eaed;
 }
 
 [data-theme='dark'] .close-button {
-    color: #9aa0a6;
+  color: #9aa0a6;
 }
 
 [data-theme='dark'] .close-button:hover {
-    background-color: #3c4043;
-    color: #e8eaed;
+  background-color: #3c4043;
+  color: #e8eaed;
 }
 
 [data-theme='dark'] .profile-details-avatar img {
-    border-color: #3c4043;
+  border-color: #3c4043;
 }
 
 [data-theme='dark'] .profile-detail-item {
-    border-bottom-color: #3c4043;
+  border-bottom-color: #3c4043;
 }
 
 [data-theme='dark'] .profile-detail-item label {
-    color: #9aa0a6;
+  color: #9aa0a6;
 }
 
 [data-theme='dark'] .profile-detail-item span {
-    color: #e8eaed;
+  color: #e8eaed;
 }
 
 /* Responsive design */
 @media (max-width: 480px) {
-    .profile-details-modal {
-        width: 95%;
-        margin: 20px;
-    }
+  .profile-details-modal {
+    width: 95%;
+    margin: 20px;
+  }
 
-    .profile-details-header,
-    .profile-details-content {
-        padding: 16px;
-    }
+  .profile-details-header,
+  .profile-details-content {
+    padding: 16px;
+  }
 
-    .profile-details-avatar img {
-        width: 100px;
-        height: 100px;
-    }
+  .profile-details-avatar img {
+    width: 100px;
+    height: 100px;
+  }
 
-    .profile-detail-item {
-        padding: 10px 0;
-    }
+  .profile-detail-item {
+    padding: 10px 0;
+  }
+}
+
+.profile-details-modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.profile-details-modal::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+.profile-details-modal::-webkit-scrollbar-thumb {
+  background-color: #cdc8c8;
+  border-radius: 4px;
+  border: 2px solid #beb9b9;
+}
+
+
+[data-theme='dark'] .profile-details-modal::-webkit-scrollbar {
+  width: 10px;
+}
+
+[data-theme='dark'] .profile-details-modal::-webkit-scrollbar-track {
+  background: #000;
+}
+
+[data-theme='dark'] .profile-details-modal::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 4px;
+  border: 2px solid #000;
 }

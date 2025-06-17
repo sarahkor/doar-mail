@@ -19,16 +19,6 @@ router.post('/tokens', loginUser);
 // Route to get current user's profile
 router.get('/me', authenticateToken, (req, res) => {
     const user = req.user;
-    console.log('👤 /me endpoint - user data:', {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-        picture: user.picture,
-        birthday: user.birthday,
-        phone: user.phone,
-        gender: user.gender
-    });
     const { password, ...safeUser } = user;
     res.status(200).json({
         status: "success",
@@ -61,8 +51,6 @@ router.patch('/me/birthday', authenticateToken, (req, res) => {
 
     // Update the user's birthday
     user.birthday = birthday;
-
-    console.log('🎂 Updated birthday for user:', user.username, 'to:', birthday);
 
     const { password, ...safeUser } = user;
     res.status(200).json({

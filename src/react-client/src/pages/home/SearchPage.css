@@ -2,9 +2,7 @@
   display: flex;
   flex: 1;
   min-height: 0;
-  /* 👈 allow children to scroll */
   overflow: hidden;
-  /* 👈 no outer scrollbar */
 }
 
 .folder-card {
@@ -35,14 +33,10 @@
 
 .folder-scroll-container {
   flex: 1;
-  /* fill remaining space */
   min-height: 0;
-  /* allow it to shrink/scroll */
   overflow-y: auto;
-  /* only this one scrolls */
 }
 
-/* custom scrollbar styling */
 .folder-scroll-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -52,7 +46,6 @@
   border-radius: 4px;
 }
 
-/* dark mode tweaks */
 [data-theme="dark"] .folder-card {
   background: var(--bg-primary-dark);
   box-shadow:

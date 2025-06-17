@@ -1,22 +1,17 @@
-/* 1. The “card” container, flexed to fill its parent */
 .label-view-wrapper {
     display: flex;
     flex-direction: column;
     flex: 1;
-    /* fill the available area */
     min-height: 0;
-    /* allow children to shrink/scroll */
     background: var(--bg-primary);
     border-radius: 16px;
     box-shadow:
         0 4px 20px rgba(0, 0, 0, 0.05),
         0 1px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    /* clip overflow */
     padding: 24px;
 }
 
-/* 2. Header pinned at the top */
 .label-header {
     display: flex;
     align-items: center;
@@ -24,14 +19,13 @@
     position: sticky;
     top: 0;
     background: inherit;
-    /* same as the card */
     z-index: 2;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 16px;
     margin-bottom: 16px;
 }
 
-/* 3. Title + icon */
+
 .label-title {
     display: flex;
     align-items: center;
@@ -48,7 +42,6 @@
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
     background-color: currentColor;
-    /* we'll set color on h2 */
 }
 
 .label-title h2 {
@@ -58,7 +51,7 @@
     color: var(--text-primary);
 }
 
-/* 4. Count bubble on the right */
+
 .label-count {
     font-size: 0.875rem;
     color: var(--text-secondary);
@@ -67,16 +60,13 @@
     border-radius: 16px;
 }
 
-/* 5. Scrollable mail list */
+
 .label-mails-container {
     flex: 1;
-    /* take all remaining vertical space */
     min-height: 0;
-    /* allows flex children to scroll */
     overflow-y: auto;
 }
 
-/* 6. “No mails” fallback lives inside the scroll region */
 .no-mails-message {
     text-align: center;
     padding: 48px 0;
@@ -92,7 +82,6 @@
     color: var(--text-primary);
 }
 
-/* 7. Dark‐mode tweaks */
 [data-theme='dark'] .label-view-wrapper {
     background: var(--bg-primary-dark);
     box-shadow:
@@ -112,13 +101,11 @@
     width: 6px;
 }
 
-/* thumb styling */
 .label-mails-container::-webkit-scrollbar-thumb {
     background: #aaa;
     border-radius: 4px;
 }
 
-/* dark mode thumb */
 [data-theme='dark'] .label-mails-container::-webkit-scrollbar-thumb {
     background: #555;
 }
@@ -173,4 +160,90 @@
 
 [data-theme='dark'] .empty-trash-icon {
     filter: brightness(0) invert(1);
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.pagination-btn {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.arrow-icon {
+    width: 24px;
+    height: 24px;
+    fill: var(--icon-color);
+    transition: opacity 0.2s, filter 0.2s;
+}
+
+.arrow-icon.disabled {
+    opacity: 0.3;
+    filter: grayscale(100%);
+    cursor: default;
+}
+
+:root {
+    --icon-color: #333;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --icon-color: #ccc;
+    }
+}
+
+.label-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+}
+
+.label-count {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.label-title {
+    flex: 1;
+}
+
+.pagination-controls {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+[data-theme='dark'] .arrow-icon {
+    filter: brightness(0) invert(1);
+}
+
+[data-theme='dark'] .arrow-icon.disabled {
+    filter: brightness(0.7) invert(1) grayscale(100%);
+}
+
+[data-theme='dark'] .pagination-controls span {
+    color: #ddd;
+}
+
+[data-theme='dark'] .label-count {
+    color: #ccc;
+}
+
+.label-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    position: relative;
 }

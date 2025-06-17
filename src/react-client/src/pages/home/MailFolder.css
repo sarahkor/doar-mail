@@ -1,10 +1,6 @@
-/* src/pages/home/MailFolder.css */
-
 .folder-wrapper {
   flex: 1;
-  /* take all remaining vertical space */
   min-height: 0;
-  /* allows flex children to scroll */
   overflow-y: auto;
 }
 
@@ -22,7 +18,6 @@
   padding: 24px;
 }
 
-/* pinned header inside the card */
 .folder-title {
   margin: 0;
   padding: 16px 24px;
@@ -35,16 +30,13 @@
   z-index: 2;
 }
 
-/* only this scrolls */
+
 .folder-scroll-container {
   flex: 1;
-  /* fill remaining height */
   min-height: 0;
-  /* enable scrolling */
   overflow-y: auto;
 }
 
-/* custom scrollbar */
 .folder-scroll-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -54,7 +46,6 @@
   border-radius: 4px;
 }
 
-/* “no mails found” message */
 .no-mails {
   padding: 48px 0;
   color: var(--text-secondary);
@@ -92,4 +83,19 @@
 
 .empty-trash-icon:hover {
   opacity: 1;
+}
+
+.trash-info {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  padding: 8px 24px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+[data-theme="dark"] .trash-info {
+  background: var(--bg-secondary-dark);
+  color: #ccc;
 }

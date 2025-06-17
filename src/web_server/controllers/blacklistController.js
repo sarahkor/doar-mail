@@ -27,7 +27,6 @@ exports.addToBlacklist = async (req, res) => {
 exports.removeFromBlacklist = async (req, res) => {
     const encodedUrl = req.params.url;
     const url = decodeURIComponent(encodedUrl);
-    console.log("Trying to remove:", url);
 
     if (!url) {
         return res.status(400).json({ error: 'Missing URL in request path' });
@@ -48,7 +47,6 @@ exports.removeFromBlacklist = async (req, res) => {
             return res.status(500).json({ error: `Unexpected server response: ${responseText}` });
         }
     } catch (err) {
-        console.error('Failed to remove from blacklist:', err);
         return res.status(500).json({ error: 'Internal server error' });
     }
 };

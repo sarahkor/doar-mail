@@ -1,0 +1,124 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.54);
+  z-index: 1000;
+}
+
+.delete-label-modal {
+  background: #fff;
+  width: 300px;
+  max-width: calc(100% - 32px);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  font-family: "Roboto", "Arial", sans-serif;
+  color: #202124;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 24px;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.single-label-msg,
+.multi-label-msg {
+  font-size: 14px;
+  color: #5f6368;
+  margin: 20px 0 30px 0;
+  padding: 0 10px;
+}
+
+.multi-label-text {
+  margin: 0 0 10px 0;
+}
+
+.multi-label-list {
+  margin: 0;
+  padding-left: 20px;
+  color: #000;
+  font-weight: bold;
+}
+
+.multi-label-item {
+  margin-bottom: 4px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.cancel-button,
+.delete-button {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+.cancel-button {
+  background: #bbb;
+  color: #fff;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background: #d0d0d0;
+}
+
+.delete-button {
+  background: #f69fd5;
+  color: white;
+}
+
+.delete-button:hover:not(:disabled) {
+  background: #f4c4e1;
+}
+
+.delete-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+[data-theme='dark'] .delete-label-modal {
+  background: #2a2a2a;
+  color: #e8eaed;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme='dark'] .single-label-msg,
+[data-theme='dark'] .multi-label-msg {
+  color: #bbb;
+}
+
+[data-theme='dark'] .multi-label-list {
+  color: #fff;
+}
+
+[data-theme='dark'] .cancel-button {
+  background: #555;
+  color: #fff;
+}
+
+[data-theme='dark'] .cancel-button:hover:not(:disabled) {
+  background: #777;
+}
+
+[data-theme='dark'] .delete-button {
+  background: #f69fd5;
+  color: #000;
+}
+
+[data-theme='dark'] .delete-button:hover:not(:disabled) {
+  background: #f4c4e1;
+}

@@ -41,7 +41,6 @@
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   box-sizing: border-box;
-  /* ✅ Add this line */
 }
 
 .compose-textarea {
@@ -51,7 +50,6 @@
 .compose-actions {
   display: flex;
   justify-content: space-between;
-  /* one group on left, one on right */
   align-items: center;
   margin-top: 12px;
 }
@@ -82,14 +80,15 @@
   color: #ffffff;
 }
 
-.cancel-button:hover {
-  background-color: #d0d0d0;
-}
-
 .compose-dialog .cancel-button {
   background-color: #bbb;
   color: #fff;
 }
+
+.compose-dialog .cancel-button:hover {
+  background-color: #d0d0d0;
+}
+
 
 
 .attachment-icon {
@@ -170,4 +169,10 @@
 
 [data-theme='dark'] .attached-filename {
   color: #fffbfb;
+}
+
+[data-theme='dark'] .compose-input.is-invalid {
+  background-color: #3c1f1e;
+  border-color: #f28b82;
+  color: #fff;
 }

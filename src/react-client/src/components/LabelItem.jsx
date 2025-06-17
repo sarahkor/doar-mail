@@ -76,7 +76,6 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
   };
 
   const handleColorChange = async (color) => {
-    console.log('Changing color to:', color, 'for label:', label.name);
     try {
       await updateLabelColor(label.id, color);
       if (onColorChange) onColorChange(label.id, color);
@@ -88,16 +87,13 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
 
       setShowColors(false);
       setMenuOpen(false);
-      console.log('Color changed successfully');
     } catch (error) {
-      console.error('Failed to update label color:', error);
     }
   };
 
   const handleColorClick = (e, color) => {
     e.stopPropagation();
     e.preventDefault();
-    console.log('Color clicked:', color);
     handleColorChange(color);
   };
 
@@ -107,8 +103,6 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
   const baseIndentation = 24;
   const depthIndentation = depth * 24;
   const indentationPx = baseIndentation + depthIndentation;
-
-  console.log(`🏷️ Label "${label.name}" - Depth: ${depth}, HasChildren: ${hasChildren}, Indentation: ${indentationPx}px, ParentID: ${label.parentId || 'none'}`);
 
   return (
     <div className={`label-item-container ${isSelected ? 'selected' : ''}`}>
@@ -221,7 +215,6 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
           label={label}
           onClose={() => setShowEditModal(false)}
           onUpdate={(updatedLabel) => {
-            console.log('🔄 LabelItem received updated label:', updatedLabel);
             onLabelUpdate(updatedLabel);
           }}
           existingLabels={existingLabels}
@@ -240,9 +233,9 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
       {showAddModal && (
         <NewLabelDialog
           onClose={() => setShowAddModal(false)}
-          onCreate={onLabelAdd}                    // NEW – the real "add" handler
+          onCreate={onLabelAdd}
           // include the current label so the <select> can show it pre-selected
-          existingLabels={[label, ...existingLabels]}   // NEW
+          existingLabels={[label, ...existingLabels]}
           defaultParentId={label.id}
           forceNested={true}
         />

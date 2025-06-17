@@ -30,10 +30,6 @@ function ProfileMenu({ user, isLoading, onClose }) {
         return `https://ui-avatars.com/api/?name=User&background=f69fd5&color=fff&size=80`;
     };
 
-    // Debug logging to see what user data we're getting
-    console.log('ProfileMenu received user data:', user);
-    console.log('ProfileMenu isLoading:', isLoading);
-
     // Show loading state if still loading or no user data
     if (isLoading || !user) {
         return (
@@ -44,7 +40,7 @@ function ProfileMenu({ user, isLoading, onClose }) {
                             width: '80px',
                             height: '80px',
                             borderRadius: '50%',
-                            backgroundColor: '#1a73e8',
+                            backgroundColor: '#f69fd5',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -77,8 +73,6 @@ function ProfileMenu({ user, isLoading, onClose }) {
     const displayEmail = user.username || user.email || 'user@doar.com';
     const displayFirstName = user.firstName || 'User';
 
-    console.log('Display email:', displayEmail);
-    console.log('Display name:', displayFirstName);
 
     return (
         <div className="profile-menu">
@@ -88,8 +82,7 @@ function ProfileMenu({ user, isLoading, onClose }) {
                         src={getProfileImageUrl(user)}
                         alt="Profile"
                         onError={(e) => {
-                            console.log('Profile menu image failed to load, using fallback');
-                            e.target.src = `https://ui-avatars.com/api/?name=User&background=1a73e8&color=fff&size=80`;
+                            e.target.src = `https://ui-avatars.com/api/?name=User&background=f69fd5&color=fff&size=80`;
                         }}
                     />
                 </div>

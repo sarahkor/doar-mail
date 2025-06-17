@@ -48,8 +48,6 @@ function RegisterPasswordPage() {
       ...formData
     };
 
-    console.log("Submitting full registration data:", fullData);
-
     const formPayload = new FormData();
     formPayload.append("username", fullData.username);
     formPayload.append("password", fullData.password);
@@ -77,7 +75,6 @@ function RegisterPasswordPage() {
 
       navigate("/login");
     } catch (err) {
-      console.error("Registration error:", err);
       setError("Something went wrong. Please try again.");
     }
   };

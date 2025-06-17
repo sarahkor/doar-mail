@@ -2,6 +2,7 @@
 import { useState } from "react";
 import logo from "../../assets/images/doar-logo.png";
 import { useNavigate, NavLink } from "react-router-dom";
+import { useEffect } from 'react';
 
 // LoginPage component
 function LoginPage() {
@@ -9,6 +10,10 @@ function LoginPage() {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

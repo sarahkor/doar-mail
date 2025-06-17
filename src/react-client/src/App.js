@@ -24,7 +24,6 @@ function App() {
       const response = await searchMails(params);
       setSearchResults(response.results);
     } catch (error) {
-      console.error('Search failed:', error);
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -45,7 +44,6 @@ function App() {
       <Route path="/register/details" element={<RegisterDetailsPage />} />
       <Route path="/register/password" element={<RegisterPasswordPage />} />
 
-      {/* Nested mailbox routes, protected by login */}
       <Route
         path="/home/*"
         element={
