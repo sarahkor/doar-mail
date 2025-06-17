@@ -187,7 +187,7 @@ docker compose down -v
 
 ## 📁 Data Persistence
 
-- All saved data (e.g., mails, labels, blacklist) are stored in a Docker volume named `urldata`.
+- All blacklisted urls are stored in a Docker volume named `urldata`.
 - This volume ensures that data remains even after containers are stopped or rebuilt.
 
 ---

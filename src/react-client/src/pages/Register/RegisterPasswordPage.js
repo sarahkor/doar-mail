@@ -4,7 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import logo from "../../assets/images/doar-logo.png";
 
 function RegisterPasswordPage() {
-  const { registrationData } = useAuth(); // הסרנו את updateRegistrationData
+  const { registrationData } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({

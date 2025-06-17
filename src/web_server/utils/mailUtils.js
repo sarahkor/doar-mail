@@ -3,7 +3,7 @@ const sessions = require('../models/sessions');
 const net = require('net');
 
 //const IP = 'server-container';
-const IP = '127.0.0.1';
+const IP = 'server-container';
 const PORT = 12345;
 
 // Sends a request to add a URL to the blacklist on the C++ server
