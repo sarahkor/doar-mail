@@ -5,7 +5,7 @@ import LoginPage from "./pages/Login/LoginPage";
 import RegisterPage from "./pages/Register/RegisterPage";
 import RegisterDetailsPage from './pages/Register/RegisterDetailsPage';
 import RegisterPasswordPage from './pages/Register/RegisterPasswordPage';
-import HomePage from "./pages/home/HomePage"; // <-- Use the right path/casing
+import HomePage from "./pages/home/HomePage";
 import AppLayout from './components/AppLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { searchMails } from './api/searchApi';

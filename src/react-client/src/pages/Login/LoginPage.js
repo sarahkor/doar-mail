@@ -76,6 +76,7 @@ function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         sessionStorage.setItem("token", data.token);  // Use sessionStorage for session-based security
+        sessionStorage.setItem("username", email.toLowerCase());
         navigate("/home");
       } else {
         const err = await response.json();
