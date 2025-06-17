@@ -174,7 +174,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
       if (!response.ok) {
         const message = (data.error || '').toLowerCase();
         if (message.includes('recipient')) {
-          setError({ to: message.includes('exist') ? 'Recipient does not exist.' : 'Recipient required.' });
+          setError({ to: message.includes('exist') ? 'Recipient does not exist. you must enter an existing doar user in order to save a draft, You can discard the email instead.' : 'Recipient required.' });
         } else if (message.includes('@doar.com')) {
           setError({
             to:

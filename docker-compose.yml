@@ -8,11 +8,9 @@ services:
     container_name: web-container
     ports:
       - "8080:8080"
-    volumes:
-      - gmail_data:/app/data
-    networks:
-      - gmailnet
     restart: always
+    networks:
+      - urlnet 
     env_file:
       - .env
     depends_on:
@@ -26,7 +24,7 @@ services:
     ports:
       - "3000:80"
     networks:
-      - gmailnet
+      - urlnet
     restart: always
     depends_on:
       - web-server
@@ -37,15 +35,15 @@ services:
       dockerfile: Dockerfile.server
     container_name: server-container
     networks:
-      - gmailnet
+      - urlnet
     volumes:
-      - gmail_data:/server/data
+      - urldata:/server/data
     stdin_open: true
     tty: true
     command: ["./build/server", "12345", "8", "1", "2"]
 
 volumes:
-  gmail_data:
+  urldata:
 
 networks:
-  gmailnet:
+  urlnet:
