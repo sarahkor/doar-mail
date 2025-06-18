@@ -1,4 +1,3 @@
-// src/pages/home/MailDetail.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getLabels } from '../../api/labelsApi';
@@ -10,15 +9,19 @@ import trashIcon from '../../assets/icons/trash.svg';
 import restoreIcon from '../../assets/icons/untrash.svg';
 import './MailDetail.css';
 
+// this function displays the detailed view of a single mail, with full content, metadata, labels, and actions
 export default function MailDetail({ onCompose }) {
+  // Extract folder and mailId from URL parameters
   const { folder, mailId } = useParams();
   const navigate = useNavigate();
 
+  // Component state
   const [mail, setMail] = useState(null);
-  const [mailLabels, setMailLabels] = useState([]);
+  const [mailLabels, setMailLabels] = useState([]); // Labels associated with this mail
   const [error, setError] = useState('');
-  const [isStarred, setIsStarred] = useState(false);
+  const [isStarred, setIsStarred] = useState(false); // Whether the mail is starred by current user
 
+  // Fetch mail content using the GET api/mails/:id endpoint
   const fetchMail = useCallback(async () => {
     try {
       const token = sessionStorage.getItem('token');
@@ -32,15 +35,17 @@ export default function MailDetail({ onCompose }) {
     }
   }, [mailId]);
 
+  // Fetch all labels associated with this mail
   const fetchMailLabels = useCallback(async () => {
     try {
       const all = await getLabels();
       setMailLabels(all.filter(l => l.mailIds?.includes(Number(mailId))));
     } catch (err) {
+      setError(err.message);
     }
   }, [mailId]);
 
-  // fetch per-user starred status
+  // fetch per-user starred status using the GET /api/starred/:id endpoint
   const refreshStarred = useCallback(async () => {
     try {
       const token = sessionStorage.getItem('token');
@@ -51,6 +56,7 @@ export default function MailDetail({ onCompose }) {
       const { starred } = await res.json();
       setIsStarred(starred);
     } catch (err) {
+      setError(err.message);
     }
   }, [mailId]);
 
@@ -60,13 +66,15 @@ export default function MailDetail({ onCompose }) {
     refreshStarred();
   }, [fetchMail, fetchMailLabels, refreshStarred]);
 
+  // Toggle the star status, if the mail was starred it will get unstarred 
+  // and if the mail was unstarred it will get starred when clicking on the star icon
   const toggleStar = async e => {
     e.preventDefault();
     e.stopPropagation();
 
-    // optimistic flip
+    // set the mail to be the oppisite from what it was (if starred then unstarred and vise verca)
     setIsStarred(prev => !prev);
-
+    // toggling the mail star using the POST /api/starred/:id endpoint
     try {
       const token = sessionStorage.getItem('token');
       const res = await fetch(`/api/starred/${mailId}`, {
@@ -75,15 +83,17 @@ export default function MailDetail({ onCompose }) {
       });
       if (!res.ok) throw new Error();
     } catch {
-      // rollback on error
       setIsStarred(prev => !prev);
       alert('Failed to toggle star.');
     }
   };
 
+  // Move mail to trash (or delete permanently if already in trash)
   const moveTrash = async () => {
     try {
       const token = sessionStorage.getItem('token');
+      // if the mail is in trash then we delete permanently using the DELETE /api/trash/:id end point
+      // and if the mail is not  in trash then we move it to trash using the DELETE api/mails/:id endpoint
       const url = folder === 'trash'
         ? `/api/trash/${mail.id}`
         : `/api/mails/${mail.id}`;
@@ -98,6 +108,7 @@ export default function MailDetail({ onCompose }) {
     }
   };
 
+  // Report mail as spam
   const markSpam = async () => {
     try {
       const token = sessionStorage.getItem('token');
@@ -112,6 +123,7 @@ export default function MailDetail({ onCompose }) {
     }
   };
 
+  // Unspam a mail
   const unmarkSpam = async () => {
     try {
       const token = sessionStorage.getItem('token');
@@ -126,6 +138,7 @@ export default function MailDetail({ onCompose }) {
     }
   };
 
+  // Restore mail from trash
   const restoreTrash = async () => {
     try {
       const token = sessionStorage.getItem('token');
@@ -143,9 +156,10 @@ export default function MailDetail({ onCompose }) {
   if (error) return <div className="mail-detail-error">{error}</div>;
   if (!mail) return <div className="mail-detail-loading"></div>;
 
-  // build the toolbar buttons exactly like your MailItem iconsByFolder
+  // Build toolbar dynamically based on folder
   const icons = [];
 
+  // Star/unstar icon for all folders
   icons.push(
     <button
       key="star"
@@ -158,6 +172,7 @@ export default function MailDetail({ onCompose }) {
     </button>
   );
 
+  // restore icon  and trash icon from the trash folder
   if (folder === 'trash') {
     icons.push(
       <button key="restore" className="toolbar-btn" onClick={restoreTrash} title="Restore">
@@ -167,6 +182,8 @@ export default function MailDetail({ onCompose }) {
         <img src={trashIcon} alt="" />
       </button>
     );
+
+    // unspam icon and trash icon for the spam folder
   } else if (folder === 'spam') {
     icons.push(
       <button key="unspam" className="toolbar-btn" onClick={unmarkSpam} title="Not Spam">
@@ -176,6 +193,8 @@ export default function MailDetail({ onCompose }) {
         <img src={trashIcon} alt="" />
       </button>
     );
+
+    // trash and spam icons for the rest of the folders
   } else {
     icons.push(
       <button key="spam" className="toolbar-btn" onClick={markSpam} title="Report as Spam">
@@ -187,11 +206,13 @@ export default function MailDetail({ onCompose }) {
     );
   }
 
+  // Format date for display
   const dateObj = new Date(mail.timestamp);
   const formattedDate = isNaN(dateObj)
     ? 'Invalid Date'
     : `${dateObj.toLocaleDateString()} at ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
+  // Resolve names for From and To fields
   const username = sessionStorage.getItem('username');
   const toFull = mail.to === username ? 'Me' : mail.toName || mail.to;
   const fromFull = mail.from === username ? 'Me' : mail.fromName || mail.from;

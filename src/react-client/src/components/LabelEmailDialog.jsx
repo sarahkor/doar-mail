@@ -3,6 +3,14 @@ import './LabelEmailDialog.css';
 import { getLabels, addMailToLabel, removeMailFromLabel } from '../api/labelsApi';
 import labelIcon from '../assets/icons/label2.svg';
 
+/**
+ * LabelEmailDialog displays a modal for assigning or removing labels from a given email.
+ *
+ * Props:
+ * - mail: the mail object to be labeled (must contain at least `id` and `subject`)
+ * - onClose: function to close the dialog
+ * - onSuccess: optional callback triggered after a label is successfully updated
+ */
 function LabelEmailDialog({ mail, onClose, onSuccess }) {
     const [labels, setLabels] = useState([]);
     const [loading, setLoading] = useState(true);

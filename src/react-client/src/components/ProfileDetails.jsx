@@ -1,6 +1,14 @@
 import React from 'react';
 import './ProfileDetails.css';
 
+/**
+ * ProfileDetails component displays user profile information in a modal dialog.
+ * 
+ * Props:
+ * - user: the user object containing profile details (firstName, lastName, picture, etc.)
+ * - isOpen: boolean indicating whether the modal should be shown
+ * - onClose: function to call when the modal is closed
+ */
 function ProfileDetails({ user, isOpen, onClose }) {
   if (!isOpen || !user) return null;
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import MailItem from '../../components/MailItem';
-import './SearchPage.css';  // see CSS below
+import './SearchPage.css';
 
 export default function SearchPage() {
   let [params] = useSearchParams();

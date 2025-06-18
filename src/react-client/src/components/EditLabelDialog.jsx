@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import './EditLabelDialog.css';
 import { renameLabel } from '../api/labelsApi';
 
+/**
+ * EditLabelDialog allows users to rename a label and optionally nest it under another label.
+ * Prevents cycles by disallowing a label to be nested under itself or its descendants.
+ *
+ * Props:
+ * - label: the label to edit (object with id, name, and optionally parentId)
+ * - onClose: function to close the dialog
+ * - onUpdate: callback after successful update, passed the updated label
+ * - existingLabels: full list of label objects for nesting validation
+ */
 function EditLabelDialog({ label, onClose, onUpdate, existingLabels = [] }) {
     const [labelName, setLabelName] = useState(label.name);
     const [parentId, setParentId] = useState(label.parentId ? label.parentId.toString() : '');

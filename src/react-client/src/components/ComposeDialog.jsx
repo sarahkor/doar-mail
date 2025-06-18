@@ -11,6 +11,14 @@ function sanitizeDraft(draft, to) {
   };
 }
 
+/**
+ * ComposeDialog allows creating or editing a mail (draft or new).
+ * It supports:
+ * - Sending mail
+ * - Saving drafts
+ * - Uploading attachments
+ * - Input validation
+ */
 function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
   const [form, setForm] = useState(draft ? sanitizeDraft(draft, to) : {
     to: to || '',
@@ -39,6 +47,12 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
     setFile(e.target.files[0]);
   };
 
+  /**
+   * Handle "Send" button:
+   * - Sends new mail (POST) or updates draft (PATCH)
+   * - Validates recipient
+   * - Handles attachments
+   */
   const handleSubmit = async () => {
     const cleanTo = form.to.trim();
 
@@ -51,6 +65,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
 
     try {
       let response, data;
+      // Update existing draft to 'sent'
       if (draft && draft.id) {
         const payload = {
           subject: form.subject,
@@ -70,6 +85,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
 
         data = response.status !== 204 ? await response.json() : {};
       } else {
+        // Send new mail
         const formData = new FormData();
         formData.append('to', cleanTo);
         formData.append('subject', form.subject);
@@ -90,7 +106,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
 
       if (!response.ok) {
         const message = (data?.error || '').toLowerCase();
-
+        // validation messages
         if (message.includes("recipient")) {
           setError({ to: message.includes("exist") ? "Recipient does not exist." : "Recipient required." });
         } else if (message.includes("@doar.com")) {
@@ -110,6 +126,11 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
     }
   };
 
+  /**
+   * Handle "Cancel" button:
+   * - Save mail as draft if partially filled
+   * - Reject save if recipient is empty
+   */
   const handleCancel = async () => {
     const cleanTo = form.to.trim();
     const hasAnyContent =

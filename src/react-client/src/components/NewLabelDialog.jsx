@@ -2,6 +2,17 @@ import React, { useState, useEffect } from 'react';
 import './NewLabelDialog.css';
 import { addLabel } from '../api/labelsApi';
 
+/**
+ * NewLabelDialog component displays a modal dialog for creating a new label.
+ * Supports setting the label name, choosing a parent label for nesting, and duplicate name validation.
+ *
+ * Props:
+ * - onClose: callback to close the dialog
+ * - onCreate: callback with the new label object after successful creation
+ * - existingLabels: list of current labels to validate uniqueness and provide nesting options
+ * - defaultParentId: pre-selects a parent label if nesting is intended
+ * - forceNested: if true, forces nesting under the defaultParentId without showing the checkbox
+ */
 function NewLabelDialog({ onClose, onCreate, existingLabels = [], defaultParentId = '', forceNested = false }) {
   const [labelName, setLabelName] = useState('');
   const [isNested, setIsNested] = useState(forceNested);

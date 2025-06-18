@@ -14,7 +14,22 @@ const COLOR_OPTIONS = [
 ];
 
 
-
+/**
+ * LabelItem is a UI component representing a single label in the sidebar.
+ * 
+ * Props:
+ * - label: the label object to render.
+ * - depth: the depth level in the label tree (for indentation).
+ * - hasChildren: whether the label has child labels (used for arrow rendering).
+ * - isSelected: whether this label is currently selected.
+ * - onSelect: callback for when label is clicked.
+ * - onColorChange: called when label color changes.
+ * - onLabelUpdate: called after editing the label.
+ * - onLabelDelete: called after deleting the label.
+ * - onLabelAdd: called after adding a sublabel.
+ * - existingLabels: all labels excluding current for dropdowns and validation.
+ * - allLabels: all labels (used for recursive deletion logic).
+ */
 function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect, onColorChange, onLabelUpdate, onLabelDelete, existingLabels, onLabelAdd, allLabels = [] }) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);

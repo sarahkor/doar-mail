@@ -28,7 +28,16 @@ const buildTree = (items) => {
     return roots;
 };
 
-
+/**
+ * LabelSidebar component displays a sidebar combining:
+ * - Mail folder navigation (Inbox, Sent, etc.)
+ * - Hierarchically nested user-created labels
+ * 
+ * Features:
+ * - Dynamically builds label hierarchy using a tree structure
+ * - Supports label creation via a modal dialog
+ * - Allows label selection, color updates, renaming, and deletion
+ */
 function LabelSidebar() {
     const [showModal, setShowModal] = useState(false);
     const [labels, setLabels] = useState([]);
