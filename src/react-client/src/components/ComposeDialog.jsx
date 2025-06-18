@@ -44,7 +44,9 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const newFile = e.target.files[0];
+    setFile(newFile);
+    setExistingAttachments([]);
   };
 
   /**
@@ -67,20 +69,19 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
       let response, data;
       // Update existing draft to 'sent'
       if (draft && draft.id) {
-        const payload = {
-          subject: form.subject,
-          bodyPreview: form.bodyPreview,
-          status: 'sent',
-          to: cleanTo
-        };
+        const formData = new FormData();
+        formData.append('to', form.to);
+        formData.append('subject', form.subject);
+        formData.append('bodyPreview', form.bodyPreview);
+        formData.append('status', 'sent');
+        if (file) formData.append('attachments', file);
 
         response = await fetch(`/api/mails/${draft.id}`, {
           method: 'PATCH',
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${sessionStorage.getItem('token')}`
           },
-          body: JSON.stringify(payload)
+          body: formData
         });
 
         data = response.status !== 204 ? await response.json() : {};
@@ -295,7 +296,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
                     <a
                       key={idx}
                       className="attached-filename"
-                      href={`data:${att.mimetype};base64,${att.buffer}`}
+                      href={att.url}                          // point at the /uploads URL
                       download={att.originalName}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -305,7 +306,6 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
                   ))}
                 </div>
               )}
-
               <div className="tooltip-container">
                 <label htmlFor="file-input">
                   <img

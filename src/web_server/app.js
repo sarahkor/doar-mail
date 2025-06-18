@@ -1,15 +1,14 @@
 const path = require('path');
 const fs = require('fs');
-require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
+require('dotenv').config({ path: require('path').resolve(__dirname, '..', '..', '.env') });
 require('dotenv').config();
 
 const express = require('express');
 const app = express();
-const multer = require('multer');
-const upload = multer(); // Initialize multer for file uploads
+const upload = require('./utils/upload');
 
 // Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, 'uploads');
+const uploadsDir = path.resolve(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
@@ -39,7 +38,7 @@ app.use((err, req, res, next) => {
 });
 
 // Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsDir));
 
 // Routes
 const blacklistRoute = require('./routes/blacklistRoutes');
@@ -72,10 +71,12 @@ app.use('/api/search', searchRoute);
 app.post('/api/tokens', loginUser);
 
 // Serve React app
-app.use(express.static(path.join(__dirname, '../react-client/build')));
+const clientBuildPath = path.resolve(__dirname, '../react-client/build');
+app.use(express.static(clientBuildPath));
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../react-client/build', 'index.html'));
+  res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
+
 
 
 // Start server

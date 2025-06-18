@@ -13,7 +13,7 @@ router.get('/search/:query', authenticateToken, mailController.searchMails);
 
 router.route('/:id')
   .get(authenticateToken, mailController.getMailById)
-  .patch(authenticateToken, mailController.updateMail)
+  .patch(authenticateToken, upload.any(), mailController.updateMail)
   .delete(authenticateToken, mailController.deleteMail);
 
 module.exports = router;

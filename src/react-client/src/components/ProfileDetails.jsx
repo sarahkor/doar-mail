@@ -11,10 +11,11 @@ import './ProfileDetails.css';
  */
 function ProfileDetails({ user, isOpen, onClose }) {
   if (!isOpen || !user) return null;
+  const API_BASE = 'http://localhost:8080' || '';
 
   const getProfileImageUrl = (user) => {
-    if (user && user.picture && user.picture.startsWith('/uploads/')) {
-      return `http://localhost:8080${user.picture}`;
+    if (user?.picture?.startsWith('/uploads/')) {
+      return `${API_BASE}${user.picture}`;
     }
     if (user && user.firstName) {
       return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName || '')}+${encodeURIComponent(user.lastName || '')}&background=f69fd5&color=fff&size=120`;
