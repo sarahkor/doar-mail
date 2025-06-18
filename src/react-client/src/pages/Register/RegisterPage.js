@@ -1,4 +1,3 @@
-// src/components/RegisterPage.js
 import React, { useState } from "react";
 import logo from "../../assets/images/doar-logo.png";
 import { useNavigate } from "react-router-dom";

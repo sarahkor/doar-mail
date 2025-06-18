@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import ProfileDetails from './ProfileDetails';
 import './ProfileMenu.css';
 
+/**
+ * ProfileMenu component displays a dropdown user profile menu.
+ * 
+ * Props:
+ * - user: the current user object (contains username, firstName, picture, etc.)
+ * - isLoading: boolean indicating if user data is still being loaded
+ */
 function ProfileMenu({ user, isLoading, onClose }) {
     const navigate = useNavigate();
     const [showProfileDetails, setShowProfileDetails] = useState(false);

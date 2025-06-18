@@ -1,6 +1,3 @@
-
-// File: src/react-client/src/pages/Register/RegisterDetailsPage.js
-// import necessary libraries and components
 import React, { useState, useRef, useEffect } from 'react';
 import logo from "../../assets/images/doar-logo.png";
 import { useNavigate } from 'react-router-dom';

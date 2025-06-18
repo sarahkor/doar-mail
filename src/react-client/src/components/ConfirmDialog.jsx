@@ -1,6 +1,16 @@
 import React from 'react';
 import './ConfirmDialog.css';
 
+/**
+ * ConfirmDialog is a reusable modal dialog for confirming user actions, like deleting.
+ *
+ * Props:
+ * - isOpen: boolean - controls whether the dialog is visible
+ * - title: string - the heading of the dialog
+ * - message: string - the confirmation message to show
+ * - onConfirm: function - called when the user clicks "Yes"
+ * - onCancel: function -  called when the user clicks "Cancel"
+ */
 function ConfirmDialog({ isOpen, title, message, onConfirm, onCancel }) {
   if (!isOpen) return null;
 

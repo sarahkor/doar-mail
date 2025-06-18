@@ -12,17 +12,38 @@ import unspamIcon from '../assets/icons/unspam.svg';
 import labelIcon from '../assets/icons/label3.svg';
 import restoreIcon from '../assets/icons/untrash.svg';
 
+/**
+ * Renders a single mail row inside any folder.
+ * Supports:
+ * - Star/unstar
+ * - Trash/delete
+ * - Spam/unspam
+ * - Labeling
+ * - Draft edit click
+ * - shows time 
+ * - Shows label tags, sunbjuct, content, read/unread status, and icons conditionally by folder
+ */
 function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRestore }) {
   const username = sessionStorage.getItem('username');
   const isIncoming = mail.to?.toLowerCase() === username;
   const isSentMail = mail.from?.toLowerCase() === username;
-  const showAsSent = (folder === 'sent' || (folder === 'all' && isSentMail) || (folder === 'starred' && isSentMail) || (folder === 'spam' && isSentMail) || (folder === 'trash' && isSentMail));
+
+  // Determines if the current view should render the mail as "sent" 
+  const showAsSent = (folder === 'sent' ||
+    (folder === 'all' && isSentMail) ||
+    (folder === 'starred' && isSentMail) ||
+    (folder === 'spam' && isSentMail) ||
+    (folder === 'trash' && isSentMail)
+  );
+
   // State
   const [mailLabels, setMailLabels] = useState([]);
   const [showLabelDialog, setShowLabelDialog] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [isStarred, setIsStarred] = useState(false);
+
+  // Determines if the current mail should have unread style 
   const showUnread = !mail.read && (
     folder === 'inbox' ||
     (folder === 'all' && isIncoming) ||
@@ -30,6 +51,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
     (folder === 'spam' && isIncoming)
   );
 
+  // Fetch the mail starred status
   useEffect(() => {
     if (!mail.id) return;
     (async () => {
@@ -77,6 +99,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
       : `To: ${mail.to}`;
   };
 
+  // Manually refresh star state
   const refreshStarred = async () => {
     try {
       const token = sessionStorage.getItem('token');
@@ -297,7 +320,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
     </div>
   );
 
-  // Choose which icons show, per folder
+  // Folder-based icon sets
   const iconsByFolder = () => {
     const isDraft = mail.status === 'draft';
 

@@ -9,6 +9,7 @@ import '../../components/Toast.css';
 import MailDetail from './MailDetail';
 import MailFolder from './MailFolder';
 
+// Configuration for each mail folder: route path, API endpoint, and display title
 const FOLDER_CONFIGS = [
   { path: "inbox", endpoint: "/api/inbox", title: "Inbox" },
   { path: "sent", endpoint: "/api/sent", title: "Sent" },
@@ -19,17 +20,20 @@ const FOLDER_CONFIGS = [
   { path: "all", endpoint: "/api/mails/all", title: "All Mail" }
 ];
 
+// Main application content for /home/* routes
 function HomePage({ searchResults, isSearching, searchParams, onClearSearch }) {
+  // State for opening the compose mail dialog
   const [showCompose, setShowCompose] = useState(false);
+  // Toast notification state
   const [showToast, setShowToast] = useState(false);
   const [senderName, setSenderName] = useState('');
   const [composeTo, setComposeTo] = useState('');
 
-  // Toast: still only for inbox, but you could generalize
+  // Track previous inbox mail count to detect new mail
   const prevMailCount = useRef(0);
   const firstLoad = useRef(true);
 
-  // For new mail notification, we just poll the inbox
+  // Poll the inbox periodically to check for new mail
   React.useEffect(() => {
     async function fetchInbox() {
       const token = sessionStorage.getItem("token");
@@ -61,7 +65,6 @@ function HomePage({ searchResults, isSearching, searchParams, onClearSearch }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Determine what to show in the main content area
   const showSearchResults = searchResults !== null;
 
   return (

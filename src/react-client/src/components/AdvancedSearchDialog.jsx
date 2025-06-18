@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import './AdvancedSearchDialog.css';
 
+/**
+ * AdvancedSearchDialog is a modal that allows users to perform
+ * multi-field searches based on sender, recipient, subject, and content.
+ *
+ * Props:
+ * - onClose: function to close the dialog
+ * - onSearch: function called with valid search parameters (object)
+ */
 function AdvancedSearchDialog({ onClose, onSearch }) {
     const [searchParams, setSearchParams] = useState({
         from: '',

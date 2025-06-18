@@ -5,6 +5,16 @@ import ProfileMenu from './ProfileMenu';
 import './Navbar.css';
 import doarLogo from '../assets/images/doar-logo.svg';
 
+/**
+ * Navbar component displays the top navigation bar of the mail application.
+ * Handles logo navigation, search functionality, dark mode toggle, and user profile dropdown.
+ *
+ * Props:
+ * - onSearch: handles search queries from the SearchBar.
+ * - searchResults: array of search results to be passed to SearchBar.
+ * - isSearching: indicates if a search request is in progress.
+ * - onClearSearch: clears current search state and resets to default inbox.
+ */
 function Navbar({ onComposeClick, onSearch, searchResults, isSearching, onClearSearch }) {
     const navigate = useNavigate();
     const [isDarkMode, setIsDarkMode] = useState(false);

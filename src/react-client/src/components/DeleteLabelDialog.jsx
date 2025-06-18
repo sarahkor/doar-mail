@@ -2,6 +2,16 @@ import React from 'react';
 import './DeleteLabelDialog.css';
 import { deleteLabel } from '../api/labelsApi';
 
+/**
+ * DeleteLabelDialog is a modal that confirms label deletion.
+ * If the label has child labels (nested structure), all of them are also deleted.
+ *
+ * Props:
+ * - label: the label object to delete (must include `id` and `name`)
+ * - allLabels: full list of all label objects (for recursively finding child labels)
+ * - onClose: function to close the dialog
+ * - onDelete: optional callback when deletion is successful (receives deleted label id)
+ */
 function DeleteLabelDialog({ label, onClose, onDelete, allLabels = [] }) {
     const [loading, setLoading] = React.useState(false);
 

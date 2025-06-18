@@ -8,6 +8,11 @@ import ConfirmDialog from '../../components/ConfirmDialog';
 import leftArrow from '../../assets/icons/left-arrow.svg';
 import rightArrow from '../../assets/icons/right-arrow.svg';
 
+/**
+ * MailFolder component displays paginated list of mails from a specific folder (like trash, inbox, etc.). 
+ * Supports pagination, draft editing, and trash emptying functionality.
+ * the function recives the folder, title and endpoint from the homepage and showes the folder respectively
+ */
 function MailFolder({ endpoint, title, folder, refreshTrigger }) {
   const [mails, setMails] = useState([]);
   const [total, setTotal] = useState(0);
@@ -18,6 +23,7 @@ function MailFolder({ endpoint, title, folder, refreshTrigger }) {
   const [showCompose, setShowCompose] = useState(false);
   const location = useLocation();
 
+  // Function to fetch mails from the server with paging (i have api/{folder-name} endpoint for each folder)
   const refreshMails = useCallback(async () => {
     setLoading(true);
     try {
@@ -41,6 +47,7 @@ function MailFolder({ endpoint, title, folder, refreshTrigger }) {
 
   const [confirmEmptyOpen, setConfirmEmptyOpen] = useState(false);
 
+  // Function to permanently delete all mails in Trash using the DELETE api/trash/empty endpoint from the web-server
   const handleEmptyTrash = async () => {
     try {
       const token = sessionStorage.getItem('token');
@@ -61,11 +68,13 @@ function MailFolder({ endpoint, title, folder, refreshTrigger }) {
     refreshMails();
   }, [location.pathname, page, refreshTrigger, refreshMails]);
 
+  // refresh mails every 2 seconds (for live updates)
   useEffect(() => {
     const interval = setInterval(refreshMails, 2000);
     return () => clearInterval(interval);
   }, [refreshMails]);
 
+  // When clicking on a draft mail, open it in the Compose dialog and not the mail detail
   const handleDraftClick = mail => {
     setEditingDraft(mail);
     setShowCompose(true);
@@ -73,6 +82,7 @@ function MailFolder({ endpoint, title, folder, refreshTrigger }) {
 
   if (error) return <p className="text-danger">{error}</p>;
 
+  // Handle paging logic, we check if there is a previous page or next page
   const canPrev = page > 0;
   const canNext = (page + 1) * 30 < total;
 
@@ -81,15 +91,17 @@ function MailFolder({ endpoint, title, folder, refreshTrigger }) {
       <div className="label-header">
         <div className="label-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <h2>{title}</h2>
+          {/* Show "Empty Trash" icon only when the current folder is 'trash' */}
           {folder === 'trash' && (
             <div className="tooltip-container">
               <img
                 src={emptyTrashIcon}
                 alt="Empty Trash"
                 className="empty-trash-icon"
-                onClick={() => setConfirmEmptyOpen(true)}
+                onClick={() => setConfirmEmptyOpen(true)} // Open confirm dialog on click that valdiate with the user that he wants to delete
                 draggable={false}
               />
+              {/* a massage near the trash icon the explain what it does*/}
               <div className="tooltip-text">Empty Trash</div>
             </div>
           )}
@@ -97,6 +109,7 @@ function MailFolder({ endpoint, title, folder, refreshTrigger }) {
         <div className="label-count">
           Showing {mails.length} of {total}
         </div>
+        {/* back and next buttons with page counter that are abaled only if the page exists */}
         <div className="pagination-controls">
           <button
             onClick={() => setPage(p => Math.max(0, p - 1))}
@@ -126,6 +139,7 @@ function MailFolder({ endpoint, title, folder, refreshTrigger }) {
         </div>
       </div>
 
+      {/* Main content: either list of MailItems or a "No mails" message */}
       <div className="label-mails-container">
         {mails.length === 0 ? (
           <div className="no-mails-message">
@@ -137,7 +151,7 @@ function MailFolder({ endpoint, title, folder, refreshTrigger }) {
               key={mail.id}
               mail={mail}
               folder={folder}
-              onClick={mail.status === 'draft' ? () => handleDraftClick(mail) : undefined}
+              onClick={mail.status === 'draft' ? () => handleDraftClick(mail) : undefined} // Allow editing only for drafts
               onStarToggle={refreshMails}
               onTrash={refreshMails}
               onRestore={refreshMails}
@@ -154,6 +168,7 @@ function MailFolder({ endpoint, title, folder, refreshTrigger }) {
         />
       )}
 
+      {/* Confirmation dialog for permanently emptying the trash */}
       <ConfirmDialog
         isOpen={confirmEmptyOpen}
         title="Empty Trash"

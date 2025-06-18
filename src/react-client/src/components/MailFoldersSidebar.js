@@ -19,6 +19,16 @@ const FOLDERS = [
   { label: "All Mail", path: "/home/all", icon: allMailIcon },
 ];
 
+/**
+ * MailFoldersSidebar component displays a vertical sidebar with default mail folders.
+ * Each folder includes an icon and a label and routes to a specific mail view.
+ *
+ * Folders displayed:
+ * - Inbox, Sent, Drafts, Spam, Trash, Starred, All Mail
+ *
+ * Props:
+ * - selected: the currently selected folder path 
+ */
 export default function MailFoldersSidebar({ selected }) {
   return (
     <nav className="mail-folders-sidebar">
