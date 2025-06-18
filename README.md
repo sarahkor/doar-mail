@@ -18,11 +18,11 @@ This is **Exercise 4** in the Advanced Programming Systems course at Bar-Ilan Un
 ## Project Overview
 - This is a fullstack Gmail-like web app built with a React frontend and a Node.js backend. It supports user registration, login, and JWT-based authentication to securely access APIs.   
 
-- Users can upload profile pictures, manage their account details, and use features such as inbox, sent, drafts, trash, labels, starred, and mail search.
+- Users can upload profile picture, see their account details, send an email and use features such as inbox, sent, drafts, trash, labels, starred, and mail search.
  
 - The UI is responsive, built with React Router and Bootstrap. The backend communicates with a C++ blacklist socket server to validate outgoing mail links.
 
--  The entire system runs in Docker, with persistent user data stored via volume mounting.
+-  The entire system runs in Docker, with persistent url data stored via volume mounting.
 
 
 ## 💻 Supported API Endpoints
@@ -36,7 +36,7 @@ This is **Exercise 4** in the Advanced Programming Systems course at Bar-Ilan Un
 | POST   | `/api/mails`            | Send new mail                  | `201 Created`    | Auth required, Requires `to`, `status : sent/draft` Optional: `subject`, `bodyPreview` |
 | GET    | `/api/mails/:id`        | Get a specific mail            | `200 OK`         | Auth required |
 | PATCH  | `/api/mails/:id`        | Update a mail (partial)        | `204 No content`         | Auth required |
-| DELETE | `/api/mails/:id`        | Delete a mail                  | `204 No Content` | Auth required |
+| DELETE | `/api/mails/:id`        | move mail to trash                 | `204 No Content` | Auth required |
 | GET | `/api/mails/search/:query`    | get the mails that are the resulte of searchin query   | `200 Ok` | Auth required | 
 | GET    | `/api/labels`           | List all labels                | `200 OK`         | Auth required |
 | POST   | `/api/labels`           | Create a new label             | `201 Created`    | Auth required, Requires `name` field , optinal: `color` ( if not specified default color is pink) |
@@ -44,6 +44,20 @@ This is **Exercise 4** in the Advanced Programming Systems course at Bar-Ilan Un
 | DELETE | `/api/labels/:id`       | Delete a label                 | `204 No Content` | Auth required |
 | POST   | `/api/blacklist`        | Add URL to blacklist           | `201 Created`    | url required in body `{ "url": "http://..." }` |
 | DELETE | `/api/blacklist/:id`    | Remove URL from blacklist      | `204 No Content` | id is the url to be deleted | 
+| GET | `/api/drafts`    | get user draft mails     | `200 Ok` | Auth required| 
+| GET | `/api/inbox`    | get user received mails     | `200 Ok` | Auth required| 
+| GET | `/api/sent`    | get user sent mails     | `200 Ok` | Auth required| 
+| GET | `/api/spam`    | get user spammed mails     | `200 Ok` | Auth required| 
+| POST | `/api/spam/:id`    | mark mail as spam    | `200 Ok` | Auth required| 
+| POST | `/api/spam/:id/unspam`    | unmark mail as spam    | `200 Ok` | Auth required| 
+| GET | `/api/trash`    | get user deleted mails     | `200 Ok` | Auth required| 
+| DELETE | `/api/trash/:id`    | delete a mail permanently  | `204 No content` | Auth required| 
+| DELETE | `/api/trash/empty`    | delete all mails in trash permanently | `204 No content` | Auth required| 
+| POST | `/api/trash/:id/restore`    | reastore a mail from the trash  | `200 Ok` | Auth required| 
+| GET | `/api/starred`    | get user starred mails     | `200 Ok` | Auth required| 
+| GET | `/api/starred/:id`    | check if mail is starred     | `200 Ok` | Auth required| 
+| POST | `/api/starred/:id`    | star a mail if not starred and unstar a mail if starred     | `200 Ok` | Auth required|
+| GET | `/api/mails/all`    | get all sent, recived, and draft mails    | `200 Ok` | Auth required|
 
 > All requests that require the user to be authenticated must include a valid JWT in the Token-ID header.
 
@@ -58,14 +72,22 @@ This is **Exercise 4** in the Advanced Programming Systems course at Bar-Ilan Un
   - JWT is issued on login and used for all protected requests.
 
 - **Inbox & Mail Management**:
-  - View inbox, sent, drafts, trash, and starred mails.
+  - View inbox, sent, drafts, trash, starred , and All mails.
   - Open full mail content with subject, body, and sender/recipient details.
   - Delete mails (moved to trash).
+  - Delete mails from trash (deleted permanently).
+  - Restore mails from trash.
+  - Mark mail as spam (blacklist all urls in the mail).
+  - Unmark mail as spam (delete all urls in this mail from the blacklist).
   - Edit and resend saved drafts.
+  - Mark mail as starred
+  - Unmark mail as starred
 
 - **Mail Composition**:
-  - Compose and send new mails to registered users.
-  - Save mails as drafts.
+  - Compose and send new mails to registered users by clicking the send button. 
+  - Save mails as drafts by clicking the cancel button.
+  - Discard mails by clicking the trash icon
+  - Add attachment to mails by clicking the attachment icon.
   - Links in mails are validated using a blacklist service.
 
 - **Search Functionality**:
@@ -74,8 +96,8 @@ This is **Exercise 4** in the Advanced Programming Systems course at Bar-Ilan Un
 
 - **Labeling System**:
   - Create, update, and delete custom labels.
-  - Assign labels to mails for better organization.
-  - Default label color is pink; optional custom colors supported.
+  - Assign mails to labels for better organization (by clicking the label icon in the mail preview).
+  - Default label color is grey; optional custom colors supported.
 
 - **Dark/Light Mode**:
   - Switch between light and dark themes using a toggle button in the top navigation.
@@ -111,7 +133,7 @@ In the project root, create a .env file with:
 JWT_SECRET=your_secret_key_here
 JWT_EXPIRES_IN=1d
 ```
-**Choose a strong JWT_SECRET (e.g., a long random string). Do not use shared or example secrets in production.
+**Choose a strong JWT_SECRET (e.g., a long random string).
 
 ### Step 2 - Clean Old Containers (optional but recommended):
 
@@ -129,7 +151,9 @@ docker network prune -f
 docker compose down -v --remove-orphans
 docker compose up --build
 ```
-This will: **Build**:
+This will:
+
+**Build**:
 - cpp-server (C++)
 
 - web-server (Node.js backend)
@@ -140,34 +164,41 @@ This will: **Build**:
 
 C++ server with ./build/server 12345 8 1 2
 
-Backend accessible at http://localhost:8080
+### Step 4 - Accessing the Application:
 
-React client accessible at http://localhost:3000
+Once the Docker containers are running:
 
-✅ Now, you can browse the React client at: http://localhost:3000/
+Backend (Node.js Server) is available at http://localhost:8080
 
-### Step 4 – Access Containers (Optional):
+Frontend (React Client) is available at http://localhost:3000
+
+✅ You can browse the app from either port — both serve the same client interface.
+Port 3000 runs the React development server, while port 8080 runs the Node.js backend server with the same interface.
+
+### Step 5 – Access Containers (Optional):
 To manually access a container (for debugging or inspection):
 open a new terminal and write the following commands-
 
-For entering the C++ Server Container:
+**For entering the C++ Server Container:**
 
 ```bash
 docker exec -it server-container bash
 ```
-after that you will be inside the server container
-Then inside the container, run:
+This will give you an interactive shell inside the container.
+
+Once inside, you can navigate to the data directory in order to see balcklisted urls:
 
 ```bash
-./build/server 12345 8 1 2
+cd data
 ```
-Explanation of the arguments:
+Inside the data folder, you'll find the file urlsdata.txt, which contains the list of blacklisted URLs. To view its contents, run:
 
- 12345 =   Port to listen on.     
- 8 =       Bloom filter size (bit array length).                     
- 1 2 =      Seeds for hash functions (can be 1 or more integers)
+```bash
+cat urlsdata.txt
+```
 
-And for Web Server (Backend) Container:
+**For entering the Web Server (Backend) Container:**
+
 open an new teminal and write:
 
 ```bash
@@ -175,7 +206,7 @@ docker exec -it web-container bash
 ```
 Once everything is running, You can now test API via curl.
 
-### Step 5 -  Stop the System
+### Step 6 -  Stop the System
 ```bash
 docker compose down
 ```
@@ -195,20 +226,58 @@ docker compose down -v
 ## Screenshots
 Here are some screenshots of the application in action:
 ### **Home Screen (Before Login)**
-![image](https://github.com/user-attachments/assets/a5b5ee70-dc1e-4935-af90-4722896dd8f7)
+**login page:**
 
-### **Sign up Screen**
-![image](https://github.com/user-attachments/assets/4f6479b4-8674-494b-aae7-8941b588d057)
+<img width="1440" alt="Screenshot 2025-06-18 at 17 46 18" src="https://github.com/user-attachments/assets/826eb609-64dd-411b-828d-56ff5c396067" />
 
-![image](https://github.com/user-attachments/assets/8fdfa29f-8407-4867-b527-e790881e0092)
+**register pages:**
 
+<img width="1440" alt="Screenshot 2025-06-18 at 17 46 59" src="https://github.com/user-attachments/assets/569b603f-77f2-492f-b19f-fe49106b552a" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 47 18" src="https://github.com/user-attachments/assets/752fd9bf-c439-477d-a12f-1af46e4761a7" />
 
-### **Login Screen**
-![image](https://github.com/user-attachments/assets/bf26a1f5-cd6e-479d-b2a2-c640003db200)
+**loging in** 
 
-### **Home page Screen**
+<img width="1440" alt="Screenshot 2025-06-18 at 17 47 40" src="https://github.com/user-attachments/assets/286d69a7-6520-4cec-ab3d-418f699302d2" />
 
-![image](https://github.com/user-attachments/assets/ce2b6ed8-d7b7-4b02-bc5f-fb559f6b5ed7)
+**home page:**
+
+<img width="1440" alt="Screenshot 2025-06-18 at 17 49 52" src="https://github.com/user-attachments/assets/f75960ae-b74d-46ab-82d6-5ffb8e29433c" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 50 01" src="https://github.com/user-attachments/assets/44ed9901-0b4c-4bc5-91c9-8c96163cd8d1" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 50 20" src="https://github.com/user-attachments/assets/39215994-f3fe-42d5-8c6c-76c7b769788c" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 50 47" src="https://github.com/user-attachments/assets/0784fe64-cc01-4685-9823-67e90ae90b3b" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 50 53" src="https://github.com/user-attachments/assets/6b69b34b-dfb6-4102-b985-27cc2b087caf" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 51 09" src="https://github.com/user-attachments/assets/2308014d-bcc0-4813-a04a-7e6a37e29014" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 51 44" src="https://github.com/user-attachments/assets/8063c32b-121d-4112-91c9-11fc58e22981" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 51 51" src="https://github.com/user-attachments/assets/d29b4e92-08cb-4edc-9fde-2c27b8e50791" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 51 57" src="https://github.com/user-attachments/assets/fe94a652-14fa-47e9-b4a6-3d1f56ab4494" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 52 05" src="https://github.com/user-attachments/assets/081f352c-bf12-4c09-acfd-6c2ed347b79d" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 52 24" src="https://github.com/user-attachments/assets/2388e556-c169-4037-9d52-975cac25485b" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 53 05" src="https://github.com/user-attachments/assets/4a098631-7f04-4988-bb24-0f7509227c19" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 53 12" src="https://github.com/user-attachments/assets/7fc9a790-b1ee-45ac-a164-3b2946f9cc60" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 53 30" src="https://github.com/user-attachments/assets/25d2bfdb-2c31-41d6-81e7-41699c8e658b" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 53 37" src="https://github.com/user-attachments/assets/3f134f63-0bd8-4c97-9203-c6fab8c9f6e5" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 53 43" src="https://github.com/user-attachments/assets/4802478c-0cc2-4ee4-8c6b-267ace6382bf" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 54 25" src="https://github.com/user-attachments/assets/530f7537-6276-45d2-90c5-8b8dd5342b36" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 54 32" src="https://github.com/user-attachments/assets/8b8afe46-2a87-4702-b0d1-df8969b6a9f8" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 54 39" src="https://github.com/user-attachments/assets/7b0d275b-8a11-4735-b2ac-5a75749cdf85" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 54 46" src="https://github.com/user-attachments/assets/73434f2f-7660-430a-bd3b-c3bb4d01481b" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 54 52" src="https://github.com/user-attachments/assets/53f1aff4-9d91-4fb8-90a1-991c992017cb" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 55 38" src="https://github.com/user-attachments/assets/cef2b282-395a-4c2a-8c15-f870cf3847b7" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 55 45" src="https://github.com/user-attachments/assets/efd6e023-6953-4db8-b560-02d1f8ca43b9" />
+<img width="1440" alt="Screenshot 2025-06-18 at 17 59 55" src="https://github.com/user-attachments/assets/b94f7118-4245-4cb6-afd0-501b9ee4c3ff" />
+<img width="1440" alt="Screenshot 2025-06-18 at 18 00 35" src="https://github.com/user-attachments/assets/f1fda402-7ade-41ef-8f61-c62ee3211f90" />
+<img width="1440" alt="Screenshot 2025-06-18 at 18 00 44" src="https://github.com/user-attachments/assets/ef8a9c25-0981-464f-9c4a-05107fb41b39" />
+<img width="1440" alt="Screenshot 2025-06-18 at 18 00 57" src="https://github.com/user-attachments/assets/2d9ebc31-939c-4945-a8b6-3876c07096ee" />
+<img width="1440" alt="Screenshot 2025-06-18 at 18 01 38" src="https://github.com/user-attachments/assets/9c4e1fd2-4c48-47b3-ad6c-ebc0e3c6ea06" />
+<img width="1440" alt="Screenshot 2025-06-18 at 18 01 48" src="https://github.com/user-attachments/assets/12ca6926-75ee-4cbc-b66c-60f164b6fc75" />
+<img width="1440" alt="Screenshot 2025-06-18 at 18 01 58" src="https://github.com/user-attachments/assets/1775a1c6-50ea-432b-b386-cfbb767dfde3" />
+<img width="1440" alt="Screenshot 2025-06-18 at 18 03 00" src="https://github.com/user-attachments/assets/c559576d-e488-4411-9787-379b1bcfa973" />
+
+**dark mode:**
+<img width="1440" alt="Screenshot 2025-06-18 at 18 03 33" src="https://github.com/user-attachments/assets/5122d5b4-5cbe-42d6-89c6-07325e9d11e7" />
+
+**search:**
+<img width="1440" alt="Screenshot 2025-06-18 at 18 03 46" src="https://github.com/user-attachments/assets/aaa0ba28-8468-48b9-99e4-85b1eef6a42e" />
 
 ### Important Notes
 
@@ -222,7 +291,9 @@ Here are some screenshots of the application in action:
 - Includes checks for:
 - Name and username length
 - Password strength (uppercase, lowercase, digit, special character, minimum 8 characters)
-- Valid email and phone number formats
+- Valid email and phone number formats.
+- Valid reciver name in a new mail.
+- Valid label name.
 - Users receive real-time feedback for invalid inputs.
 
 ### Security
