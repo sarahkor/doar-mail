@@ -289,7 +289,7 @@ export default function MailDetail({ onCompose }) {
               {mail.attachments.map((att, i) => (
                 <li key={i}>
                   <a
-                    href={`data:${att.mimetype};base64,${att.buffer}`}
+                    href={att.url}                   // use the URL returned by the server
                     download={att.originalName}
                     target="_blank"
                     rel="noopener noreferrer"

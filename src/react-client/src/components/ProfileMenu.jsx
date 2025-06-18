@@ -13,6 +13,7 @@ import './ProfileMenu.css';
 function ProfileMenu({ user, isLoading, onClose }) {
     const navigate = useNavigate();
     const [showProfileDetails, setShowProfileDetails] = useState(false);
+    const API_BASE = 'http://localhost:8080' || '';
 
     const handleLogout = () => {
         sessionStorage.removeItem('token');
@@ -28,12 +29,15 @@ function ProfileMenu({ user, isLoading, onClose }) {
     };
 
     const getProfileImageUrl = (user) => {
-        if (user && user.picture && user.picture.startsWith('/uploads/')) {
-            return `http://localhost:8080${user.picture}`;
+        // If the user has uploaded a picture, serve it from your API
+        if (user?.picture?.startsWith('/uploads/')) {
+            return `${API_BASE}${user.picture}`;
         }
-        if (user && user.firstName) {
-            return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName || '')}+${encodeURIComponent(user.lastName || '')}&background=f69fd5&color=fff&size=80`;
+        // Fallback to generated avatar
+        if (user?.firstName) {
+            return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName)}+${encodeURIComponent(user.lastName || '')}&background=f69fd5&color=fff&size=80`;
         }
+        // Final fallback
         return `https://ui-avatars.com/api/?name=User&background=f69fd5&color=fff&size=80`;
     };
 

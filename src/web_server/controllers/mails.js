@@ -45,7 +45,7 @@ exports.createMail = async (req, res) => {
       originalName: file.originalname,
       mimetype: file.mimetype,
       size: file.size,
-      buffer: file.buffer.toString('base64') // OR save to disk and store path
+      url: `/uploads/${file.filename}`
     }));
 
     if (!['sent', 'draft'].includes(status))
@@ -131,6 +131,13 @@ exports.updateMail = async (req, res) => {
 
     const body = req.body;
     if (!body) throw { status: 400, error: 'Missing request body.' };
+    const files = req.files || [];
+    const newAttachments = files.map(file => ({
+      originalName: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+      url: `/uploads/${file.filename}`
+    }));
 
     const unexpected = Object.keys(body).filter(k => !ALLOWED_FIELDS.includes(k));
     if (unexpected.length > 0)
@@ -179,6 +186,11 @@ exports.updateMail = async (req, res) => {
       bodyPreview: safeBody,
       status
     });
+
+    if (updated) {
+      updated.attachments = newAttachments;
+    }
+
 
     if (!updated) throw { status: 404, error: 'update failed' };
     res.status(204).end();
