@@ -7,6 +7,7 @@ import spamIcon from '../../assets/icons/spam.svg';
 import unspamIcon from '../../assets/icons/unspam.svg';
 import trashIcon from '../../assets/icons/trash.svg';
 import restoreIcon from '../../assets/icons/untrash.svg';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import './MailDetail.css';
 
 // this function displays the detailed view of a single mail, with full content, metadata, labels, and actions
@@ -14,6 +15,8 @@ export default function MailDetail({ onCompose }) {
   // Extract folder and mailId from URL parameters
   const { folder, mailId } = useParams();
   const navigate = useNavigate();
+  const API_BASE = 'http://localhost:8080';
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   // Component state
   const [mail, setMail] = useState(null);
@@ -88,6 +91,26 @@ export default function MailDetail({ onCompose }) {
     }
   };
 
+  const onTrashClick = () => {
+    // open the confirmation dialog
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const res = await fetch(`/api/trash/${mail.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error();
+      navigate(`/home/${folder}`);
+    } catch {
+      alert('Failed to permanently delete mail.');
+    } finally {
+      setConfirmOpen(false);
+    }
+  };
   // Move mail to trash (or delete permanently if already in trash)
   const moveTrash = async () => {
     try {
@@ -159,18 +182,20 @@ export default function MailDetail({ onCompose }) {
   // Build toolbar dynamically based on folder
   const icons = [];
 
-  // Star/unstar icon for all folders
-  icons.push(
-    <button
-      key="star"
-      className="toolbar-btn"
-      onClick={toggleStar}
-      title={isStarred ? 'Unstar mail' : 'Star mail'}
-      aria-pressed={isStarred}
-    >
-      <img src={isStarred ? fullStarIcon : starIcon} alt="" />
-    </button>
-  );
+  if (folder !== 'trash') {
+    // Star/unstar icon for all folders exept trash
+    icons.push(
+      <button
+        key="star"
+        className="toolbar-btn"
+        onClick={toggleStar}
+        title={isStarred ? 'Unstar mail' : 'Star mail'}
+        aria-pressed={isStarred}
+      >
+        <img src={isStarred ? fullStarIcon : starIcon} alt="" />
+      </button>
+    );
+  }
 
   // restore icon  and trash icon from the trash folder
   if (folder === 'trash') {
@@ -178,34 +203,35 @@ export default function MailDetail({ onCompose }) {
       <button key="restore" className="toolbar-btn" onClick={restoreTrash} title="Restore">
         <img src={restoreIcon} alt="" />
       </button>,
-      <button key="delete" className="toolbar-btn" onClick={moveTrash} title="Delete permanently">
+      <button key="delete" className="toolbar-btn" onClick={onTrashClick} title="Delete permanently">
         <img src={trashIcon} alt="" />
       </button>
     );
 
     // unspam icon and trash icon for the spam folder
-  } else if (folder === 'spam') {
-    icons.push(
-      <button key="unspam" className="toolbar-btn" onClick={unmarkSpam} title="Not Spam">
-        <img src={unspamIcon} alt="" />
-      </button>,
-      <button key="trash" className="toolbar-btn" onClick={moveTrash} title="Move to Trash">
-        <img src={trashIcon} alt="" />
-      </button>
-    );
-
-    // trash and spam icons for the rest of the folders
   } else {
+    // in non-trash branches we always have a “move to trash” button…
+    // but for the “spam toggle” we switch icon+handler based on mail.status:
+    const spamToggle =
+      mail.status === 'spam'
+        ? (
+          <button key="unspam" className="toolbar-btn" onClick={unmarkSpam} title="Not Spam">
+            <img src={unspamIcon} alt="" />
+          </button>
+        )
+        : (
+          <button key="spam" className="toolbar-btn" onClick={markSpam} title="Report as Spam">
+            <img src={spamIcon} alt="" />
+          </button>
+        );
+
     icons.push(
-      <button key="spam" className="toolbar-btn" onClick={markSpam} title="Report as Spam">
-        <img src={spamIcon} alt="" />
-      </button>,
+      spamToggle,
       <button key="trash" className="toolbar-btn" onClick={moveTrash} title="Move to Trash">
         <img src={trashIcon} alt="" />
       </button>
     );
   }
-
   // Format date for display
   const dateObj = new Date(mail.timestamp);
   const formattedDate = isNaN(dateObj)
@@ -218,91 +244,99 @@ export default function MailDetail({ onCompose }) {
   const fromFull = mail.from === username ? 'Me' : mail.fromName || mail.from;
 
   return (
-    <div className="mail-detail-card">
-      <div className="mail-detail-toolbar">
-        {icons}
-      </div>
-
-      <div className="mail-detail-header">
-        <h1 className="mail-detail-subject">
-          {mail.subject || '(no subject)'}
-        </h1>
-
-        {mailLabels.length > 0 && (
-          <div className="mail-detail-labels">
-            {mailLabels.map(lbl => (
-              <span
-                key={lbl.id}
-                className="mail-detail-label"
-                style={{ backgroundColor: lbl.color }}
-              >
-                {lbl.name}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="mail-detail-meta">
-        <div className="mail-detail-meta-line">
-          <strong>From:</strong>{' '}
-          <span className="mail-detail-name">{fromFull}</span>{' '}
-          <span
-            className="mail-detail-email"
-            onClick={() => onCompose(mail.from)}
-          >
-            &lt;{mail.from}&gt;
-          </span>
+    <>
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        title="Permanently delete"
+        message="Are you sure you want to permanently delete this mail?"
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmOpen(false)}
+      />
+      <div className="mail-detail-card">
+        <div className="mail-detail-toolbar">
+          {icons}
         </div>
 
-        {mail.to && (
+        <div className="mail-detail-header">
+          <h1 className="mail-detail-subject">
+            {mail.subject || '(no subject)'}
+          </h1>
+
+          {mailLabels.length > 0 && (
+            <div className="mail-detail-labels">
+              {mailLabels.map(lbl => (
+                <span
+                  key={lbl.id}
+                  className="mail-detail-label"
+                  style={{ backgroundColor: lbl.color }}
+                >
+                  {lbl.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="mail-detail-meta">
           <div className="mail-detail-meta-line">
-            <strong>To:</strong>{' '}
-            <span className="mail-detail-name">{toFull}</span>{' '}
+            <strong>From:</strong>{' '}
+            <span className="mail-detail-name">{fromFull}</span>{' '}
             <span
               className="mail-detail-email"
-              onClick={() => onCompose(mail.to)}
+              onClick={() => onCompose(mail.from)}
             >
-              &lt;{mail.to}&gt;
+              &lt;{mail.from}&gt;
             </span>
           </div>
-        )}
 
-        <div className="mail-detail-meta-line">
-          <strong>Date:</strong>{' '}
-          <span className="mail-detail-value">{formattedDate}</span>
-        </div>
-      </div>
+          {mail.to && (
+            <div className="mail-detail-meta-line">
+              <strong>To:</strong>{' '}
+              <span className="mail-detail-name">{toFull}</span>{' '}
+              <span
+                className="mail-detail-email"
+                onClick={() => onCompose(mail.to)}
+              >
+                &lt;{mail.to}&gt;
+              </span>
+            </div>
+          )}
 
-      <hr className="mail-detail-divider" />
-
-      <div className="mail-detail-body">
-        {mail.bodyPreview?.trim() || 'No content.'}
-      </div>
-
-      {mail.attachments?.length > 0 && (
-        <>
-          <hr className="mail-detail-divider" />
-          <div className="mail-detail-attachments">
-            <strong>Attachments</strong>
-            <ul>
-              {mail.attachments.map((att, i) => (
-                <li key={i}>
-                  <a
-                    href={att.url}                   // use the URL returned by the server
-                    download={att.originalName}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {att.originalName}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          <div className="mail-detail-meta-line">
+            <strong>Date:</strong>{' '}
+            <span className="mail-detail-value">{formattedDate}</span>
           </div>
-        </>
-      )}
-    </div>
-  );
+        </div>
 
+        <hr className="mail-detail-divider" />
+
+        <div className="mail-detail-body">
+          {mail.bodyPreview?.trim() || 'No content.'}
+        </div>
+
+        {mail.attachments?.length > 0 && (
+          <>
+            <hr className="mail-detail-divider" />
+            <div className="mail-detail-attachments">
+              <strong>Attachments</strong>
+              <ul>
+                {mail.attachments.map((att, i) => (
+                  <li key={i}>
+                    <a
+                      href={`${API_BASE}${att.url}`}                   // use the URL returned by the server
+                      download={att.originalName}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {att.originalName}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
 }
