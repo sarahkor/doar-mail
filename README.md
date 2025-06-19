@@ -1,4 +1,9 @@
 # **Project Overview: Fullstack Mail Web App**
+- Exercise 4 is at branch ex-4
+- Exercise 3 is at branch ex-3
+- Exercise 2 is at branch ex-2
+- Exercise 1 is at branch ex-1
+
 ## **Welcome to Doar! 📩**
 Doar is a fullstack Gmail-inspired mail system built with **React** (Frontend), **Node.js** (Backend), and **C++** (URL filtering microservice via sockets).  
 This is **Exercise 4** in the Advanced Programming Systems course at Bar-Ilan University.

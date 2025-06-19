@@ -30,6 +30,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState({ to: '' });
   const [existingAttachments, setExistingAttachments] = useState(draft?.attachments || []);
+  const API_BASE = 'http://localhost:8080';
 
   useEffect(() => {
     if (draft) {
@@ -296,7 +297,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
                     <a
                       key={idx}
                       className="attached-filename"
-                      href={att.url}                          // point at the /uploads URL
+                      href={`${API_BASE}${att.url}`}                        // point at the /uploads URL
                       download={att.originalName}
                       target="_blank"
                       rel="noopener noreferrer"

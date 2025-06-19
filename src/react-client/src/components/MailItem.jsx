@@ -27,6 +27,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
   const username = sessionStorage.getItem('username');
   const isIncoming = mail.to?.toLowerCase() === username;
   const isSentMail = mail.from?.toLowerCase() === username;
+  const showStar = folder !== 'trash';
 
   // Determines if the current view should render the mail as "sent" 
   const showAsSent = (folder === 'sent' ||
@@ -333,9 +334,19 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
         return [label, trash];
       case 'starred':
       case 'sent':
-        return isDraft ? [label, trash] : [label, spam, trash];
+        if (isDraft) {
+          return [label, trash];
+        } else {
+          const spamToggle = mail.status === 'spam' ? unspam : spam;
+          return [label, spamToggle, trash];
+        }
       default:
-        return isDraft ? [label, trash] : [label, spam, trash];
+        if (isDraft) {
+          return [label, trash];
+        } else {
+          const spamToggle = mail.status === 'spam' ? unspam : spam;
+          return [label, spamToggle, trash];
+        }
     }
   };
 
@@ -359,7 +370,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
             className="mail-link"
             style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
           >
-            {star}
+            {showStar && star}
             {mail.status === 'draft' && <span className="draft-label">Draft</span>}
             <div className="mail-from-draft">{renderToLine()}</div>
             <div className="mail-content">
@@ -387,7 +398,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
         ) : (
           // All other folders: Link wrapper
           <Link to={`/home/${folder}/${mail.id}`} className="mail-link">
-            {star}
+            {showStar && star}
             <div className="mail-from">{showAsSent ? renderToLine() : renderFromLine()}</div>
             <div className="mail-content">
               <div className="mail-subject-row">

@@ -301,53 +301,50 @@ const emptyTrash = (user) => {
 };
 
 const restoreMailFromTrash = (user, mailId) => {
-  const index = user.trash.findIndex(m => m.id === mailId);
-  if (index === -1) return false;
+  const idx = user.trash.findIndex(m => m.id === mailId);
+  if (idx === -1) return false;
 
-  const mail = user.trash[index];
+  const mail = user.trash.splice(idx, 1)[0];
+  delete mail.deletedAt;
 
-  // Remove from trash
-  user.trash.splice(index, 1);
-
-  // Restore based on original role/status
+  // If it was a draft originally, restore to drafts
   if (mail.status === 'draft') {
     user.drafts.push(mail);
-  } else if (mail.from === user.username) {
-    user.sent.push(mail);
-  } else if (mail.to === user.username) {
-    user.inbox.push(mail);
-  } else {
-    // Should never happen, fallback: return to inbox
-    user.inbox.push(mail);
   }
 
-  delete mail.deletedAt;
+  // If it was sent by this user, restore to sent
+  if (mail.from === user.username) {
+    user.sent.push(mail);
+  }
+
+  // If it was received by this user, restore to inbox
+  if (mail.to === user.username) {
+    user.inbox.push(mail);
+  }
+  // If it was reported spam originally, restore to spam instead of inbox
+  // (we check status==='spam' before or after the inbox step)
+  if (mail.status === 'spam') {
+    // remove from inbox if accidentally added
+    user.inbox = user.inbox.filter(m => m.id !== mail.id);
+    user.spam = user.spam || [];
+    user.spam.push(mail);
+  }
+
   return true;
 };
 
 const reportAsSpam = async (user, mailId) => {
-  const boxes = ['inbox', 'sent', 'spam']; // exclude drafts
-  let mail = null;
-
-  for (const box of boxes) {
-    const index = user[box]?.findIndex(m => m.id === mailId);
-    if (index !== -1) {
-      mail = user[box][index];
-
-      // Prevent reporting a draft (shouldn't happen, but double check)
-      if (mail.status === 'draft') return false;
-
-      // Remove from current box
-      user[box].splice(index, 1);
-
-      break;
-    }
-  }
-
+  const inInbox = user.inbox?.find(m => m.id === mailId);
+  const inSent = user.sent?.find(m => m.id === mailId);
+  const mail = inInbox || inSent;
   if (!mail) return false;
-  if (!user.spam) user.spam = [];
-  user.spam.push(mail);
+
+  user.inbox = (user.inbox || []).filter(m => m.id !== mailId);
+  user.sent = (user.sent || []).filter(m => m.id !== mailId);
+
+  user.spam = user.spam || [];
   mail.status = 'spam';
+  user.spam.push(mail);
 
   const urls = [
     ...extractUrls(mail.to),
@@ -385,7 +382,10 @@ const unspam = async (user, mailId) => {
   }
 
   // Restore mail to inbox or sent
-  if (mail.to === user.username) {
+  if (mail.to === mail.from) {
+    user.inbox.push(mail);
+    user.sent.push(mail);
+  } else if (mail.to === user.username) {
     user.inbox.push(mail);
   } else if (mail.from === user.username) {
     user.sent.push(mail);
