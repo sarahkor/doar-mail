@@ -131,16 +131,7 @@ This is **Exercise 4** in the Advanced Programming Systems course at Bar-Ilan Un
 - ⁠ ⁠Docker Engine ≥ 20.10
 -  ⁠please make sure your Docker desktop is running
 
-### Step 1 – Create the .env File:
-In the project root, create a .env file with:
-
-``` bash
-JWT_SECRET=your_secret_key_here
-JWT_EXPIRES_IN=1d
-```
-**Choose a strong JWT_SECRET (e.g., a long random string).
-
-### Step 2 - Clean Old Containers (optional but recommended):
+### Step 1 - Clean Old Containers (optional but recommended):
 
 **optinal**: before creating new containers delete all (running or stopped) containers:
 
@@ -150,7 +141,7 @@ docker volume prune -f
 docker network prune -f
 ```
 
-### Step 3 - Build and Run Everything with Docker Compose:
+### Step 2 - Build and Run Everything with Docker Compose:
 
 ```bash
 docker compose down -v --remove-orphans
@@ -169,7 +160,7 @@ This will:
 
 C++ server with ./build/server 12345 8 1 2
 
-### Step 4 - Accessing the Application:
+### Step 3 - Accessing the Application:
 
 Once the Docker containers are running:
 
@@ -180,7 +171,7 @@ Frontend (React Client) is available at http://localhost:3000
 ✅ You can browse the app from either port — both serve the same client interface.
 Port 3000 runs the React development server, while port 8080 runs the Node.js backend server with the same interface.
 
-### Step 5 – Access Containers (Optional):
+### Step 4 – Access Containers (Optional):
 To manually access a container (for debugging or inspection):
 open a new terminal and write the following commands-
 
@@ -211,7 +202,7 @@ docker exec -it web-container bash
 ```
 Once everything is running, You can now test API via curl.
 
-### Step 6 -  Stop the System
+### Step 5 -  Stop the System
 ```bash
 docker compose down
 ```
