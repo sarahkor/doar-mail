@@ -2,6 +2,7 @@ package com.example.myapplication.api;
 
 import com.example.myapplication.models.Mail;
 import com.example.myapplication.models.User;
+import com.example.myapplication.models.Label;
 
 import java.util.List;
 
@@ -9,7 +10,10 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.DELETE;
 import retrofit2.http.Body;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface ApiService {
@@ -58,6 +62,28 @@ public interface ApiService {
         @Query("content") String content
     );
     
+    // Label operations
+    @GET("api/labels")
+    Call<List<Label>> getLabels(@Header("Authorization") String token);
+    
+    @POST("api/labels")
+    Call<Label> createLabel(@Header("Authorization") String token, @Body CreateLabelRequest request);
+    
+    @PUT("api/labels/{id}")
+    Call<Label> updateLabel(@Header("Authorization") String token, @Path("id") int id, @Body UpdateLabelRequest request);
+    
+    @DELETE("api/labels/{id}")
+    Call<ApiResponse> deleteLabel(@Header("Authorization") String token, @Path("id") int id);
+    
+    @PUT("api/labels/{id}/color")
+    Call<Label> updateLabelColor(@Header("Authorization") String token, @Path("id") int id, @Body ColorRequest request);
+    
+    @POST("api/labels/{id}/mails/{mailId}")
+    Call<ApiResponse> addMailToLabel(@Header("Authorization") String token, @Path("id") int labelId, @Path("mailId") int mailId);
+    
+    @DELETE("api/labels/{id}/mails/{mailId}")
+    Call<ApiResponse> removeMailFromLabel(@Header("Authorization") String token, @Path("id") int labelId, @Path("mailId") int mailId);
+    
     // Response models
     class LoginRequest {
         private String username;
@@ -96,5 +122,53 @@ public interface ApiService {
         
         public List<Mail> getResults() { return results; }
         public int getCount() { return count; }
+    }
+    
+    // Label request/response models
+    class CreateLabelRequest {
+        private String name;
+        private String color;
+        private Integer parentId;
+        
+        public CreateLabelRequest(String name, String color, Integer parentId) {
+            this.name = name;
+            this.color = color;
+            this.parentId = parentId;
+        }
+        
+        public String getName() { return name; }
+        public String getColor() { return color; }
+        public Integer getParentId() { return parentId; }
+    }
+    
+    class UpdateLabelRequest {
+        private String name;
+        private Integer parentId;
+        
+        public UpdateLabelRequest(String name, Integer parentId) {
+            this.name = name;
+            this.parentId = parentId;
+        }
+        
+        public String getName() { return name; }
+        public Integer getParentId() { return parentId; }
+    }
+    
+    class ColorRequest {
+        private String color;
+        
+        public ColorRequest(String color) {
+            this.color = color;
+        }
+        
+        public String getColor() { return color; }
+    }
+    
+    class ApiResponse {
+        private String status;
+        private String message;
+        
+        public String getStatus() { return status; }
+        public String getMessage() { return message; }
     }
 } 

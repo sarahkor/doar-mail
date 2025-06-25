@@ -23,9 +23,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.myapplication.adapters.LabelAdapter;
 import com.example.myapplication.api.ApiClient;
 import com.example.myapplication.api.ApiService;
 import com.example.myapplication.databinding.ActivityMainBinding;
+import com.example.myapplication.dialogs.ColorPickerDialog;
+import com.example.myapplication.dialogs.DeleteLabelDialog;
+import com.example.myapplication.dialogs.EditLabelDialog;
+import com.example.myapplication.dialogs.LabelOptionsBottomSheet;
+import com.example.myapplication.dialogs.NewLabelDialog;
+import com.example.myapplication.models.Label;
 import com.example.myapplication.models.Mail;
 import com.example.myapplication.models.User;
 
@@ -49,11 +56,20 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progressLoading;
     private LinearLayout emptyStateLayout;
     
+    // Label-related fields
+    private RecyclerView labelsRecyclerView;
+    private LabelAdapter labelAdapter;
+    private List<Label> labels = new ArrayList<>();
+    private ImageView btnAddLabel;
+    
     private ApiService apiService;
     private String authToken = "Bearer test-token"; // TODO: Implement proper authentication
     private User currentUser;
     private List<Mail> allMails = new ArrayList<>();
     private List<Mail> filteredMails = new ArrayList<>();
+    
+    private MailFolder currentFolder = MailFolder.INBOX;
+    private View currentSelectedNavItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         setupRecyclerView();
         setupSearchBar();
         setupNavigationButtons();
+        setupNavigationDrawer();
     }
 
     private void setupRecyclerView() {
@@ -114,14 +131,299 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupNavigationButtons() {
         binding.btnMenu.setOnClickListener(v -> {
-            if (drawerLayout.isDrawerOpen(binding.navView)) {
-                drawerLayout.closeDrawer(binding.navView);
+            if (drawerLayout.isDrawerOpen(Gravity.START)) {
+                drawerLayout.closeDrawer(Gravity.START);
             } else {
-                drawerLayout.openDrawer(binding.navView);
+                drawerLayout.openDrawer(Gravity.START);
             }
         });
 
         binding.btnProfile.setOnClickListener(v -> showProfileMenu());
+    }
+
+    private void setupNavigationDrawer() {
+        View navDrawer = findViewById(R.id.nav_drawer_layout);
+        if (navDrawer == null) {
+            // Find the drawer by getting the first child of the drawer layout
+            navDrawer = ((ViewGroup) drawerLayout.getChildAt(1)).getChildAt(0);
+        }
+
+        if (navDrawer != null) {
+            setupNavigationItem(navDrawer, R.id.nav_inbox, MailFolder.INBOX);
+            setupNavigationItem(navDrawer, R.id.nav_sent, MailFolder.SENT);
+            setupNavigationItem(navDrawer, R.id.nav_drafts, MailFolder.DRAFTS);
+            setupNavigationItem(navDrawer, R.id.nav_spam, MailFolder.SPAM);
+            setupNavigationItem(navDrawer, R.id.nav_trash, MailFolder.TRASH);
+            setupNavigationItem(navDrawer, R.id.nav_starred, MailFolder.STARRED);
+            setupNavigationItem(navDrawer, R.id.nav_all_mail, MailFolder.ALL_MAIL);
+
+            // Setup labels functionality
+            setupLabelsSection(navDrawer);
+
+            // Set initial selection
+            View inboxItem = navDrawer.findViewById(R.id.nav_inbox);
+            if (inboxItem != null) {
+                selectNavigationItem(inboxItem, MailFolder.INBOX);
+            }
+        }
+    }
+
+    private void setupNavigationItem(View navDrawer, int itemId, MailFolder folder) {
+        View item = navDrawer.findViewById(itemId);
+        if (item != null) {
+            item.setOnClickListener(v -> {
+                selectNavigationItem(v, folder);
+                drawerLayout.closeDrawer(Gravity.START);
+            });
+        }
+    }
+
+    private void selectNavigationItem(View item, MailFolder folder) {
+        // Clear previous selection
+        if (currentSelectedNavItem != null) {
+            currentSelectedNavItem.setBackgroundResource(android.R.color.transparent);
+        }
+
+        // Set new selection
+        currentSelectedNavItem = item;
+        item.setBackgroundResource(R.drawable.nav_item_selected);
+        
+        currentFolder = folder;
+        loadMailsForFolder(folder);
+        
+        // Update action bar title
+        setTitle(folder.getDisplayName());
+    }
+
+    private void setupLabelsSection(View navDrawer) {
+        // Initialize labels RecyclerView
+        labelsRecyclerView = navDrawer.findViewById(R.id.rv_labels);
+        btnAddLabel = navDrawer.findViewById(R.id.btn_add_label);
+
+        if (labelsRecyclerView != null) {
+            labelAdapter = new LabelAdapter(this, labels);
+            labelsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            labelsRecyclerView.setAdapter(labelAdapter);
+
+            // Set up label click listeners
+            labelAdapter.setOnLabelClickListener(this::onLabelClick);
+            labelAdapter.setOnLabelEditClickListener(this::onLabelEditClick);
+        }
+
+        if (btnAddLabel != null) {
+            btnAddLabel.setOnClickListener(v -> showNewLabelDialog());
+        }
+
+        // Load labels from server
+        loadLabels();
+    }
+
+    private void loadLabels() {
+        apiService.getLabels(authToken).enqueue(new Callback<List<Label>>() {
+            @Override
+            public void onResponse(Call<List<Label>> call, Response<List<Label>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    labels.clear();
+                    labels.addAll(response.body());
+                    if (labelAdapter != null) {
+                        labelAdapter.notifyDataSetChanged();
+                    }
+                } else {
+                    // Load demo labels for testing
+                    loadDemoLabels();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Label>> call, Throwable t) {
+                // Load demo labels for testing
+                loadDemoLabels();
+            }
+        });
+    }
+
+    private void loadDemoLabels() {
+        labels.clear();
+        
+        Label workLabel = new Label();
+        workLabel.setId(1);
+        workLabel.setName("Work");
+        workLabel.setColor("#FF4444");
+        labels.add(workLabel);
+
+        Label personalLabel = new Label();
+        personalLabel.setId(2);
+        personalLabel.setName("Personal");
+        personalLabel.setColor("#00C851");
+        labels.add(personalLabel);
+
+        Label importantLabel = new Label();
+        importantLabel.setId(3);
+        importantLabel.setName("Important");
+        importantLabel.setColor("#FF8800");
+        labels.add(importantLabel);
+
+        if (labelAdapter != null) {
+            labelAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void onLabelClick(Label label) {
+        // TODO: Implement filtering mails by label
+        showError("Label filtering not implemented yet");
+        drawerLayout.closeDrawer(Gravity.START);
+    }
+
+    private void onLabelEditClick(Label label) {
+        LabelOptionsBottomSheet bottomSheet = LabelOptionsBottomSheet.newInstance(label);
+        bottomSheet.setOnOptionSelectedListener(new LabelOptionsBottomSheet.OnOptionSelectedListener() {
+            @Override
+            public void onColorOptionSelected(Label label) {
+                showColorPickerDialog(label);
+            }
+
+            @Override
+            public void onEditOptionSelected(Label label) {
+                showEditLabelDialog(label);
+            }
+
+            @Override
+            public void onDeleteOptionSelected(Label label) {
+                showDeleteLabelDialog(label);
+            }
+        });
+        bottomSheet.show(getSupportFragmentManager(), "LabelOptionsBottomSheet");
+    }
+
+    private void showNewLabelDialog() {
+        NewLabelDialog dialog = NewLabelDialog.newInstance();
+        dialog.setOnLabelCreatedListener(this::createLabel);
+        dialog.show(getSupportFragmentManager(), "NewLabelDialog");
+    }
+
+    private void showEditLabelDialog(Label label) {
+        EditLabelDialog dialog = EditLabelDialog.newInstance(label);
+        dialog.setOnLabelEditedListener(this::updateLabel);
+        dialog.show(getSupportFragmentManager(), "EditLabelDialog");
+    }
+
+    private void showColorPickerDialog(Label label) {
+        ColorPickerDialog dialog = ColorPickerDialog.newInstance(label);
+        dialog.setOnColorSelectedListener(this::updateLabelColor);
+        dialog.show(getSupportFragmentManager(), "ColorPickerDialog");
+    }
+
+    private void showDeleteLabelDialog(Label label) {
+        DeleteLabelDialog dialog = DeleteLabelDialog.newInstance(label);
+        dialog.setOnLabelDeletedListener(this::deleteLabel);
+        dialog.show(getSupportFragmentManager(), "DeleteLabelDialog");
+    }
+
+    private void createLabel(String name, String color) {
+        ApiService.CreateLabelRequest request = new ApiService.CreateLabelRequest(name, color, null);
+        
+        apiService.createLabel(authToken, request).enqueue(new Callback<Label>() {
+            @Override
+            public void onResponse(Call<Label> call, Response<Label> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    labels.add(response.body());
+                    if (labelAdapter != null) {
+                        labelAdapter.notifyDataSetChanged();
+                    }
+                    showError("Label created successfully");
+                } else {
+                    showError("Failed to create label");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Label> call, Throwable t) {
+                showError("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    private void updateLabel(int labelId, String newName) {
+        ApiService.UpdateLabelRequest request = new ApiService.UpdateLabelRequest(newName, null);
+        
+        apiService.updateLabel(authToken, labelId, request).enqueue(new Callback<Label>() {
+            @Override
+            public void onResponse(Call<Label> call, Response<Label> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Update local label
+                    for (int i = 0; i < labels.size(); i++) {
+                        if (labels.get(i).getId() == labelId) {
+                            labels.set(i, response.body());
+                            break;
+                        }
+                    }
+                    if (labelAdapter != null) {
+                        labelAdapter.notifyDataSetChanged();
+                    }
+                    showError("Label updated successfully");
+                } else {
+                    showError("Failed to update label");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Label> call, Throwable t) {
+                showError("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    private void updateLabelColor(int labelId, String color) {
+        ApiService.ColorRequest request = new ApiService.ColorRequest(color);
+        
+        apiService.updateLabelColor(authToken, labelId, request).enqueue(new Callback<Label>() {
+            @Override
+            public void onResponse(Call<Label> call, Response<Label> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Update local label
+                    for (int i = 0; i < labels.size(); i++) {
+                        if (labels.get(i).getId() == labelId) {
+                            labels.set(i, response.body());
+                            break;
+                        }
+                    }
+                    if (labelAdapter != null) {
+                        labelAdapter.notifyDataSetChanged();
+                    }
+                    showError("Label color updated successfully");
+                } else {
+                    showError("Failed to update label color");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Label> call, Throwable t) {
+                showError("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    private void deleteLabel(int labelId) {
+        apiService.deleteLabel(authToken, labelId).enqueue(new Callback<ApiService.ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
+                if (response.isSuccessful()) {
+                    // Remove from local list
+                    labels.removeIf(label -> label.getId() == labelId);
+                    if (labelAdapter != null) {
+                        labelAdapter.notifyDataSetChanged();
+                    }
+                    showError("Label deleted successfully");
+                } else {
+                    showError("Failed to delete label");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
+                showError("Network error: " + t.getMessage());
+            }
+        });
     }
 
     private void filterMails(String query) {
@@ -183,21 +485,55 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadMails() {
+        loadMailsForFolder(currentFolder);
+    }
+
+    private void loadMailsForFolder(MailFolder folder) {
         showLoading(true);
         
-        apiService.getAllMails(authToken).enqueue(new Callback<List<Mail>>() {
+        Call<List<Mail>> call;
+        switch (folder) {
+            case INBOX:
+                call = apiService.getInbox(authToken);
+                break;
+            case SENT:
+                call = apiService.getSent(authToken);
+                break;
+            case DRAFTS:
+                call = apiService.getDrafts(authToken);
+                break;
+            case SPAM:
+                call = apiService.getSpam(authToken);
+                break;
+            case TRASH:
+                call = apiService.getTrash(authToken);
+                break;
+            case STARRED:
+                call = apiService.getStarred(authToken);
+                break;
+            case ALL_MAIL:
+            default:
+                call = apiService.getAllMails(authToken);
+                break;
+        }
+        
+        call.enqueue(new Callback<List<Mail>>() {
             @Override
             public void onResponse(Call<List<Mail>> call, Response<List<Mail>> response) {
                 showLoading(false);
                 if (response.isSuccessful() && response.body() != null) {
                     allMails.clear();
                     allMails.addAll(response.body());
+                    
+                    // Clear search when switching folders
+                    binding.etSearch.setText("");
+                    
                     filteredMails.clear();
                     filteredMails.addAll(allMails);
                     mailAdapter.notifyDataSetChanged();
                     updateEmptyState();
                 } else {
-                    showError("Failed to load mails");
+                    showError("Failed to load " + folder.getDisplayName().toLowerCase() + " mails");
                 }
             }
 

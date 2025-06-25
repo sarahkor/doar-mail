@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="280dp"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    android:padding="0dp">
+
+    <!-- Header with app logo and title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="24dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_message"
+            android:contentDescription="App Logo"
+            android:layout_marginEnd="12dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mail"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#333333" />
+
+    </LinearLayout>
+
+    <!-- ScrollView for all content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Mail Folders Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="16dp">
+
+                <!-- Inbox -->
+                <LinearLayout
+                    android:id="@+id/nav_inbox"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_inbox"
+                        android:layout_marginEnd="12dp"
+                        android:tint="#444444" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Inbox"
+                        android:textSize="14sp"
+                        android:textColor="#444444"
+                        android:fontFamily="sans-serif-medium" />
+
+                </LinearLayout>
+
+                <!-- Sent -->
+                <LinearLayout
+                    android:id="@+id/nav_sent"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_sent"
+                        android:layout_marginEnd="12dp"
+                        android:tint="#444444" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Sent"
+                        android:textSize="14sp"
+                        android:textColor="#444444"
+                        android:fontFamily="sans-serif-medium" />
+
+                </LinearLayout>
+
+                <!-- Drafts -->
+                <LinearLayout
+                    android:id="@+id/nav_drafts"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_drafts"
+                        android:layout_marginEnd="12dp"
+                        android:tint="#444444" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Drafts"
+                        android:textSize="14sp"
+                        android:textColor="#444444"
+                        android:fontFamily="sans-serif-medium" />
+
+                </LinearLayout>
+
+                <!-- Spam -->
+                <LinearLayout
+                    android:id="@+id/nav_spam"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_spam"
+                        android:layout_marginEnd="12dp"
+                        android:tint="#444444" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Spam"
+                        android:textSize="14sp"
+                        android:textColor="#444444"
+                        android:fontFamily="sans-serif-medium" />
+
+                </LinearLayout>
+
+                <!-- Trash -->
+                <LinearLayout
+                    android:id="@+id/nav_trash"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_trash"
+                        android:layout_marginEnd="12dp"
+                        android:tint="#444444" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Trash"
+                        android:textSize="14sp"
+                        android:textColor="#444444"
+                        android:fontFamily="sans-serif-medium" />
+
+                </LinearLayout>
+
+                <!-- Starred -->
+                <LinearLayout
+                    android:id="@+id/nav_starred"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_star_outline"
+                        android:layout_marginEnd="12dp"
+                        android:tint="#444444" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Starred"
+                        android:textSize="14sp"
+                        android:textColor="#444444"
+                        android:fontFamily="sans-serif-medium" />
+
+                </LinearLayout>
+
+                <!-- All Mail -->
+                <LinearLayout
+                    android:id="@+id/nav_all_mail"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_all_mail"
+                        android:layout_marginEnd="12dp"
+                        android:tint="#444444" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="All Mail"
+                        android:textSize="14sp"
+                        android:textColor="#444444"
+                        android:fontFamily="sans-serif-medium" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Labels Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="8dp">
+
+                <!-- Labels Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_label"
+                        android:layout_marginEnd="12dp"
+                        android:tint="#444444" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Labels"
+                        android:textSize="14sp"
+                        android:textColor="#444444"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <ImageView
+                        android:id="@+id/btn_add_label"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="4dp"
+                        android:src="@drawable/ic_add"
+                        android:contentDescription="Add Label"
+                        android:tint="#666666" />
+
+                </LinearLayout>
+
+                <!-- Labels List -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_labels"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout> 

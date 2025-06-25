@@ -165,24 +165,12 @@
 
     </LinearLayout>
 
-    <!-- Navigation Drawer (will be implemented later) -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
+    <!-- Navigation Drawer -->
+    <include
+        android:id="@+id/nav_drawer_layout"
+        layout="@layout/nav_drawer_layout"
         android:layout_width="280dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@color/white">
-
-        <!-- Drawer content will be added later -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Navigation Drawer\n(Coming Soon)"
-            android:gravity="center"
-            android:layout_marginTop="100dp"
-            android:textSize="16sp"
-            android:textColor="#666666" />
-
-    </com.google.android.material.navigation.NavigationView>
+        android:layout_gravity="start" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

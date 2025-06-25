@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:layout_marginEnd="24dp"
+    android:layout_marginTop="2dp"
+    android:layout_marginBottom="2dp">
+
+    <!-- Label Icon with dynamic color -->
+    <ImageView
+        android:id="@+id/iv_label_icon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_label"
+        android:layout_marginEnd="12dp" />
+
+    <!-- Label Name -->
+    <TextView
+        android:id="@+id/tv_label_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="14sp"
+        android:textColor="#444444"
+        android:fontFamily="sans-serif" />
+
+    <!-- Edit Button -->
+    <ImageView
+        android:id="@+id/btn_edit_label"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="6dp"
+        android:src="@drawable/ic_edit"
+        android:contentDescription="Edit Label"
+        android:layout_marginStart="8dp" />
+
+</LinearLayout> 
