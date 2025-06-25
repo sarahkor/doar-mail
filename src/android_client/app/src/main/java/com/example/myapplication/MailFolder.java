@@ -7,7 +7,7 @@ public enum MailFolder {
     SPAM("Spam"),
     TRASH("Trash"),
     STARRED("Starred"),
-    ALL_MAIL("All Mail");
+    ALL_MAIL("All Doar");
 
     private final String displayName;
 

@@ -71,12 +71,8 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ColorViewHol
         public void bind(String color) {
             // Set the color of the circle
             GradientDrawable drawable = (GradientDrawable) colorCircle.getBackground();
-            try {
-                int colorInt = Color.parseColor(color);
-                drawable.setColor(colorInt);
-            } catch (Exception e) {
-                drawable.setColor(Color.parseColor("#666666"));
-            }
+            int colorInt = parseColorSafe(color);
+            drawable.setColor(colorInt);
 
             // Show/hide selected indicator
             boolean isSelected = color.equals(selectedColor);
@@ -91,19 +87,41 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ColorViewHol
         }
     }
 
-    // Predefined colors for labels (matching React project)
+    // Predefined colors for labels (matching web server)
     public static List<String> getDefaultColors() {
         return java.util.Arrays.asList(
-            "#FF4444", // Red
-            "#FF8800", // Orange  
-            "#FFBB33", // Yellow
-            "#00C851", // Green
-            "#33B5E5", // Blue
-            "#AA66CC", // Purple
-            "#FF6699", // Pink
-            "#996633", // Brown
-            "#666666", // Gray
-            "#000000"  // Black
+            // Named colors
+            "red", "blue", "green", "yellow", "orange", "purple", "pink",
+            "black", "white", "gray", "brown",
+            // Hex colors from web server
+            "#f28b82", "#fbbc04", "#fff475", "#ccff90",
+            "#a7ffeb", "#cbf0f8", "#aecbfa", "#d7aefb",
+            "#fdcfe8", "#e6c9a8", "#e8eaed"
         );
+    }
+    
+    // Helper method to convert named colors to hex
+    private int parseColorSafe(String color) {
+        try {
+            // Handle named colors
+            switch (color.toLowerCase()) {
+                case "red": return Color.RED;
+                case "blue": return Color.BLUE;
+                case "green": return Color.GREEN;
+                case "yellow": return Color.YELLOW;
+                case "orange": return Color.parseColor("#FF8800");
+                case "purple": return Color.parseColor("#800080");
+                case "pink": return Color.parseColor("#FFC0CB");
+                case "black": return Color.BLACK;
+                case "white": return Color.WHITE;
+                case "gray": return Color.GRAY;
+                case "brown": return Color.parseColor("#A52A2A");
+                default:
+                    // Try to parse as hex color
+                    return Color.parseColor(color);
+            }
+        } catch (Exception e) {
+            return Color.parseColor("#666666"); // Default gray
+        }
     }
 } 

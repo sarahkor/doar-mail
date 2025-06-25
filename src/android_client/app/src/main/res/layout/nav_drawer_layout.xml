@@ -15,17 +15,17 @@
         android:gravity="center_vertical">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_message"
-            android:contentDescription="App Logo"
-            android:layout_marginEnd="12dp"
-            android:tint="@color/nav_icon_tint" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_doar_logo"
+            android:contentDescription="Doar Logo"
+            android:layout_marginEnd="16dp"
+            android:scaleType="fitCenter" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mail"
+            android:text="Doar"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary" />
@@ -255,7 +255,7 @@
 
                 </LinearLayout>
 
-                <!-- All Mail -->
+                <!-- All Doar -->
                 <LinearLayout
                     android:id="@+id/nav_all_mail"
                     android:layout_width="match_parent"
@@ -282,7 +282,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="All Mail"
+                        android:text="All Doar"
                         android:textSize="14sp"
                         android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />

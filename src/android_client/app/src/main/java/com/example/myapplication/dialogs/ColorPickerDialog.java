@@ -77,7 +77,7 @@ public class ColorPickerDialog extends DialogFragment {
         colorAdapter = new ColorAdapter(getContext(), ColorAdapter.getDefaultColors());
         colorAdapter.setSelectedColor(selectedColor);
         
-        rvColors.setLayoutManager(new GridLayoutManager(getContext(), 5));
+        rvColors.setLayoutManager(new GridLayoutManager(getContext(), 6));
         rvColors.setAdapter(colorAdapter);
         
         colorAdapter.setOnColorSelectedListener(color -> {
