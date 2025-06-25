@@ -12,7 +12,7 @@
         android:text="Label Color"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="#333333"
+        android:textColor="@color/text_primary"
         android:layout_marginBottom="20dp" />
 
     <!-- Color Picker Grid -->
@@ -34,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
-            android:textColor="#666666"
+            android:textColor="@color/text_secondary"
             style="@style/Widget.MaterialComponents.Button.TextButton" />
 
     </LinearLayout>

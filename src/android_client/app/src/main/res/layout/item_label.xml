@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textSize="14sp"
-        android:textColor="#444444"
+        android:textColor="@color/text_primary"
         android:fontFamily="sans-serif" />
 
     <!-- Edit Button -->
@@ -43,6 +43,7 @@
         android:focusable="true"
         android:padding="6dp"
         android:src="@drawable/ic_edit"
+        android:tint="@color/text_secondary"
         android:contentDescription="Edit Label"
         android:layout_marginStart="8dp" />
 

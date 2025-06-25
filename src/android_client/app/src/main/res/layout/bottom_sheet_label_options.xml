@@ -11,7 +11,7 @@
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
-        android:background="#e0e0e0"
+        android:background="@color/text_secondary"
         android:layout_marginTop="8dp" />
 
     <!-- Label Color Option -->
@@ -32,7 +32,7 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_label"
             android:layout_marginEnd="16dp"
-            android:tint="#666666" />
+            android:tint="@color/text_secondary" />
 
         <TextView
             android:layout_width="0dp"
@@ -40,7 +40,7 @@
             android:layout_weight="1"
             android:text="Label color"
             android:textSize="16sp"
-            android:textColor="#333333" />
+            android:textColor="@color/text_primary" />
 
     </LinearLayout>
 
@@ -62,7 +62,7 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_edit"
             android:layout_marginEnd="16dp"
-            android:tint="#666666" />
+            android:tint="@color/text_secondary" />
 
         <TextView
             android:layout_width="0dp"
@@ -70,7 +70,7 @@
             android:layout_weight="1"
             android:text="Edit"
             android:textSize="16sp"
-            android:textColor="#333333" />
+            android:textColor="@color/text_primary" />
 
     </LinearLayout>
 
@@ -92,7 +92,7 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_delete"
             android:layout_marginEnd="16dp"
-            android:tint="#dc3545" />
+            android:tint="@color/error" />
 
         <TextView
             android:layout_width="0dp"
@@ -100,7 +100,7 @@
             android:layout_weight="1"
             android:text="Delete label"
             android:textSize="16sp"
-            android:textColor="#dc3545" />
+            android:textColor="@color/error" />
 
     </LinearLayout>
 
