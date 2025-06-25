@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="280dp"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/surface"
     android:orientation="vertical"
     android:padding="0dp">
 
@@ -19,7 +19,8 @@
             android:layout_height="24dp"
             android:src="@drawable/ic_message"
             android:contentDescription="App Logo"
-            android:layout_marginEnd="12dp" />
+            android:layout_marginEnd="12dp"
+            android:tint="@color/nav_icon_tint" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -27,7 +28,7 @@
             android:text="Mail"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#333333" />
+            android:textColor="@color/text_primary" />
 
     </LinearLayout>
 
@@ -71,7 +72,7 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_inbox"
                         android:layout_marginEnd="12dp"
-                        android:tint="#444444" />
+                        android:tint="@color/nav_icon_tint" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -79,7 +80,7 @@
                         android:layout_weight="1"
                         android:text="Inbox"
                         android:textSize="14sp"
-                        android:textColor="#444444"
+                        android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
 
                 </LinearLayout>
@@ -105,7 +106,7 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_sent"
                         android:layout_marginEnd="12dp"
-                        android:tint="#444444" />
+                        android:tint="@color/nav_icon_tint" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -113,7 +114,7 @@
                         android:layout_weight="1"
                         android:text="Sent"
                         android:textSize="14sp"
-                        android:textColor="#444444"
+                        android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
 
                 </LinearLayout>
@@ -139,7 +140,7 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_drafts"
                         android:layout_marginEnd="12dp"
-                        android:tint="#444444" />
+                        android:tint="@color/nav_icon_tint" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -147,7 +148,7 @@
                         android:layout_weight="1"
                         android:text="Drafts"
                         android:textSize="14sp"
-                        android:textColor="#444444"
+                        android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
 
                 </LinearLayout>
@@ -173,7 +174,7 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_spam"
                         android:layout_marginEnd="12dp"
-                        android:tint="#444444" />
+                        android:tint="@color/nav_icon_tint" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -181,7 +182,7 @@
                         android:layout_weight="1"
                         android:text="Spam"
                         android:textSize="14sp"
-                        android:textColor="#444444"
+                        android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
 
                 </LinearLayout>
@@ -207,7 +208,7 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_trash"
                         android:layout_marginEnd="12dp"
-                        android:tint="#444444" />
+                        android:tint="@color/nav_icon_tint" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -215,7 +216,7 @@
                         android:layout_weight="1"
                         android:text="Trash"
                         android:textSize="14sp"
-                        android:textColor="#444444"
+                        android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
 
                 </LinearLayout>
@@ -241,7 +242,7 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_star_outline"
                         android:layout_marginEnd="12dp"
-                        android:tint="#444444" />
+                        android:tint="@color/nav_icon_tint" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -249,7 +250,7 @@
                         android:layout_weight="1"
                         android:text="Starred"
                         android:textSize="14sp"
-                        android:textColor="#444444"
+                        android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
 
                 </LinearLayout>
@@ -275,7 +276,7 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_all_mail"
                         android:layout_marginEnd="12dp"
-                        android:tint="#444444" />
+                        android:tint="@color/nav_icon_tint" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -283,7 +284,7 @@
                         android:layout_weight="1"
                         android:text="All Mail"
                         android:textSize="14sp"
-                        android:textColor="#444444"
+                        android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
 
                 </LinearLayout>
@@ -313,7 +314,7 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_label"
                         android:layout_marginEnd="12dp"
-                        android:tint="#444444" />
+                        android:tint="@color/nav_icon_tint" />
 
                     <TextView
                         android:layout_width="0dp"
@@ -321,7 +322,7 @@
                         android:layout_weight="1"
                         android:text="Labels"
                         android:textSize="14sp"
-                        android:textColor="#444444"
+                        android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
 
                     <ImageView
@@ -334,7 +335,7 @@
                         android:padding="4dp"
                         android:src="@drawable/ic_add"
                         android:contentDescription="Add Label"
-                        android:tint="#666666" />
+                        android:tint="@color/text_secondary" />
 
                 </LinearLayout>
 

@@ -5,13 +5,15 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context=".MainActivity">
 
     <!-- Main content -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/background">
 
         <!-- Top Navigation Bar -->
         <com.google.android.material.appbar.AppBarLayout
@@ -24,7 +26,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:orientation="horizontal"
-                android:background="@color/white"
+                android:background="@color/surface"
                 android:gravity="center_vertical"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp">
@@ -37,6 +39,7 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Menu"
                     android:src="@drawable/ic_menu"
+                    android:tint="@color/text_primary"
                     android:layout_marginEnd="8dp" />
 
                 <!-- Search Bar Container -->
@@ -47,7 +50,7 @@
                     android:layout_marginEnd="16dp"
                     app:cardCornerRadius="20dp"
                     app:cardElevation="2dp"
-                    app:cardBackgroundColor="#F1F3F4">
+                    app:cardBackgroundColor="@color/card_background">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -62,6 +65,7 @@
                             android:layout_height="20dp"
                             android:src="@drawable/ic_search"
                             android:layout_marginEnd="8dp"
+                            android:tint="@color/text_secondary"
                             android:alpha="0.6" />
 
                         <EditText
@@ -72,8 +76,8 @@
                             android:background="@null"
                             android:hint="Search mail"
                             android:textSize="14sp"
-                            android:textColor="#333333"
-                            android:textColorHint="#777777"
+                            android:textColor="@color/text_primary"
+                            android:textColorHint="@color/text_hint"
                             android:inputType="text"
                             android:imeOptions="actionSearch"
                             android:maxLines="1" />
@@ -84,6 +88,7 @@
                             android:layout_height="20dp"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:src="@drawable/ic_clear"
+                            android:tint="@color/text_secondary"
                             android:contentDescription="Clear search"
                             android:visibility="gone" />
 
@@ -98,7 +103,8 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Profile"
-                    android:src="@drawable/ic_account_circle" />
+                    android:src="@drawable/ic_account_circle"
+                    android:tint="@color/text_primary" />
 
             </LinearLayout>
 
@@ -109,7 +115,8 @@
             android:id="@+id/content_frame"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:background="@color/background">
 
             <!-- Mail List RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
@@ -117,6 +124,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="8dp"
+                android:background="@color/background"
                 android:clipToPadding="false" />
 
             <!-- Empty State -->
@@ -127,12 +135,14 @@
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="32dp"
+                android:background="@color/background"
                 android:visibility="gone">
 
                 <ImageView
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:src="@drawable/ic_mail_outline"
+                    android:tint="@color/text_hint"
                     android:alpha="0.3"
                     android:layout_marginBottom="16dp" />
 
@@ -141,7 +151,7 @@
                     android:layout_height="wrap_content"
                     android:text="No emails found"
                     android:textSize="18sp"
-                    android:textColor="#666666"
+                    android:textColor="@color/text_secondary"
                     android:layout_marginBottom="8dp" />
 
                 <TextView
@@ -149,7 +159,7 @@
                     android:layout_height="wrap_content"
                     android:text="Your mailbox is empty"
                     android:textSize="14sp"
-                    android:textColor="#999999" />
+                    android:textColor="@color/text_hint" />
 
             </LinearLayout>
 

@@ -1,5 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Light Theme Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Primary Colors -->
+    <color name="primary">#007bff</color>
+    <color name="primary_dark">#0056b3</color>
+    <color name="primary_light">#66b3ff</color>
+    
+    <!-- Background Colors -->
+    <color name="background">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="card_background">#FFFFFF</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#333333</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_hint">#999999</color>
+    
+    <!-- Border and Divider Colors -->
+    <color name="divider">#E0E0E0</color>
+    <color name="border">#E0E0E0</color>
+    
+    <!-- Status Colors -->
+    <color name="error">#dc3545</color>
+    <color name="success">#28a745</color>
+    <color name="warning">#ffc107</color>
+    
+    <!-- Navigation -->
+    <color name="nav_selected">#E3F2FD</color>
+    <color name="nav_item_text">#444444</color>
+    <color name="nav_icon_tint">#444444</color>
+    
+    <!-- Mail Item Colors -->
+    <color name="mail_sender">#333333</color>
+    <color name="mail_subject">#333333</color>
+    <color name="mail_preview">#666666</color>
+    <color name="mail_time">#999999</color>
+    
+    <!-- Dialog Colors -->
+    <color name="dialog_background">#FFFFFF</color>
+    <color name="dialog_text">#333333</color>
 </resources>
