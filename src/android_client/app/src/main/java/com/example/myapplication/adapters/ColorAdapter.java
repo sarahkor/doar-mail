@@ -99,7 +99,7 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ColorViewHol
     // Helper method to parse hex colors
     private int parseColorSafe(String color) {
         try {
-            return Color.parseColor(color);
+                    return Color.parseColor(color);
         } catch (Exception e) {
             return Color.parseColor("#e8eaed"); // Default to light gray from allowed colors
         }

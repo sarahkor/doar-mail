@@ -15,13 +15,19 @@ import com.bumptech.glide.Glide;
 import com.example.myapplication.api.ApiClient;
 import com.example.myapplication.models.Mail;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder> {
 
     private List<Mail> mails;
     private OnMailClickListener onMailClickListener;
     private OnStarClickListener onStarClickListener;
+    private OnMailLongClickListener onMailLongClickListener;
+    private OnSelectionChangedListener onSelectionChangedListener;
+    private Set<Integer> selectedMails = new HashSet<>();
+    private boolean isSelectionMode = false;
 
     public interface OnMailClickListener {
         void onMailClick(Mail mail);
@@ -31,10 +37,63 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         void onStarClick(Mail mail);
     }
 
+    public interface OnMailLongClickListener {
+        void onMailLongClick(Mail mail);
+    }
+
+    public interface OnSelectionChangedListener {
+        void onSelectionChanged();
+    }
+
     public MailAdapter(List<Mail> mails, OnMailClickListener onMailClickListener, OnStarClickListener onStarClickListener) {
         this.mails = mails;
         this.onMailClickListener = onMailClickListener;
         this.onStarClickListener = onStarClickListener;
+    }
+
+    public void setOnMailLongClickListener(OnMailLongClickListener listener) {
+        this.onMailLongClickListener = listener;
+    }
+
+    public void setOnSelectionChangedListener(OnSelectionChangedListener listener) {
+        this.onSelectionChangedListener = listener;
+    }
+
+    public void setSelectionMode(boolean isSelectionMode) {
+        this.isSelectionMode = isSelectionMode;
+        if (!isSelectionMode) {
+            selectedMails.clear();
+        }
+        notifyDataSetChanged();
+    }
+
+    public boolean isSelectionMode() {
+        return isSelectionMode;
+    }
+
+    public void toggleSelection(int mailId) {
+        if (selectedMails.contains(mailId)) {
+            selectedMails.remove(mailId);
+        } else {
+            selectedMails.add(mailId);
+        }
+        notifyDataSetChanged();
+        if (onSelectionChangedListener != null) {
+            onSelectionChangedListener.onSelectionChanged();
+        }
+    }
+
+    public Set<Integer> getSelectedMails() {
+        return new HashSet<>(selectedMails);
+    }
+
+    public int getSelectedCount() {
+        return selectedMails.size();
+    }
+
+    public void clearSelection() {
+        selectedMails.clear();
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -74,9 +133,24 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION && onMailClickListener != null) {
-                    onMailClickListener.onMailClick(mails.get(position));
+                if (position != RecyclerView.NO_POSITION) {
+                    Mail mail = mails.get(position);
+                    if (isSelectionMode) {
+                        toggleSelection(mail.getId());
+                    } else if (onMailClickListener != null) {
+                        onMailClickListener.onMailClick(mail);
+                    }
                 }
+            });
+
+            itemView.setOnLongClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && onMailLongClickListener != null) {
+                    Mail mail = mails.get(position);
+                    onMailLongClickListener.onMailLongClick(mail);
+                    return true;
+                }
+                return false;
             });
 
             starButton.setOnClickListener(v -> {
@@ -112,6 +186,18 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
 
             // Set star icon
             starButton.setImageResource(mail.isStarred() ? R.drawable.ic_star_filled : R.drawable.ic_star_outline);
+
+            // Handle selection mode visual state
+            boolean isSelected = selectedMails.contains(mail.getId());
+            if (isSelectionMode) {
+                itemView.setAlpha(isSelected ? 0.7f : 1.0f);
+                itemView.setBackgroundColor(isSelected ? 
+                    itemView.getContext().getColor(R.color.selected_mail_background) : 
+                    itemView.getContext().getColor(android.R.color.transparent));
+            } else {
+                itemView.setAlpha(1.0f);
+                itemView.setBackgroundColor(itemView.getContext().getColor(android.R.color.transparent));
+            }
 
             // Load sender avatar - generate from name/email
             loadSenderAvatar(mail, senderAvatar);
