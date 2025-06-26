@@ -87,41 +87,21 @@ public class ColorAdapter extends RecyclerView.Adapter<ColorAdapter.ColorViewHol
         }
     }
 
-    // Predefined colors for labels (matching web server)
+    // Predefined colors for labels (matching web server exactly)
     public static List<String> getDefaultColors() {
         return java.util.Arrays.asList(
-            // Named colors
-            "red", "blue", "green", "yellow", "orange", "purple", "pink",
-            "black", "white", "gray", "brown",
-            // Hex colors from web server
             "#f28b82", "#fbbc04", "#fff475", "#ccff90",
             "#a7ffeb", "#cbf0f8", "#aecbfa", "#d7aefb",
             "#fdcfe8", "#e6c9a8", "#e8eaed"
         );
     }
     
-    // Helper method to convert named colors to hex
+    // Helper method to parse hex colors
     private int parseColorSafe(String color) {
         try {
-            // Handle named colors
-            switch (color.toLowerCase()) {
-                case "red": return Color.RED;
-                case "blue": return Color.BLUE;
-                case "green": return Color.GREEN;
-                case "yellow": return Color.YELLOW;
-                case "orange": return Color.parseColor("#FF8800");
-                case "purple": return Color.parseColor("#800080");
-                case "pink": return Color.parseColor("#FFC0CB");
-                case "black": return Color.BLACK;
-                case "white": return Color.WHITE;
-                case "gray": return Color.GRAY;
-                case "brown": return Color.parseColor("#A52A2A");
-                default:
-                    // Try to parse as hex color
-                    return Color.parseColor(color);
-            }
+            return Color.parseColor(color);
         } catch (Exception e) {
-            return Color.parseColor("#666666"); // Default gray
+            return Color.parseColor("#e8eaed"); // Default to light gray from allowed colors
         }
     }
 } 

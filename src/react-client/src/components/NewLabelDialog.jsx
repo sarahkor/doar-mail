@@ -44,7 +44,7 @@ function NewLabelDialog({ onClose, onCreate, existingLabels = [], defaultParentI
     setLoading(true);
     try {
       const parentIdToSend = isNested ? parentId : null;
-      const newLabel = await addLabel(labelName, 'gray', parentIdToSend); // Pass parent ID
+      const newLabel = await addLabel(labelName, '#e8eaed', parentIdToSend); // Pass parent ID - default to light gray from allowed colors
       onCreate(newLabel);
       onClose();
     } catch (error) {
