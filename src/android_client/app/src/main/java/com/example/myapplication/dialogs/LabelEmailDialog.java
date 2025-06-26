@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +37,7 @@ public class LabelEmailDialog extends DialogFragment {
     private static final String ARG_IS_SINGLE_MAIL = "is_single_mail";
     private static final String ARG_MAIL_SUBJECT = "mail_subject";
     
-    private LinearLayout labelsContainer;
+    private RadioGroup labelsContainer;
     private MaterialButton btnCancel, btnApply;
     private TextView titleText;
     private OnLabelsAppliedListener listener;
@@ -105,12 +107,11 @@ public class LabelEmailDialog extends DialogFragment {
         btnApply = view.findViewById(R.id.btn_apply);
         titleText = view.findViewById(R.id.tv_title);
         
-        // Set title based on number of emails
-        if (isSingleMail) {
-            titleText.setText("Label: " + mailSubject);
-        } else {
-            titleText.setText("Label " + mailIds.size() + " emails");
-        }
+        // Set title
+        titleText.setText("Change Label");
+        
+        // Change button text
+        btnApply.setText("OK");
     }
 
     private void setupAPI() {
@@ -158,38 +159,35 @@ public class LabelEmailDialog extends DialogFragment {
         }
 
         for (Label label : allLabels) {
-            CheckBox checkBox = new CheckBox(getContext());
-            checkBox.setText(label.getName());
-            checkBox.setTag(label.getId());
-            checkBox.setPadding(16, 12, 16, 12);
+            RadioButton radioButton = new RadioButton(getContext());
+            radioButton.setText(label.getName());
+            radioButton.setTag(label.getId());
+            radioButton.setPadding(16, 12, 16, 12);
+            radioButton.setTextColor(getContext().getColor(R.color.text_primary));
             
-            // TODO: Pre-check labels that are already applied to these emails
-            // This would require additional API calls to check current labels for each email
-            
-            labelsContainer.addView(checkBox);
+            labelsContainer.addView(radioButton);
         }
     }
 
     private void applyLabelChanges() {
-        List<Integer> selectedLabelIds = new ArrayList<>();
+        int selectedRadioButtonId = labelsContainer.getCheckedRadioButtonId();
         
-        // Get selected labels
-        for (int i = 0; i < labelsContainer.getChildCount(); i++) {
-            View child = labelsContainer.getChildAt(i);
-            if (child instanceof CheckBox) {
-                CheckBox checkBox = (CheckBox) child;
-                if (checkBox.isChecked()) {
-                    selectedLabelIds.add((Integer) checkBox.getTag());
-                }
-            }
-        }
-
-        if (selectedLabelIds.isEmpty()) {
-            showError("Please select at least one label");
+        if (selectedRadioButtonId == -1) {
+            showError("Please select a label");
             return;
         }
 
-        // Apply labels to all selected emails
+        RadioButton selectedRadioButton = labelsContainer.findViewById(selectedRadioButtonId);
+        if (selectedRadioButton == null || selectedRadioButton.getTag() == null) {
+            showError("Invalid label selection");
+            return;
+        }
+
+        Integer selectedLabelId = (Integer) selectedRadioButton.getTag();
+        List<Integer> selectedLabelIds = new ArrayList<>();
+        selectedLabelIds.add(selectedLabelId);
+
+        // Apply the selected label to all selected emails
         applyLabelsToEmails(selectedLabelIds);
     }
 
