@@ -1,5 +1,5 @@
 package com.example.myapplication;
-
+import android.content.Intent;
 import android.app.Dialog;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -16,7 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.example.myapplication.activities.ComposeActivity;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -116,6 +116,14 @@ public class MainActivity extends AppCompatActivity {
         setupSearchBar();
         setupNavigationButtons();
         setupNavigationDrawer();
+        setupComposeButton();
+    }
+     private void setupComposeButton() {
+        binding.fabCompose.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ComposeActivity.class);
+            startActivity(intent);
+        });
+    }
     }
 
     private void setupRecyclerView() {

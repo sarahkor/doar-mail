@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="?android:attr/colorBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:orientation="vertical">
+
+    <!-- TOP ICON BAR -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+
+        <!-- Send Icon (left) -->
+        <ImageButton
+            android:id="@+id/btn_send"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_sent"
+            android:contentDescription="Send Email"
+            app:tint="@color/black" />
+
+        <!-- Spacer to push the next icons to the right -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Right group: Attach, Delete, Close -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btn_attach"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_attach"
+                android:contentDescription="Attach File"
+                app:tint="@color/black" />
+
+            <ImageButton
+                android:id="@+id/btn_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginStart="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_delete_compose"
+                android:contentDescription="Clear Fields"
+                app:tint="@color/black" />
+
+            <ImageButton
+                android:id="@+id/btn_close"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginStart="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_clear"
+                android:contentDescription="Close Compose"
+                app:tint="@color/black" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- TO Field -->
+    <EditText
+        android:id="@+id/et_to"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:hint="To"
+        android:inputType="textEmailAddress"
+        android:layout_marginBottom="8dp" />
+
+    <!-- SUBJECT Field -->
+    <EditText
+        android:id="@+id/et_subject"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:hint="Subject"
+        android:inputType="text"
+        android:layout_marginBottom="8dp" />
+
+    <!-- BODY Field -->
+    <EditText
+        android:id="@+id/et_body"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:minHeight="48dp"
+        android:hint="Body..."
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:layout_marginBottom="16dp"
+        android:background="@null" />
+
+</LinearLayout>
