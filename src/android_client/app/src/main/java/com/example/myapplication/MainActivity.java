@@ -30,6 +30,7 @@ import com.example.myapplication.databinding.ActivityMainBinding;
 import com.example.myapplication.dialogs.ColorPickerDialog;
 import com.example.myapplication.dialogs.DeleteLabelDialog;
 import com.example.myapplication.dialogs.EditLabelDialog;
+import com.example.myapplication.dialogs.LabelEmailDialog;
 import com.example.myapplication.dialogs.LabelOptionsBottomSheet;
 import com.example.myapplication.dialogs.NewLabelDialog;
 import com.example.myapplication.models.Label;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -70,6 +72,11 @@ public class MainActivity extends AppCompatActivity {
     
     private MailFolder currentFolder = MailFolder.INBOX;
     private View currentSelectedNavItem;
+    
+    // Selection mode fields
+    private boolean isSelectionMode = false;
+    private View actionModeBar;
+    private TextView selectedCountText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +96,15 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = binding.rvMails;
         progressLoading = binding.progressLoading;
         emptyStateLayout = binding.layoutEmptyState;
+        
+        // Initialize action mode bar
+        actionModeBar = binding.actionModeBar;
+        selectedCountText = binding.tvSelectedCount;
+        
+        // Setup action mode bar click listeners
+        binding.btnCloseSelection.setOnClickListener(v -> exitSelectionMode());
+        binding.btnDeleteMails.setOnClickListener(v -> deleteSelectedMails());
+        binding.btnLabelMails.setOnClickListener(v -> showLabelDialog());
     }
 
     private void setupAPI() {
@@ -104,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         mailAdapter = new MailAdapter(filteredMails, this::onMailClick, this::onStarClick);
+        mailAdapter.setOnMailLongClickListener(this::onMailLongClick);
+        mailAdapter.setOnSelectionChangedListener(this::updateSelectedCount);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(mailAdapter);
     }
@@ -710,6 +728,97 @@ public class MainActivity extends AppCompatActivity {
         showError("Star functionality not fully implemented yet");
     }
 
+    private void onMailLongClick(Mail mail) {
+        enterSelectionMode();
+        mailAdapter.toggleSelection(mail.getId());
+        // updateSelectedCount() is called via the OnSelectionChangedListener
+    }
+
+    private void enterSelectionMode() {
+        if (!isSelectionMode) {
+            isSelectionMode = true;
+            mailAdapter.setSelectionMode(true);
+            actionModeBar.setVisibility(View.VISIBLE);
+            
+            // Hide the search bar when in selection mode
+            binding.btnMenu.setVisibility(View.GONE);
+            binding.btnProfile.setVisibility(View.GONE);
+        }
+    }
+
+    private void exitSelectionMode() {
+        if (isSelectionMode) {
+            isSelectionMode = false;
+            mailAdapter.setSelectionMode(false);
+            actionModeBar.setVisibility(View.GONE);
+            
+            // Show the search bar again
+            binding.btnMenu.setVisibility(View.VISIBLE);
+            binding.btnProfile.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateSelectedCount() {
+        int count = mailAdapter.getSelectedCount();
+        if (count == 0) {
+            exitSelectionMode();
+        } else {
+            selectedCountText.setText(count + " selected");
+        }
+    }
+
+    private void deleteSelectedMails() {
+        Set<Integer> selectedIds = mailAdapter.getSelectedMails();
+        if (selectedIds.isEmpty()) {
+            showError("No emails selected");
+            return;
+        }
+
+        // Show confirmation dialog
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Delete Emails")
+            .setMessage("Are you sure you want to delete " + selectedIds.size() + " email(s)?")
+            .setPositiveButton("Delete", (dialog, which) -> {
+                // TODO: Implement actual deletion via API
+                // For now, just remove from the local list
+                filteredMails.removeIf(mail -> selectedIds.contains(mail.getId()));
+                allMails.removeIf(mail -> selectedIds.contains(mail.getId()));
+                mailAdapter.notifyDataSetChanged();
+                exitSelectionMode();
+                updateEmptyState();
+                showError("Emails deleted (local only - API not implemented)");
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void showLabelDialog() {
+        Set<Integer> selectedIds = mailAdapter.getSelectedMails();
+        if (selectedIds.isEmpty()) {
+            showError("No emails selected");
+            return;
+        }
+
+        // Get the first selected mail for display purposes
+        Mail firstMail = null;
+        for (Mail mail : filteredMails) {
+            if (selectedIds.contains(mail.getId())) {
+                firstMail = mail;
+                break;
+            }
+        }
+
+        String mailSubject = firstMail != null ? firstMail.getDisplaySubject() : "Selected emails";
+        boolean isSingleMail = selectedIds.size() == 1;
+
+        LabelEmailDialog dialog = LabelEmailDialog.newInstance(selectedIds, isSingleMail, mailSubject);
+        dialog.setOnLabelsAppliedListener(() -> {
+            exitSelectionMode();
+            // Optionally refresh the mail list or update UI
+        });
+        dialog.show(getSupportFragmentManager(), "LabelEmailDialog");
+    }
+
     private void showLoading(boolean show) {
         progressLoading.setVisibility(show ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
@@ -723,5 +832,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void showError(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isSelectionMode) {
+            exitSelectionMode();
+        } else if (drawerLayout.isDrawerOpen(Gravity.START)) {
+            drawerLayout.closeDrawer(Gravity.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 }

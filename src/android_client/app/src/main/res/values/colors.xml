@@ -38,6 +38,7 @@
     <color name="mail_subject">#333333</color>
     <color name="mail_preview">#666666</color>
     <color name="mail_time">#999999</color>
+    <color name="selected_mail_background">#E8F4FD</color>
     
     <!-- Dialog Colors -->
     <color name="dialog_background">#FFFFFF</color>

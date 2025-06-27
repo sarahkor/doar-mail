@@ -4,27 +4,54 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path android:pathData="M31,63.928c0,0 6.4,-11 12.1,-13.1c7.2,-2.6 26,-1.4 26,-1.4l38.1,38.1L107,108.928l-32,-1L31,63.928z">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:endX="85.84757"
-                android:endY="92.4963"
-                android:startX="42.9492"
-                android:startY="49.59793"
-                android:type="linear">
-                <item
-                    android:color="#44000000"
-                    android:offset="0.0" />
-                <item
-                    android:color="#00000000"
-                    android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillType="nonZero"
-        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-6.3,-2.8 -13.4,-2.8 -19.7,0l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3C38.8,38.328 38.7,38.828 38.9,39.228l3.8,6.6C36.2,49.428 31.7,56.028 31,63.928h46C76.3,56.028 71.8,49.428 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2s-0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z"
-        android:strokeWidth="1"
-        android:strokeColor="#00000000" />
+    
+    <!-- Centered and scaled version of doar logo for launcher -->
+    <group
+        android:translateX="54"
+        android:translateY="54"
+        android:scaleX="0.7"
+        android:scaleY="0.7">
+        
+        <!-- Dove body -->
+        <path
+            android:fillColor="#007bff"
+            android:pathData="M-25,-19c12,0 22,6 25,15c1,4 4,6 8,7l10,4c3,1 4,3 4,5v3c0,3 -2,5 -4,6l-10,4c-4,1 -7,3 -8,6l-3,6c-1,4 -3,6 -6,6h-4c-3,0 -5,-2 -6,-4l-4,-6l-4,6c-1,2 -3,4 -6,4h-4c-4,0 -6,-2 -6,-6l3,-6c1,-3 -4,-5 -8,-6l-10,-4c-2,-1 -4,-3 -4,-6v-3c0,-2 1,-4 4,-5l10,-4c4,-1 7,-3 8,-7C-47,-13 -37,-19 -25,-19z"/>
+        
+        <!-- Dove wing detail -->
+        <path
+            android:fillColor="#66b3ff"
+            android:pathData="M-15,-9c3,2 6,5 8,8c1,2 2,4 1,6c-1,1 -2,1 -3,0c-2,-2 -4,-5 -6,-8c-1,-2 -1,-4 0,-6z"/>
+        
+        <!-- Dove eye -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M-18,-12m-2,0a2,2 0,1,1 4,0a2,2 0,1,1 -4,0"/>
+        <path
+            android:fillColor="#0056b3"
+            android:pathData="M-17,-12m-1,0a1,1 0,1,1 2,0a1,1 0,1,1 -2,0"/>
+        
+        <!-- Envelope/Letter -->
+        <path
+            android:fillColor="#007bff"
+            android:pathData="M-35,16h50c4,0 7,3 7,7v20c0,4 -3,7 -7,7h-50c-4,0 -7,-3 -7,-7V23c0,-4 3,-7 7,-7z"/>
+        
+        <!-- Envelope flap -->
+        <path
+            android:fillColor="#66b3ff"
+            android:pathData="M-35,16h50l-25,15L-35,16z"/>
+        
+        <!-- Olive branch -->
+        <path
+            android:fillColor="#28a745"
+            android:pathData="M20,28c3,-1 5,-1 6,1c1,1 1,2 0,3c-3,2 -5,2 -6,0L20,28z"/>
+        
+        <!-- Olive branch leaves -->
+        <path
+            android:fillColor="#28a745"
+            android:pathData="M21,26m-1,0a1,1 0,1,1 2,0a1,1 0,1,1 -2,0"/>
+        <path
+            android:fillColor="#28a745"
+            android:pathData="M25,30m-1,0a1,1 0,1,1 2,0a1,1 0,1,1 -2,0"/>
+            
+    </group>
 </vector>

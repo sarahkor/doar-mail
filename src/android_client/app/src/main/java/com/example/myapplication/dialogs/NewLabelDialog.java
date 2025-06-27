@@ -25,7 +25,7 @@ public class NewLabelDialog extends DialogFragment {
     private RecyclerView rvColors;
     private MaterialButton btnCancel, btnCreate;
     private ColorAdapter colorAdapter;
-    private String selectedColor = "#666666"; // Default color
+    private String selectedColor = "#e8eaed"; // Default color from allowed colors
     private OnLabelCreatedListener listener;
 
     public interface OnLabelCreatedListener {
