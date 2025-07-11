@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './MailItem.css';
 import { Link } from 'react-router-dom';
 import LabelEmailDialog from './LabelEmailDialog';
-import ConfirmDialog from './ConfirmDialog';
-import { getLabels } from '../api/labelsApi';
+import ConfirmDialog from '../dialogs/ConfirmDialog';
+import { getLabels } from '../../api/labelsApi';
 import starIcon from '../assets/icons/star.svg';
 import fullStarIcon from '../assets/icons/fullStar.svg';
 import trashIcon from '../assets/icons/trash.svg';
@@ -44,8 +44,9 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const [isStarred, setIsStarred] = useState(false);
 
+  const isDraft = mail.status === 'draft';
   // Determines if the current mail should have unread style 
-  const showUnread = !mail.read && (
+  const showUnread = !mail.read && !isDraft && (
     folder === 'inbox' ||
     (folder === 'all' && isIncoming) ||
     (folder === 'starred' && isIncoming) ||
@@ -54,30 +55,30 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
 
   // Fetch the mail starred status
   useEffect(() => {
-    if (!mail.id) return;
+    if (!mail._id) return;
     (async () => {
       try {
         const token = sessionStorage.getItem('token');
-        const res = await fetch(`/api/starred/${mail.id}`, {
+        const res = await fetch(`/api/starred/${mail._id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const { starred } = await res.json();
         setIsStarred(starred);
       } catch (e) { console.error(e); }
     })();
-  }, [mail.id]);
+  }, [mail._id]);
 
   // Fetch labels once per mail
   useEffect(() => {
     (async () => {
       try {
         const all = await getLabels();
-        setMailLabels(all.filter(lbl => lbl.mailIds?.includes(mail.id)));
+        setMailLabels(all.filter(lbl => lbl.mailIds?.includes(mail._id)));
       } catch (e) {
         console.error('Failed to fetch labels:', e);
       }
     })();
-  }, [mail.id]);
+  }, [mail._id]);
 
   // Compute display time or date
   const mailDate = new Date(mail.timestamp);
@@ -104,7 +105,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
   const refreshStarred = async () => {
     try {
       const token = sessionStorage.getItem('token');
-      const res = await fetch(`/api/starred/${mail.id}`, {
+      const res = await fetch(`/api/starred/${mail._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const { starred } = await res.json();
@@ -116,8 +117,8 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
 
   // on mount, fetch once
   useEffect(() => {
-    if (mail.id) refreshStarred();
-  }, [mail.id]);
+    if (mail._id) refreshStarred();
+  }, [mail._id]);
 
   const handleStarClick = async e => {
     e.preventDefault();
@@ -126,7 +127,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
     setIsStarred(prev => !prev);
 
     try {
-      const res = await fetch(`/api/starred/${mail.id}`, {
+      const res = await fetch(`/api/starred/${mail._id}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
       });
@@ -147,7 +148,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
     e.stopPropagation();
 
     try {
-      const res = await fetch(`/api/trash/${mail.id}/restore`, {
+      const res = await fetch(`/api/trash/${mail._id}/restore`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
       });
@@ -167,13 +168,13 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
 
     if (folder === 'trash') {
       // open custom dialog
-      setPendingDeleteId(mail.id);
+      setPendingDeleteId(mail._id);
       setConfirmOpen(true);
       return;
     }
 
     // move to trash
-    fetch(`/api/mails/${mail.id}`, {
+    fetch(`/api/mails/${mail._id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
     })
@@ -200,7 +201,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
   const handleSpamClick = async e => {
     e.preventDefault(); e.stopPropagation();
     try {
-      const res = await fetch(`/api/spam/${mail.id}`, {
+      const res = await fetch(`/api/spam/${mail._id}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
       });
@@ -214,7 +215,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
   const handleUnspamClick = async e => {
     e.preventDefault(); e.stopPropagation();
     try {
-      const res = await fetch(`/api/spam/${mail.id}/unspam`, {
+      const res = await fetch(`/api/spam/${mail._id}/unspam`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
       });
@@ -232,7 +233,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
   const handleLabelSuccess = async () => {
     try {
       const all = await getLabels();
-      setMailLabels(all.filter(lbl => lbl.mailIds?.includes(mail.id)));
+      setMailLabels(all.filter(lbl => lbl.mailIds?.includes(mail._id)));
     } catch {
       console.error('Failed to refresh labels');
     }
@@ -379,7 +380,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
                 {mailLabels.length > 0 && (
                   <div className="mail-labels">
                     {mailLabels.map(l => (
-                      <span key={l.id} className="mail-label-tag" style={{ backgroundColor: l.color }}>
+                      <span key={l._id} className="mail-label-tag" style={{ backgroundColor: l.color }}>
                         {l.name}
                       </span>
                     ))}
@@ -397,7 +398,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
           </div>
         ) : (
           // All other folders: Link wrapper
-          <Link to={`/home/${folder}/${mail.id}`} className="mail-link">
+          <Link to={`/home/${folder}/${mail._id}`} className="mail-link">
             {showStar && star}
             <div className="mail-from">{showAsSent ? renderToLine() : renderFromLine()}</div>
             <div className="mail-content">
@@ -406,7 +407,7 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
                 {mailLabels.length > 0 && (
                   <div className="mail-labels">
                     {mailLabels.map(l => (
-                      <span key={l.id} className="mail-label-tag" style={{ backgroundColor: l.color }}>
+                      <span key={l._id} className="mail-label-tag" style={{ backgroundColor: l.color }}>
                         {l.name}
                       </span>
                     ))}

@@ -148,7 +148,7 @@ function MailFolder({ endpoint, title, folder, refreshTrigger }) {
         ) : (
           mails.map(mail => (
             <MailItem
-              key={mail.id}
+              key={mail._id}
               mail={mail}
               folder={folder}
               onClick={mail.status === 'draft' ? () => handleDraftClick(mail) : undefined} // Allow editing only for drafts

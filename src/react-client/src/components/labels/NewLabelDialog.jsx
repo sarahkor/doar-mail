@@ -113,7 +113,7 @@ function NewLabelDialog({ onClose, onCreate, existingLabels = [], defaultParentI
                   Please select a parent…
                 </option>
                 {existingLabels.map((l) => (
-                  <option key={l.id} value={l.id}>
+                  <option key={l._id} value={l._id}>
                     {l.name}
                   </option>
                 ))}

@@ -28,36 +28,4 @@ router.get('/me', authenticateToken, (req, res) => {
 
 router.get('/:id', authenticateToken, getUserById);
 
-// Temporary route to update user birthday (for testing purposes)
-router.patch('/me/birthday', authenticateToken, (req, res) => {
-    const user = req.user;
-    const { birthday } = req.body;
-
-    if (!birthday) {
-        return res.status(400).json({
-            status: "error",
-            message: "Birthday is required"
-        });
-    }
-
-    // Validate birthday
-    const birthDate = new Date(birthday);
-    if (isNaN(birthDate) || birthDate > new Date()) {
-        return res.status(400).json({
-            status: "error",
-            message: "Invalid birthday. Must be a past date."
-        });
-    }
-
-    // Update the user's birthday
-    user.birthday = birthday;
-
-    const { password, ...safeUser } = user;
-    res.status(200).json({
-        status: "success",
-        message: "Birthday updated successfully",
-        user: safeUser
-    });
-});
-
 module.exports = router;

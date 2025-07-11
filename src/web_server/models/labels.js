@@ -1,150 +1,22 @@
-const { getMailById } = require('./mails');
-let labelIdCounter = 0;
+const mongoose = require('mongoose');
+const ALLOWED_COLORS = ['gray', 'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink',
+  "#f28b82", "#fbbc04", "#fff475", "#ccff90", "#a7ffeb", "#cbf0f8", "#aecbfa", "#d7aefb", "#fdcfe8", "#e6c9a8", "#e8eaed"];
 
-const listLabelsByUser = (user) => {
-  const labels = user.labels || [];
-  return labels;
-}
+const ALLOWED_FIELDS = ['name', 'color', 'parentId'];
+const REQUIRED_FIELDS = ['name'];
 
-const createLabel = (user, { name, color, parentId }) => {
-  const newLabel = {
-    id: ++labelIdCounter,
-    name,
-    color: color || 'gray',
-    parentId: parentId ? parseInt(parentId) : null, // Ensure parentId is a number
-    mailIds: []
-  };
-  if (!user.labels) user.labels = [];
-  user.labels.push(newLabel);
-  return newLabel;
-};
+const labelSchema = new mongoose.Schema({
+  username: { type: String, required: true, index: true },
+  name: { type: String, required: true },
+  color: { type: String, enum: ALLOWED_COLORS, default: 'gray' },
+  parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Label', default: null },
+  mailIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Mail' }]
+}, { timestamps: true });
 
-const getLabelById = (user, labelId) => {
-  return user.labels.find(label => label.id === labelId);
-};
+// ensure each user can’t have two labels with the same name
+labelSchema.index({ username: 1, name: 1 }, { unique: true });
 
-const deleteLabel = (user, labelId) => {
-  const index = user.labels.findIndex(label => label.id === labelId);
-  if (index === -1) return false;
-
-  // Find all child labels that have this label as parent
-  const childLabels = user.labels.filter(label => label.parentId === labelId);
-
-  // Recursively delete all child labels first
-  childLabels.forEach(childLabel => {
-    deleteLabel(user, childLabel.id);
-  });
-
-  // Delete the parent label
-  const parentIndex = user.labels.findIndex(label => label.id === labelId);
-  if (parentIndex !== -1) {
-    const deletedLabel = user.labels[parentIndex];
-    user.labels.splice(parentIndex, 1);
-    return true;
-  }
-
-  return false;
-};
-
-const editLabel = (user, labelId, { name, color, parentId }) => {
-  const label = getLabelById(user, labelId);
-  if (!label) return null;
-
-  if (name !== undefined) {
-    label.name = name;
-  }
-  if (color !== undefined) {
-    label.color = color;
-  }
-  if (parentId !== undefined) {
-    const oldParentId = label.parentId;
-    // Handle parentId - can be null to remove parent, or a number to set parent
-    label.parentId = parentId ? parseInt(parentId) : null;
-  }
-  return label;
-};
-
-const addMailToLabel = (user, labelId, mailId) => {
-
-  const label = getLabelById(user, labelId);
-  if (!label) {
-    return false;
-  }
-
-  // Ensure mailId is a number for consistency
-  const numericMailId = parseInt(mailId);
-  if (isNaN(numericMailId)) {
-    return false;
-  }
-
-  const mail = getMailById(user, numericMailId);
-  if (!mail) {
-    return false;
-  }
-
-  if (!label.mailIds) label.mailIds = [];
-
-  // Check if mail is already in label (ensure both are numbers)
-  const alreadyExists = label.mailIds.some(id => parseInt(id) === numericMailId);
-  if (!alreadyExists) {
-    label.mailIds.push(numericMailId);
-    return true;
-  }
-  return false;
-}
-
-const getLabelWithMails = (user, labelId) => {
-  const label = getLabelById(user, labelId);
-  if (!label) return null;
-
-  const fullMails = (label.mailIds || [])
-    .map(mailId => getMailById(user, mailId))
-    .filter(Boolean);
-
-  return {
-    ...label,
-    mails: fullMails
-  };
-};
-
-const labelNameExists = (user, name, excludeId = null) => {
-  return (user.labels || []).some(label =>
-    label.name.toLowerCase() === name.toLowerCase() && label.id !== excludeId
-  );
-};
-
-const removeMailFromLabel = (user, labelId, mailId) => {
-
-  const label = (user.labels || []).find(l => l.id === labelId);
-  if (!label) {
-    return false;
-  }
-
-  // Ensure mailId is a number for consistency
-  const numericMailId = parseInt(mailId);
-  if (isNaN(numericMailId)) {
-    return false;
-  }
-
-  // Find the index using numeric comparison
-  const index = label.mailIds.findIndex(id => parseInt(id) === numericMailId);
-  if (index === -1) {
-    return false;
-  }
-
-  label.mailIds.splice(index, 1); // Remove mailId from label
-  return true;
-};
-
-
-module.exports = {
-  listLabelsByUser,
-  createLabel,
-  getLabelById,
-  deleteLabel,
-  addMailToLabel,
-  editLabel,
-  labelNameExists,
-  getLabelWithMails,
-  removeMailFromLabel
-};
+module.exports = mongoose.model('Label', labelSchema);
+module.exports.ALLOWED_COLORS = ALLOWED_COLORS;
+module.exports.ALLOWED_FIELDS = ALLOWED_FIELDS;
+module.exports.REQUIRED_FIELDS = REQUIRED_FIELDS;

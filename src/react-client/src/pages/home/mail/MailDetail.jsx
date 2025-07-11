@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getLabels } from '../../api/labelsApi';
+import { getLabels } from '../../../api/labelsApi';
 import starIcon from '../../assets/icons/star.svg';
 import fullStarIcon from '../../assets/icons/fullStar.svg';
 import spamIcon from '../../assets/icons/spam.svg';
 import unspamIcon from '../../assets/icons/unspam.svg';
 import trashIcon from '../../assets/icons/trash.svg';
 import restoreIcon from '../../assets/icons/untrash.svg';
-import ConfirmDialog from '../../components/ConfirmDialog';
+import ConfirmDialog from '../../../components/dialogs/ConfirmDialog';
 import './MailDetail.css';
 
 // this function displays the detailed view of a single mail, with full content, metadata, labels, and actions
@@ -99,7 +99,7 @@ export default function MailDetail({ onCompose }) {
   const confirmDelete = async () => {
     try {
       const token = sessionStorage.getItem('token');
-      const res = await fetch(`/api/trash/${mail.id}`, {
+      const res = await fetch(`/api/trash/${mail._id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -118,13 +118,18 @@ export default function MailDetail({ onCompose }) {
       // if the mail is in trash then we delete permanently using the DELETE /api/trash/:id end point
       // and if the mail is not  in trash then we move it to trash using the DELETE api/mails/:id endpoint
       const url = folder === 'trash'
-        ? `/api/trash/${mail.id}`
-        : `/api/mails/${mail.id}`;
+        ? `/api/trash/${mail._id}`
+        : `/api/mails/${mail._id}`;
       const res = await fetch(url, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        // pull out the JSON error message if there is one
+        let err;
+        try { err = (await res.json()).error; } catch { }
+        throw new Error(err || `HTTP ${res.status}`);
+      }
       navigate(`/home/${folder}`);
     } catch {
       alert('Failed to delete mail.');
@@ -266,7 +271,7 @@ export default function MailDetail({ onCompose }) {
             <div className="mail-detail-labels">
               {mailLabels.map(lbl => (
                 <span
-                  key={lbl.id}
+                  key={lbl._id}
                   className="mail-detail-label"
                   style={{ backgroundColor: lbl.color }}
                 >
@@ -323,7 +328,7 @@ export default function MailDetail({ onCompose }) {
                 {mail.attachments.map((att, i) => (
                   <li key={i}>
                     <a
-                      href={`${API_BASE}${att.url}`}                   // use the URL returned by the server
+                      href={`${API_BASE}${att.url}`}
                       download={att.originalName}
                       target="_blank"
                       rel="noopener noreferrer"

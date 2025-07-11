@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config({ path: require('path').resolve(__dirname, '..', '..', '.env') });
 require('dotenv').config();
+require('./utils/db');
 
 const express = require('express');
 const app = express();
@@ -76,8 +77,6 @@ app.use(express.static(clientBuildPath));
 app.get('*', (req, res) => {
   res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
-
-
 
 // Start server
 const PORT = process.env.PORT || 8080;

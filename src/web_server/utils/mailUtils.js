@@ -1,9 +1,10 @@
 const { findUserById } = require('../models/userModel');
 const sessions = require('../models/sessions');
 const net = require('net');
+const MailUserView = require('../models/mailUserView');
 
 //const IP = 'server-container';
-const IP = 'server-container';
+const IP = '127.0.0.1';
 const PORT = 12345;
 
 // Sends a request to add a URL to the blacklist on the C++ server
@@ -33,14 +34,14 @@ const sendRequest = (command, url, port = PORT) => {
 };
 
 
-function getLoggedInUser(req, res) {
+async function getLoggedInUser(req, res) {
   const userId = req.headers['id'];
   if (!userId) {
     res.status(401).json({ error: 'Missing user ID in header' });
     return null;
   }
 
-  const user = findUserById(userId);
+  const user = await findUserById(userId);
   if (!user) {
     res.status(401).json({ error: 'Invalid user ID' });
     return null;
@@ -98,20 +99,50 @@ function extractUrls(text) {
 function sortByRecent(mails = []) {
   return mails.slice().sort((a, b) => b.timestamp - a.timestamp);
 }
-function paginateMails(mails, pageQuery) {
+async function paginateMails({ username, folder, pageQuery }) {
   const limit = 30;
   const page = Math.max(0, parseInt(pageQuery) || 0);
+  const skip = page * limit;
 
-  const start = page * limit;
-  const end = start + limit;
-  const paginated = mails.slice(start, end);
+  // Query mail views for the user in the specified folder
+  const [total, views] = await Promise.all([
+    MailUserView.countDocuments({ username, folder }),
+    MailUserView.find({ username, folder })
+      .sort({ deletedAt: -1, timestamp: -1 }) // fallback sort
+      .skip(skip)
+      .limit(limit)
+      .populate('mailId')
+      .lean()
+  ]);
+
+  // Map to clean format
+  const mails = views.map(view => {
+    const { mailId: mail, ...meta } = view;
+    const { timestamp, ...mailWithoutTimestamp } = mail;
+    return {
+      ...mailWithoutTimestamp,
+      read: meta.read,
+      starred: meta.starred,
+      folder: meta.folder
+    };
+  });
 
   return {
     page,
     limit,
-    total: mails.length,
-    mails: paginated
+    total,
+    mails
   };
+}
+
+function dedupeByMailId(views) {
+  const seen = new Set();
+  return views.filter(v => {
+    const id = (v.mailId._id || v.mailId).toString();
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
 }
 
 
@@ -121,5 +152,6 @@ module.exports = {
   extractUrls,
   sendRequest,
   sortByRecent,
+  dedupeByMailId,
   paginateMails
 };

@@ -1,15 +1,15 @@
-const { searchMailsByUser, advancedSearchMails } = require('../models/mails');
-
-exports.searchMails = (req, res) => {
+const mailService = require('../services/mailsService');
+const mongoose = require('mongoose');
+exports.searchMails = async (req, res) => {
     try {
-        const user = req.user;
+        const username = req.user.username;
         const { q, subject, from, to, content } = req.query;
 
         let results = [];
 
         // Simple search (legacy support)
         if (q) {
-            results = searchMailsByUser(user, q);
+            results = await mailService.searchMailsByUser(username, q);
         }
         // Advanced search
         else if (subject || from || to || content) {
@@ -19,7 +19,7 @@ exports.searchMails = (req, res) => {
             if (to) searchParams.to = to;
             if (content) searchParams.content = content;
 
-            results = advancedSearchMails(user, searchParams);
+            results = await mailService.advancedSearchMails(username, searchParams);
         }
         else {
             return res.status(400).json({
@@ -28,7 +28,7 @@ exports.searchMails = (req, res) => {
         }
 
         res.status(200).json({
-            results: results,
+            results,
             count: results.length,
             searchParams: req.query
         });
@@ -36,4 +36,4 @@ exports.searchMails = (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Search failed' });
     }
-}; 
+};

@@ -14,10 +14,10 @@ import com.example.myapplication.models.Label;
 import com.google.android.material.button.MaterialButton;
 
 public class DeleteLabelDialog extends DialogFragment {
-    
+
     private static final String ARG_LABEL_ID = "label_id";
     private static final String ARG_LABEL_NAME = "label_name";
-    
+
     private MaterialButton btnCancel, btnDelete;
     private OnLabelDeletedListener listener;
     private int labelId;
@@ -44,18 +44,18 @@ public class DeleteLabelDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
-        
+
         View view = inflater.inflate(R.layout.dialog_delete_label, null);
-        
+
         // Get arguments
         Bundle args = getArguments();
         if (args != null) {
             labelId = args.getInt(ARG_LABEL_ID);
-            
+
             initViews(view);
             setupClickListeners();
         }
-        
+
         builder.setView(view);
         return builder.create();
     }
@@ -67,13 +67,13 @@ public class DeleteLabelDialog extends DialogFragment {
 
     private void setupClickListeners() {
         btnCancel.setOnClickListener(v -> dismiss());
-        
+
         btnDelete.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onLabelDeleted(labelId);
             }
-            
+
             dismiss();
         });
     }
-} 
+}

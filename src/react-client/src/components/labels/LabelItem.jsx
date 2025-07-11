@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LabelItem.css';
-import { renameLabel, deleteLabel, updateLabelColor } from '../api/labelsApi';
+import { renameLabel, deleteLabel, updateLabelColor } from '../../api/labelsApi';
 import EditLabelDialog from './EditLabelDialog';
 import DeleteLabelDialog from './DeleteLabelDialog';
-import NewLabelDialog from './NewLabelDialog';
+import NewLabelDialog from '../NewLabelDialog';
 import labelIcon from '../assets/icons/label2.svg';
 
 const COLOR_OPTIONS = [
@@ -65,7 +65,7 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
   }, [menuOpen]);
 
   const handleLabelClick = () => {
-    navigate(`/home/labels/${label.id}`);
+    navigate(`/home/labels/${label._id}`);
     if (onSelect) onSelect();
   };
 
@@ -92,12 +92,12 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
 
   const handleColorChange = async (color) => {
     try {
-      await updateLabelColor(label.id, color);
-      if (onColorChange) onColorChange(label.id, color);
+      await updateLabelColor(label._id, color);
+      if (onColorChange) onColorChange(label._id, color);
 
       // Dispatch a custom event to notify other components about the label update
       window.dispatchEvent(new CustomEvent('labelUpdated', {
-        detail: { labelId: label.id, color: color }
+        detail: { labelId: label._id, color: color }
       }));
 
       setShowColors(false);
@@ -251,7 +251,7 @@ function LabelItem({ label, depth = 0, hasChildren = false, isSelected, onSelect
           onCreate={onLabelAdd}
           // include the current label so the <select> can show it pre-selected
           existingLabels={[label, ...existingLabels]}
-          defaultParentId={label.id}
+          defaultParentId={label._id}
           forceNested={true}
         />
       )}

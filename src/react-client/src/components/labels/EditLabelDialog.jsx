@@ -24,14 +24,14 @@ function EditLabelDialog({ label, onClose, onUpdate, existingLabels = [] }) {
             const descendants = [];
             const children = labels.filter(l => l.parentId === labelId);
             children.forEach(child => {
-                descendants.push(child.id);
-                descendants.push(...getDescendantIds(child.id, labels));
+                descendants.push(child._id);
+                descendants.push(...getDescendantIds(child._id, labels));
             });
             return descendants;
         };
 
-        const excludeIds = [label.id, ...getDescendantIds(label.id, existingLabels)];
-        const available = existingLabels.filter(l => !excludeIds.includes(l.id));
+        const excludeIds = [label._id, ...getDescendantIds(label._id, existingLabels)];
+        const available = existingLabels.filter(l => !excludeIds.includes(l._id));
         return available;
     };
 
@@ -46,8 +46,8 @@ function EditLabelDialog({ label, onClose, onUpdate, existingLabels = [] }) {
         }
         setLoading(true);
         try {
-            const parentIdToSend = isNested ? parseInt(parentId) : null;
-            const updatedLabel = await renameLabel(label.id, labelName, parentIdToSend);
+            const parentIdToSend = isNested ? parentId : null;
+            const updatedLabel = await renameLabel(label._id, labelName, parentIdToSend);
             if (onUpdate) onUpdate(updatedLabel);
             onClose();
         } finally {
@@ -108,7 +108,7 @@ function EditLabelDialog({ label, onClose, onUpdate, existingLabels = [] }) {
                     >
                         <option value="">Please select a parent...</option>
                         {availableParents.map((l) => (
-                            <option key={l.id} value={l.id}>
+                            <option key={l._id} value={l._id}>
                                 {l.name}
                             </option>
                         ))}

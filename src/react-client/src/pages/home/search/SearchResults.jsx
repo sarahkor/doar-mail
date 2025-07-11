@@ -13,7 +13,7 @@ export default function SearchResults({
 
     const handleClickMail = mail => {
         // navigate into the mail detail
-        navigate(`/home/${mail.folder || 'inbox'}/${mail.id}`);
+        navigate(`/home/${mail.folder || 'inbox'}/${mail._id}`);
         // then clear out the search UI
         onClearSearch();
     };
@@ -58,7 +58,7 @@ export default function SearchResults({
                     <div className="search-results-list">
                         {results.map(mail => (
                             <div
-                                key={mail.id}
+                                key={mail._id}
                                 className="search-result-item"
                                 onClick={() => handleClickMail(mail)}
                                 style={{ cursor: 'pointer' }}
