@@ -1,32 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import './LabelSidebar.css';
-import LabelItem from './LabelItem';
-import NewLabelDialog from './NewLabelDialog';
-import { getLabels } from '../api/labelsApi';
+import LabelItem from '../labels/LabelItem';
+import NewLabelDialog from '../NewLabelDialog';
+import { getLabels } from '../../api/labelsApi';
 import MailFoldersSidebar from './MailFoldersSidebar';
 import labelIcon from '../assets/icons/label2.svg';
 import { useLocation } from 'react-router-dom';
 
 const buildTree = (items) => {
-    const map = new Map();
+    // 1) Build a lookup of labelId → node
+    const lookup = {};
     items.forEach(l => {
-        const processedLabel = { ...l, id: Number(l.id), parentId: l.parentId ? Number(l.parentId) : null, children: [] };
-        map.set(Number(l.id), processedLabel);
+        lookup[l._id] = { ...l, children: [] };
     });
 
+    // 2) Assemble the forest
     const roots = [];
-    map.forEach(l => {
-        if (l.parentId) {
-            const parent = map.get(Number(l.parentId));
-            if (parent) {
-                parent.children.push(l);
-            }
+    items.forEach(l => {
+        const node = lookup[l._id];
+        if (l.parent) {
+            const parent = lookup[l.parent.toString()];
+            if (parent) parent.children.push(node);
+            else roots.push(node);
         } else {
-            roots.push(l);
+            roots.push(node);
         }
     });
+
     return roots;
 };
+
 
 /**
  * LabelSidebar component displays a sidebar combining:
@@ -50,18 +53,18 @@ function LabelSidebar() {
     }, [location.pathname]);
 
     const renderLabel = (node, depth = 0) => (
-        <li key={node.id}>
+        <li key={node._id}>
             <LabelItem
                 label={node}
                 depth={depth}
                 hasChildren={node.children.length > 0}
-                isSelected={node.id === selectedLabelId}
-                onSelect={() => setSelectedLabelId(node.id)}
+                isSelected={node._id === selectedLabelId}
+                onSelect={() => setSelectedLabelId(node._id)}
                 onColorChange={updateLabelColor}
                 onLabelUpdate={handleLabelUpdate}
                 onLabelDelete={handleLabelDelete}
                 onLabelAdd={handleCreateLabel}
-                existingLabels={labels.filter(l => l.id !== node.id)}
+                existingLabels={labels.filter(l => l._id !== node._id)}
                 allLabels={labels}
             />
             {node.children.length > 0 && (
@@ -97,7 +100,7 @@ function LabelSidebar() {
 
     const updateLabelColor = (id, color) => {
         setLabels(prev =>
-            prev.map(l => (l.id === id ? { ...l, color } : l))
+            prev.map(l => (l._id === id ? { ...l, color } : l))
         );
     };
 
@@ -108,7 +111,7 @@ function LabelSidebar() {
         } catch (error) {
             // Fallback to local update only
             setLabels(prev =>
-                prev.map(l => (l.id === updatedLabel.id ? updatedLabel : l))
+                prev.map(l => (l._id === updatedLabel._id ? updatedLabel : l))
             );
         }
     };
@@ -119,7 +122,7 @@ function LabelSidebar() {
             await fetchLabels(); // This will rebuild the tree without the deleted labels
         } catch (error) {
             // Fallback to just removing from state if fetch fails
-            setLabels(prev => prev.filter(l => l.id !== id));
+            setLabels(prev => prev.filter(l => l._id !== id));
         }
 
         if (selectedLabelId === id) {

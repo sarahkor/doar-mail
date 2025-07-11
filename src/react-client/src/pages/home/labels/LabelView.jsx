@@ -27,7 +27,10 @@ function LabelView() {
             if (!res.ok) throw new Error('Failed to fetch label');
             const data = await res.json();
             setLabel(data);
-            setMails(data.mails || []);
+            const sorted = (data.mails || [])
+                .slice()
+                .sort((a, b) => b.timestamp - a.timestamp);
+            setMails(sorted);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -42,7 +45,7 @@ function LabelView() {
     // Listen for custom labelUpdated events
     useEffect(() => {
         const handleLabelUpdate = (event) => {
-            if (event.detail.labelId === parseInt(labelId)) {
+            if (event.detail.labelId === labelId) {
                 fetchLabelWithMails();
             }
         };
@@ -101,14 +104,12 @@ function LabelView() {
                 ) : (
                     mails.map(mail => (
                         <MailItem
-                            key={mail.id}
+                            key={mail._id}
                             mail={mail}
-                            folder={mail.status === 'draft' ? 'drafts' : 'inbox'} // Use inbox or something valid
-                            onClick={
-                                mail.status === 'draft'
-                                    ? () => handleDraftClick(mail)
-                                    : undefined // Let MailItem use <Link> for navigation
-                            }
+                            folder={mail.folder}
+                            onClick={mail.status === 'draft'
+                                ? () => handleDraftClick(mail)
+                                : undefined}
                             onStarToggle={fetchLabelWithMails}
                             onTrash={fetchLabelWithMails}
                         />

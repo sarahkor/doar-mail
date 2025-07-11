@@ -20,13 +20,13 @@ function DeleteLabelDialog({ label, onClose, onDelete, allLabels = [] }) {
         labels.forEach(l => {
             if (l.parentId === parentId) {
                 children.push(l);
-                children = children.concat(getChildLabels(l.id, labels));
+                children = children.concat(getChildLabels(l._id, labels));
             }
         });
         return children;
     };
 
-    const childLabels = getChildLabels(label.id, allLabels);
+    const childLabels = getChildLabels(label._id, allLabels);
     const allLabelsToDelete = [label, ...childLabels];
 
     const handleDelete = async (e) => {
@@ -35,8 +35,8 @@ function DeleteLabelDialog({ label, onClose, onDelete, allLabels = [] }) {
 
         setLoading(true);
         try {
-            await deleteLabel(label.id);
-            if (onDelete) onDelete(label.id);
+            await deleteLabel(label._id);
+            if (onDelete) onDelete(label._id);
             onClose();
         } catch (error) {
             alert('Failed to delete label: ' + error.message);
@@ -61,7 +61,7 @@ function DeleteLabelDialog({ label, onClose, onDelete, allLabels = [] }) {
                         </p>
                         <ul className="multi-label-list">
                             {allLabelsToDelete.map(labelToDelete => (
-                                <li key={labelToDelete.id} className="multi-label-item">
+                                <li key={labelToDelete._id} className="multi-label-item">
                                     {labelToDelete.name}
                                 </li>
                             ))}

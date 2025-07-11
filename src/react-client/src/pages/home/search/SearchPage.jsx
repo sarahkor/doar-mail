@@ -47,7 +47,7 @@ export default function SearchPage() {
             ? <p style={{ padding: '1rem' }}>Searching…</p>
             : results.map(m => (
               <MailItem
-                key={m.id}
+                key={m._id}
                 mail={m}
                 folder={m.folder}   /* if your API returns folder */
               />

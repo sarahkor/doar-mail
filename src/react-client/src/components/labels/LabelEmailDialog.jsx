@@ -29,8 +29,8 @@ function LabelEmailDialog({ mail, onClose, onSuccess }) {
             // Check which labels this mail is already in
             const mailLabelIds = [];
             for (const label of fetchedLabels) {
-                if (label.mailIds && label.mailIds.some(id => parseInt(id) === parseInt(mail.id))) {
-                    mailLabelIds.push(label.id);
+                if (label.mailIds && label.mailIds.some(id => id.toString() === mail._id)) {
+                    mailLabelIds.push(label._id);
                 }
             }
             setMailLabels(mailLabelIds);
@@ -40,22 +40,16 @@ function LabelEmailDialog({ mail, onClose, onSuccess }) {
             setLoading(false);
         }
     };
-
     const handleLabelToggle = async (labelId) => {
         setUpdating(true);
         try {
             const isCurrentlyLabeled = mailLabels.includes(labelId);
 
-            // Ensure mail.id is a number for consistency
-            const numericMailId = parseInt(mail.id);
-
             if (isCurrentlyLabeled) {
-                // Remove mail from label
-                await removeMailFromLabel(labelId, numericMailId);
+                await removeMailFromLabel(labelId, mail._id);
                 setMailLabels(prev => prev.filter(id => id !== labelId));
             } else {
-                // Add mail to label
-                await addMailToLabel(labelId, numericMailId);
+                await addMailToLabel(labelId, mail._id);
                 setMailLabels(prev => [...prev, labelId]);
             }
 
@@ -91,15 +85,15 @@ function LabelEmailDialog({ mail, onClose, onSuccess }) {
                         <div className="labels-list">
                             {labels.map(label => (
                                 <div
-                                    key={label.id}
-                                    className={`label-option ${mailLabels.includes(label.id) ? 'selected' : ''}`}
-                                    onClick={() => handleLabelToggle(label.id)}
+                                    key={label._id}
+                                    className={`label-option ${mailLabels.includes(label._id) ? 'selected' : ''}`}
+                                    onClick={() => handleLabelToggle(label._id)}
                                 >
                                     <div className="label-checkbox">
                                         <input
                                             type="checkbox"
-                                            checked={mailLabels.includes(label.id)}
-                                            onChange={() => handleLabelToggle(label.id)}
+                                            checked={mailLabels.includes(label._id)}
+                                            onChange={() => handleLabelToggle(label._id)}
                                             disabled={updating}
                                         />
                                     </div>

@@ -69,7 +69,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
     try {
       let response, data;
       // Update existing draft to 'sent'
-      if (draft && draft.id) {
+      if (draft && draft._id) {
         const formData = new FormData();
         formData.append('to', form.to);
         formData.append('subject', form.subject);
@@ -77,7 +77,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
         formData.append('status', 'sent');
         if (file) formData.append('attachments', file);
 
-        response = await fetch(`/api/mails/${draft.id}`, {
+        response = await fetch(`/api/mails/${draft._id}`, {
           method: 'PATCH',
           headers: {
             Authorization: `Bearer ${sessionStorage.getItem('token')}`
@@ -156,9 +156,9 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
     try {
       let response, data = {};
 
-      if (draft?.id) {
+      if (draft?._id) {
         // Update existing draft
-        response = await fetch(`/api/mails/${draft.id}`, {
+        response = await fetch(`/api/mails/${draft._id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -297,7 +297,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
                     <a
                       key={idx}
                       className="attached-filename"
-                      href={`${API_BASE}${att.url}`}                        // point at the /uploads URL
+                      href={`${API_BASE}${att.url}`}
                       download={att.originalName}
                       target="_blank"
                       rel="noopener noreferrer"

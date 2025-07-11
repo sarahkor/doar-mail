@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import Navbar from './Navbar';
-import ComposeButton from './ComposeButton';
-import ComposeDialog from './ComposeDialog';
+import Navbar from '../Navbar';
+import ComposeButton from '../mail/ComposeButton';
+import ComposeDialog from '../mail/ComposeDialog';
 import LabelSidebar from './LabelSidebar';
 import './AppLayout.css';
 
