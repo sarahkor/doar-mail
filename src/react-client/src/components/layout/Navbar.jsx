@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SearchBar from './SearchBar';
-import ProfileMenu from './ProfileMenu';
+import SearchBar from '../search/SearchBar';
+import ProfileMenu from '../profile/ProfileMenu';
 import './Navbar.css';
-import doarLogo from '../assets/images/doar-logo.svg';
+import doarLogo from '../../assets/images/doar-logo.svg';
 
 /**
  * Navbar component displays the top navigation bar of the mail application.

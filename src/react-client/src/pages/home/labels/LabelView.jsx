@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import MailItem from '../../components/MailItem';
-import ComposeDialog from '../../components/ComposeDialog';
+import MailItem from '../../../components/mail/MailItem';
+import ComposeDialog from '../../../components/mail/ComposeDialog';
 import './LabelView.css';
-import labelIcon from '../../assets/icons/label2.svg';
+import labelIcon from '../../../assets/icons/label2.svg';
 
 function LabelView() {
     const { labelId } = useParams();

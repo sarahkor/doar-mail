@@ -685,18 +685,18 @@ const getDrafts = async (username, page = 0, limit = 30) => {
 
 
 const getInbox = async (username, page = 0, limit = 30) => {
-  const [total, views] = await Promise.all([
-    MailUserView.countDocuments({ username, folder: 'inbox' }),
-    MailUserView.find({ username, folder: 'inbox' })
-      .skip(page * limit)
-      .limit(limit)
-      .populate('mailId')
-      .lean()
-  ]);
+  const allViews = await MailUserView.find({ username, folder: 'inbox' })
+    .populate('mailId')
+    .lean();
 
-  views.sort((a, b) => b.mailId.timestamp - a.mailId.timestamp);
+  allViews.sort((a, b) => b.mailId.timestamp - a.mailId.timestamp);
 
-  const mails = views.map(view => {
+  const total = allViews.length;
+  const start = page * limit;
+  const end = start + limit;
+  const slice = allViews.slice(start, end);
+
+  const mails = slice.map(view => {
     const { mailId: mail, read, starred, folder, status } = view;
     const { timestamp, ...mailWithoutTimestamp } = mail;
     return {
@@ -714,17 +714,20 @@ const getInbox = async (username, page = 0, limit = 30) => {
 
 
 const getSent = async (username, page = 0, limit = 30) => {
-  const [total, views] = await Promise.all([
-    MailUserView.countDocuments({ username, folder: 'sent' }),
-    MailUserView.find({ username, folder: 'sent' })
-      .skip(page * limit)
-      .limit(limit)
-      .populate('mailId')
-      .lean()
-  ]);
+  const views = await MailUserView.find({ username, folder: 'sent' })
+    .populate('mailId')
+    .lean();
+
+  // 2. Sort by mail.timestamp DESC (newest first)
   views.sort((a, b) => b.mailId.timestamp - a.mailId.timestamp);
 
-  const mails = views.map(view => {
+  // 3. Manual pagination
+  const total = views.length;
+  const start = page * limit;
+  const end = start + limit;
+  const slice = views.slice(start, end);
+
+  const mails = slice.map(view => {
     const { mailId: mail, read, starred, folder, status } = view;
     const { timestamp, ...mailWithoutTimestamp } = mail;
     return {

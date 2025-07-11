@@ -4,8 +4,8 @@ import './LabelItem.css';
 import { renameLabel, deleteLabel, updateLabelColor } from '../../api/labelsApi';
 import EditLabelDialog from './EditLabelDialog';
 import DeleteLabelDialog from './DeleteLabelDialog';
-import NewLabelDialog from '../NewLabelDialog';
-import labelIcon from '../assets/icons/label2.svg';
+import NewLabelDialog from './NewLabelDialog';
+import labelIcon from '../../assets/icons/label2.svg';
 
 const COLOR_OPTIONS = [
   '#f28b82', '#fbbc04', '#fff475', '#ccff90',

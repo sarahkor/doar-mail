@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './NewLabelDialog.css';
-import { addLabel } from '../api/labelsApi';
+import { addLabel } from '../../api/labelsApi';
 
 /**
  * NewLabelDialog component displays a modal dialog for creating a new label.

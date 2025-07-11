@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './MailItem.css';
 import { Link } from 'react-router-dom';
-import LabelEmailDialog from './LabelEmailDialog';
+import LabelEmailDialog from '../labels/LabelEmailDialog';
 import ConfirmDialog from '../dialogs/ConfirmDialog';
 import { getLabels } from '../../api/labelsApi';
-import starIcon from '../assets/icons/star.svg';
-import fullStarIcon from '../assets/icons/fullStar.svg';
-import trashIcon from '../assets/icons/trash.svg';
-import spamIcon from '../assets/icons/spam.svg';
-import unspamIcon from '../assets/icons/unspam.svg';
-import labelIcon from '../assets/icons/label3.svg';
-import restoreIcon from '../assets/icons/untrash.svg';
+import starIcon from '../../assets/icons/star.svg';
+import fullStarIcon from '../../assets/icons/fullStar.svg';
+import trashIcon from '../../assets/icons/trash.svg';
+import spamIcon from '../../assets/icons/spam.svg';
+import unspamIcon from '../../assets/icons/unspam.svg';
+import labelIcon from '../../assets/icons/label3.svg';
+import restoreIcon from '../../assets/icons/untrash.svg';
 
 /**
  * Renders a single mail row inside any folder.

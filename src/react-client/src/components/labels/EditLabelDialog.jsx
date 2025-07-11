@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './EditLabelDialog.css';
-import { renameLabel } from '../api/labelsApi';
+import { renameLabel } from '../../api/labelsApi';
 
 /**
  * EditLabelDialog allows users to rename a label and optionally nest it under another label.

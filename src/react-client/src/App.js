@@ -6,8 +6,8 @@ import RegisterPage from "./pages/Register/RegisterPage";
 import RegisterDetailsPage from './pages/Register/RegisterDetailsPage';
 import RegisterPasswordPage from './pages/Register/RegisterPasswordPage';
 import HomePage from "./pages/home/HomePage";
-import AppLayout from './components/AppLayout';
-import ProtectedRoute from './components/ProtectedRoute';
+import AppLayout from './components/layout/AppLayout';
+import ProtectedRoute from './components/common/ProtectedRoute';
 import { searchMails } from './api/searchApi';
 
 function App() {

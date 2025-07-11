@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './ComposeDialog.css';
-import trashIcon from '../assets/icons/trash.svg';
-import attachmentIcon from '../assets/icons/attachment.svg';
+import trashIcon from '../../assets/icons/trash.svg';
+import attachmentIcon from '../../assets/icons/attachment.svg';
 
 function sanitizeDraft(draft, to) {
   return {
