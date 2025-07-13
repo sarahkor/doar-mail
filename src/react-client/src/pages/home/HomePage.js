@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import LabelView from './LabelView';
-import ComposeDialog from '../../components/ComposeDialog';
-import SearchResults from './SearchResults';
+import LabelView from './labels/LabelView';
+import ComposeDialog from '../../components/mail/ComposeDialog';
+import SearchResults from './search/SearchResults';
 import mailIcon from '../../assets/icons/message.svg';
-import Toast from '../../components/Toast';
-import '../../components/Toast.css';
-import MailDetail from './MailDetail';
-import MailFolder from './MailFolder';
+import Toast from '../../components/common/Toast';
+import '../../components/common/Toast.css';
+import MailDetail from './mail/MailDetail';
+import MailFolder from './mail/MailFolder';
 
 // Configuration for each mail folder: route path, API endpoint, and display title
 const FOLDER_CONFIGS = [

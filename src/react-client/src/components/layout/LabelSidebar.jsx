@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './LabelSidebar.css';
 import LabelItem from '../labels/LabelItem';
-import NewLabelDialog from '../NewLabelDialog';
+import NewLabelDialog from '../labels/NewLabelDialog';
 import { getLabels } from '../../api/labelsApi';
 import MailFoldersSidebar from './MailFoldersSidebar';
-import labelIcon from '../assets/icons/label2.svg';
+import labelIcon from '../../assets/icons/label2.svg';
 import { useLocation } from 'react-router-dom';
 
 const buildTree = (items) => {

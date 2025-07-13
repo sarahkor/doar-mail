@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import './MailFoldersSidebar.css';
-import inboxIcon from '../assets/icons/inbox.svg';
-import sentIcon from '../assets/icons/sent.svg';
-import draftsIcon from '../assets/icons/draft.svg';
-import spamIcon from '../assets/icons/spam.svg';
-import trashIcon from '../assets/icons/trash.svg';
-import starredIcon from '../assets/icons/star.svg';
-import allMailIcon from '../assets/icons/allmail.svg';
+import inboxIcon from '../../assets/icons/inbox.svg';
+import sentIcon from '../../assets/icons/sent.svg';
+import draftsIcon from '../../assets/icons/draft.svg';
+import spamIcon from '../../assets/icons/spam.svg';
+import trashIcon from '../../assets/icons/trash.svg';
+import starredIcon from '../../assets/icons/star.svg';
+import allMailIcon from '../../assets/icons/allmail.svg';
 
 const FOLDERS = [
   { label: "Inbox", path: "/home/inbox", icon: inboxIcon },

@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import MailItem from '../../components/MailItem';
-import ComposeDialog from '../../components/ComposeDialog';
-import './LabelView.css';
-import emptyTrashIcon from '../../assets/icons/empty-trash.svg';
-import ConfirmDialog from '../../components/ConfirmDialog';
-import leftArrow from '../../assets/icons/left-arrow.svg';
-import rightArrow from '../../assets/icons/right-arrow.svg';
+import MailItem from '../../../components/mail/MailItem';
+import ComposeDialog from '../../../components/mail/ComposeDialog';
+import '../labels/LabelView.css';
+import emptyTrashIcon from '../../../assets/icons/empty-trash.svg';
+import ConfirmDialog from '../../../components/dialogs/ConfirmDialog';
+import leftArrow from '../../../assets/icons/left-arrow.svg';
+import rightArrow from '../../../assets/icons/right-arrow.svg';
 
 /**
  * MailFolder component displays paginated list of mails from a specific folder (like trash, inbox, etc.). 

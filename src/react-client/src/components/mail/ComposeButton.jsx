@@ -1,6 +1,6 @@
 import React from 'react';
 import './ComposeButton.css';
-import composeIcon from '../assets/icons/compose.svg';
+import composeIcon from '../../assets/icons/compose.svg';
 
 /**
  * A styled button for opening the "Compose Mail" dialog.

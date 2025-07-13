@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './LabelEmailDialog.css';
-import { getLabels, addMailToLabel, removeMailFromLabel } from '../api/labelsApi';
-import labelIcon from '../assets/icons/label2.svg';
+import { getLabels, addMailToLabel, removeMailFromLabel } from '../../api/labelsApi';
+import labelIcon from '../../assets/icons/label2.svg';
 
 /**
  * LabelEmailDialog displays a modal for assigning or removing labels from a given email.

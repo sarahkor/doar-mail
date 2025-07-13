@@ -1,6 +1,6 @@
 import React from 'react';
 import './DeleteLabelDialog.css';
-import { deleteLabel } from '../api/labelsApi';
+import { deleteLabel } from '../../api/labelsApi';
 
 /**
  * DeleteLabelDialog is a modal that confirms label deletion.

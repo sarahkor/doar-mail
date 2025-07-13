@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import MailItem from '../../components/MailItem';
+import MailItem from '../../../components/mail/MailItem';
 import './SearchResults.css';
 
 
