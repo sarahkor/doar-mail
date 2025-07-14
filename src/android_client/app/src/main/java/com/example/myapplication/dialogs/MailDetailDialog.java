@@ -303,7 +303,7 @@ public class MailDetailDialog extends DialogFragment {
         for (Mail.Attachment attachment : currentMail.getAttachments()) {
             TextView attachmentView = new TextView(requireContext());
             attachmentView.setText(attachment.getOriginalName());
-            attachmentView.setTextColor(getResources().getColor(android.R.color.holo_blue_dark, null));
+            attachmentView.setTextColor(getResources().getColor(R.color.primary, getContext().getTheme()));
             attachmentView.setPadding(0, 8, 0, 8);
             attachmentView.setOnClickListener(v -> openAttachment(attachment));
             attachmentsList.addView(attachmentView);
