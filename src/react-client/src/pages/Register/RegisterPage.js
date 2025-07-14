@@ -16,19 +16,32 @@ function RegisterPage() {
   const [firstNameError, setFirstNameError] = useState("");
   const [lastNameError, setLastNameError] = useState("");
 
+  const lettersOnlyRegex = /^[a-zA-Z\u0590-\u05FF\s]+$/;
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-
-    if (name === "firstName") setFirstNameError("");
-    if (name === "lastName") setLastNameError("");
+    if (name === "firstName") {
+      if (value.trim() === "") {
+        setFirstNameError("First name is required.");
+      } else if (!lettersOnlyRegex.test(value.trim())) {
+        setFirstNameError("First name can only contain letters.");
+      } else {
+        setFirstNameError("");
+      }
+    }
+    if (name === "lastName") {
+      if (value.trim() !== "" && !lettersOnlyRegex.test(value.trim())) {
+        setLastNameError("Last name can only contain letters.");
+      } else {
+        setLastNameError("");
+      }
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const lettersOnlyRegex = /^[a-zA-Z\u0590-\u05FF\s]+$/;
 
     // Check if first name is empty or contains invalid characters
     if (formData.firstName.trim() === "") {
@@ -94,6 +107,9 @@ function RegisterPage() {
                 Next
               </button>
             </div>
+            {(firstNameError || lastNameError) && (
+              <div className="text-danger mt-2">{firstNameError || lastNameError}</div>
+            )}
           </form>
         </div>
       </div>

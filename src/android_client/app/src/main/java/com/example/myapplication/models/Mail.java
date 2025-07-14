@@ -1,8 +1,14 @@
 package com.example.myapplication.models;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.Ignore;
+
 import java.util.List;
 
+@Entity(tableName = "mail")
 public class Mail {
+    @PrimaryKey
     private int id;
     private String from;
     private String fromName;
@@ -13,6 +19,7 @@ public class Mail {
     private String time;
     private String status;
     private boolean starred;
+    @Ignore
     private List<Attachment> attachments;
 
     // Constructors
