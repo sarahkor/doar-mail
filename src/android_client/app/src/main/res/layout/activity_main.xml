@@ -226,6 +226,18 @@
 
         </FrameLayout>
 
+        <!-- Floating Action Button for Compose -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_compose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_add"
+            android:contentDescription="Compose email"
+            app:backgroundTint="@color/primary"
+            app:tint="@color/white" />
+
     </LinearLayout>
 
     <!-- Navigation Drawer -->

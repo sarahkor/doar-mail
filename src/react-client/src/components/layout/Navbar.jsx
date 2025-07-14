@@ -44,7 +44,7 @@ function Navbar({ onComposeClick, onSearch, searchResults, isSearching, onClearS
                     setUserLoading(false);
                     return;
                 }
-                const response = await fetch('/api/users/me', {
+                const response = await fetch('http://localhost:8080/api/users/me', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 

@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.myapplication.activities.ComposeActivity;
+import com.example.myapplication.activities.LoginActivity;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,6 +37,7 @@ import com.example.myapplication.dialogs.NewLabelDialog;
 import com.example.myapplication.models.Label;
 import com.example.myapplication.models.Mail;
 import com.example.myapplication.models.User;
+import com.example.myapplication.utils.AuthManager;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView btnAddLabel;
     
     private ApiService apiService;
-    private String authToken = "Bearer test-token"; // TODO: Implement proper authentication
+    private AuthManager authManager;
     private User currentUser;
     private List<Mail> allMails = new ArrayList<>();
     private List<Mail> filteredMails = new ArrayList<>();
@@ -83,6 +85,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Check authentication
+        authManager = AuthManager.getInstance(this);
+        if (!authManager.isLoggedIn()) {
+            navigateToLogin();
+            return;
+        }
 
         initializeViews();
         setupAPI();
@@ -111,6 +120,23 @@ public class MainActivity extends AppCompatActivity {
         apiService = ApiClient.getInstance().getApiService();
     }
 
+    private void navigateToLogin() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void logout() {
+        // Clear authentication data
+        authManager.logout();
+        
+        // Navigate to login
+        navigateToLogin();
+        
+        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+    }
+
     private void setupUI() {
         setupRecyclerView();
         setupSearchBar();
@@ -124,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
     }
-    }
+
 
     private void setupRecyclerView() {
         mailAdapter = new MailAdapter(filteredMails, this::onMailClick, this::onStarClick);
@@ -245,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadLabels() {
-        apiService.getLabels(authToken).enqueue(new Callback<List<Label>>() {
+        apiService.getLabels(authManager.getBearerToken()).enqueue(new Callback<List<Label>>() {
             @Override
             public void onResponse(Call<List<Label>> call, Response<List<Label>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -348,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
     private void createLabel(String name, String color) {
         ApiService.CreateLabelRequest request = new ApiService.CreateLabelRequest(name, color, null);
         
-        apiService.createLabel(authToken, request).enqueue(new Callback<Label>() {
+        apiService.createLabel(authManager.getBearerToken(), request).enqueue(new Callback<Label>() {
             @Override
             public void onResponse(Call<Label> call, Response<Label> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -372,7 +398,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateLabel(int labelId, String newName) {
         ApiService.UpdateLabelRequest request = new ApiService.UpdateLabelRequest(newName, null);
         
-        apiService.updateLabel(authToken, labelId, request).enqueue(new Callback<Label>() {
+        apiService.updateLabel(authManager.getBearerToken(), labelId, request).enqueue(new Callback<Label>() {
             @Override
             public void onResponse(Call<Label> call, Response<Label> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -402,7 +428,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateLabelColor(int labelId, String color) {
         ApiService.ColorRequest request = new ApiService.ColorRequest(color);
         
-        apiService.updateLabelColor(authToken, labelId, request).enqueue(new Callback<Label>() {
+        apiService.updateLabelColor(authManager.getBearerToken(), labelId, request).enqueue(new Callback<Label>() {
             @Override
             public void onResponse(Call<Label> call, Response<Label> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -430,7 +456,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteLabel(int labelId) {
-        apiService.deleteLabel(authToken, labelId).enqueue(new Callback<ApiService.ApiResponse>() {
+        apiService.deleteLabel(authManager.getBearerToken(), labelId).enqueue(new Callback<ApiService.ApiResponse>() {
             @Override
             public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
                 if (response.isSuccessful()) {
@@ -481,7 +507,7 @@ public class MainActivity extends AppCompatActivity {
     private void loadUserProfile() {
         showLoading(true);
         
-        apiService.getCurrentUser(authToken).enqueue(new Callback<ApiService.UserResponse>() {
+        apiService.getCurrentUser(authManager.getBearerToken()).enqueue(new Callback<ApiService.UserResponse>() {
             @Override
             public void onResponse(Call<ApiService.UserResponse> call, Response<ApiService.UserResponse> response) {
                 showLoading(false);
@@ -520,26 +546,26 @@ public class MainActivity extends AppCompatActivity {
         Call<List<Mail>> call;
         switch (folder) {
             case INBOX:
-                call = apiService.getInbox(authToken);
+                call = apiService.getInbox(authManager.getBearerToken());
                 break;
             case SENT:
-                call = apiService.getSent(authToken);
+                call = apiService.getSent(authManager.getBearerToken());
                 break;
             case DRAFTS:
-                call = apiService.getDrafts(authToken);
+                call = apiService.getDrafts(authManager.getBearerToken());
                 break;
             case SPAM:
-                call = apiService.getSpam(authToken);
+                call = apiService.getSpam(authManager.getBearerToken());
                 break;
             case TRASH:
-                call = apiService.getTrash(authToken);
+                call = apiService.getTrash(authManager.getBearerToken());
                 break;
             case STARRED:
-                call = apiService.getStarred(authToken);
+                call = apiService.getStarred(authManager.getBearerToken());
                 break;
             case ALL_MAIL:
             default:
-                call = apiService.getAllMails(authToken);
+                call = apiService.getAllMails(authManager.getBearerToken());
                 break;
         }
         
@@ -646,8 +672,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnLogout.setOnClickListener(v -> {
             dialog.dismiss();
-            // TODO: Implement logout functionality
-            showError("Logout functionality not implemented yet");
+            logout();
         });
 
         dialog.show();

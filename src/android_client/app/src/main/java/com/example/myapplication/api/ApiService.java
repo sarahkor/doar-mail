@@ -1,11 +1,14 @@
 package com.example.myapplication.api;
 
+import android.net.Uri;
 import com.example.myapplication.models.Mail;
 import com.example.myapplication.models.User;
 import com.example.myapplication.models.Label;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
@@ -13,14 +16,30 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.DELETE;
 import retrofit2.http.Body;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Multipart;
 
 public interface ApiService {
     
     // Authentication
     @POST("api/users/tokens")
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
+    
+    @Multipart
+    @POST("api/users")
+    Call<RegisterResponse> register(
+        @Part("firstName") RequestBody firstName,
+        @Part("lastName") RequestBody lastName,
+        @Part("username") RequestBody username,
+        @Part("password") RequestBody password,
+        @Part("birthday") RequestBody birthday,
+        @Part("gender") RequestBody gender,
+        @Part MultipartBody.Part profilePicture
+    );
+    
+
     
     // User profile
     @GET("api/users/me")
@@ -102,10 +121,50 @@ public interface ApiService {
         private String status;
         private String token;
         private String message;
+        private String username;
         
         public String getStatus() { return status; }
         public String getToken() { return token; }
         public String getMessage() { return message; }
+        public String getUsername() { return username; }
+    }
+    
+    class RegisterRequest {
+        private String firstName;
+        private String lastName;
+        private String username;
+        private String password;
+        private String phone;
+        private String birthday;
+        private String gender;
+        
+        public RegisterRequest(String firstName, String lastName, String username, String password, String birthday, String gender, Uri profilePicture) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.username = username;
+            this.password = password;
+            this.phone = null; // Optional field
+            this.birthday = birthday;
+            this.gender = gender;
+        }
+        
+        public String getFirstName() { return firstName; }
+        public String getLastName() { return lastName; }
+        public String getUsername() { return username; }
+        public String getPassword() { return password; }
+        public String getPhone() { return phone; }
+        public String getBirthday() { return birthday; }
+        public String getGender() { return gender; }
+    }
+    
+    class RegisterResponse {
+        private String status;
+        private String message;
+        private User user;
+        
+        public String getStatus() { return status; }
+        public String getMessage() { return message; }
+        public User getUser() { return user; }
     }
     
     class UserResponse {

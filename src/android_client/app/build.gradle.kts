@@ -25,34 +25,40 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    
+
     buildFeatures {
         viewBinding = true
     }
 }
 
 dependencies {
-
+    // Android UI
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.recyclerview)
     implementation(libs.cardview)
-    
+
     // Networking
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
-    
+
     // Image loading
     implementation(libs.glide)
-    
+
+    // Room Database
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

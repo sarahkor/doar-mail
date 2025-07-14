@@ -20,6 +20,7 @@ import com.example.myapplication.api.ApiClient;
 import com.example.myapplication.api.ApiService;
 import com.example.myapplication.models.Label;
 import com.example.myapplication.models.Mail;
+import com.example.myapplication.utils.AuthManager;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class LabelEmailDialog extends DialogFragment {
     private TextView titleText;
     private OnLabelsAppliedListener listener;
     private ApiService apiService;
-    private String authToken = "Bearer test-token";
+    private AuthManager authManager;
     
     private List<Label> allLabels = new ArrayList<>();
     private Set<Integer> mailIds = new HashSet<>();
@@ -116,6 +117,7 @@ public class LabelEmailDialog extends DialogFragment {
 
     private void setupAPI() {
         apiService = ApiClient.getInstance().getApiService();
+        authManager = AuthManager.getInstance(requireContext());
     }
 
     private void setupClickListeners() {
@@ -127,7 +129,7 @@ public class LabelEmailDialog extends DialogFragment {
     }
 
     private void loadLabels() {
-        Call<List<Label>> call = apiService.getLabels(authToken);
+        Call<List<Label>> call = apiService.getLabels(authManager.getBearerToken());
         call.enqueue(new Callback<List<Label>>() {
             @Override
             public void onResponse(Call<List<Label>> call, Response<List<Label>> response) {
@@ -197,7 +199,7 @@ public class LabelEmailDialog extends DialogFragment {
         
         for (Integer mailId : mailIds) {
             for (Integer labelId : labelIds) {
-                Call<ApiService.ApiResponse> call = apiService.addMailToLabel(authToken, labelId, mailId);
+                Call<ApiService.ApiResponse> call = apiService.addMailToLabel(authManager.getBearerToken(), labelId, mailId);
                 call.enqueue(new Callback<ApiService.ApiResponse>() {
                     @Override
                     public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {

@@ -59,6 +59,7 @@ function RegisterPasswordPage() {
 
     if (fullData.profilePicture) {
       formPayload.append("profilePicture", fullData.profilePicture);
+      console.log('Attaching profilePicture:', fullData.profilePicture); // Log file info
     }
 
     try {
@@ -69,7 +70,11 @@ function RegisterPasswordPage() {
 
       if (!response.ok) {
         const result = await response.json();
-        setError(result.message || "Registration failed.");
+        if (response.status === 409) {
+          setError("Username already exists. Please enter a new username.");
+        } else {
+          setError(result.message || "Registration failed.");
+        }
         return;
       }
 

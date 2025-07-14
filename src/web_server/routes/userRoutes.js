@@ -8,6 +8,7 @@ const upload = multer({ dest: 'uploads/' });
 
 // Importing user controller functions and authentication middleware
 const { registerUser, loginUser, getUserById } = require('../controllers/userController');
+const { getUserByIdService } = require('../services/userService');
 const authenticateToken = require('../utils/authMiddleware');
 
 // Route definitions for user operations
@@ -17,13 +18,19 @@ router.post('/', upload.single('profilePicture'), registerUser);
 router.post('/tokens', loginUser);
 
 // Route to get current user's profile
-router.get('/me', authenticateToken, (req, res) => {
-    const user = req.user;
-    const { password, ...safeUser } = user;
-    res.status(200).json({
-        status: "success",
-        user: safeUser
-    });
+router.get('/me', authenticateToken, async (req, res) => {
+    try {
+        const user = await getUserByIdService(req.user._id, req.user._id);
+        res.status(200).json({
+            status: "success",
+            user: user
+        });
+    } catch (err) {
+        res.status(err.status || 500).json({
+            status: "error",
+            message: err.message || "Failed to fetch user data."
+        });
+    }
 });
 
 router.get('/:id', authenticateToken, getUserById);

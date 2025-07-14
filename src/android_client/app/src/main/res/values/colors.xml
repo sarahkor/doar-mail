@@ -18,6 +18,7 @@
     <color name="text_primary">#333333</color>
     <color name="text_secondary">#666666</color>
     <color name="text_hint">#999999</color>
+    <color name="gray">#666666</color>
     
     <!-- Border and Divider Colors -->
     <color name="divider">#E0E0E0</color>
@@ -25,6 +26,7 @@
     
     <!-- Status Colors -->
     <color name="error">#dc3545</color>
+    <color name="error_red">#dc3545</color>
     <color name="success">#28a745</color>
     <color name="warning">#ffc107</color>
     
