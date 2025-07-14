@@ -33,6 +33,7 @@ import com.example.myapplication.dialogs.DeleteLabelDialog;
 import com.example.myapplication.dialogs.EditLabelDialog;
 import com.example.myapplication.dialogs.LabelEmailDialog;
 import com.example.myapplication.dialogs.LabelOptionsBottomSheet;
+import com.example.myapplication.dialogs.MailDetailDialog;
 import com.example.myapplication.dialogs.NewLabelDialog;
 import com.example.myapplication.models.Label;
 import com.example.myapplication.models.Mail;
@@ -764,8 +765,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onMailClick(Mail mail) {
-        // TODO: Implement mail detail view
-        showError("Mail detail view not implemented yet");
+        // Open mail detail dialog
+        if (mail.get_id() != null) {
+            MailDetailDialog dialog = MailDetailDialog.newInstance(mail.get_id(), currentFolder);
+            dialog.setOnMailUpdatedListener(() -> {
+                // Refresh the mail list when mail is updated
+                loadMails();
+            });
+            dialog.show(getSupportFragmentManager(), "MailDetailDialog");
+        } else {
+            showError("Cannot open mail: ID not available");
+        }
     }
 
     private void onStarClick(Mail mail) {

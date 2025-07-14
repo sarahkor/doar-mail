@@ -64,11 +64,23 @@ public interface ApiService {
     @GET("api/starred")
     Call<PaginatedMailResponse> getStarred(@Header("Authorization") String token);
     
+    // Toggle star status
+    @POST("api/starred/{id}")
+    Call<ToggleStarResponse> toggleStar(@Header("Authorization") String token, @Path("id") String mailId);
+    
+    // Check if mail is starred
+    @GET("api/starred/{id}")
+    Call<StarredResponse> isMailStarred(@Header("Authorization") String token, @Path("id") String mailId);
+    
     @GET("api/spam")
     Call<PaginatedMailResponse> getSpam(@Header("Authorization") String token);
     
     @GET("api/trash")
     Call<PaginatedMailResponse> getTrash(@Header("Authorization") String token);
+    
+    // Get individual mail details
+    @GET("api/mails/{id}")
+    Call<Mail> getMailById(@Header("Authorization") String token, @Path("id") String mailId);
     
     // Search
     @GET("api/search")
@@ -271,5 +283,28 @@ public interface ApiService {
         public void setLimit(int limit) { this.limit = limit; }
         public void setTotal(int total) { this.total = total; }
         public void setMails(List<Mail> mails) { this.mails = mails; }
+    }
+    
+    // Response for star toggle operation
+    class ToggleStarResponse {
+        private String message;
+        private boolean starred;
+        private String mailId;
+        
+        public String getMessage() { return message; }
+        public boolean isStarred() { return starred; }
+        public String getMailId() { return mailId; }
+        
+        public void setMessage(String message) { this.message = message; }
+        public void setStarred(boolean starred) { this.starred = starred; }
+        public void setMailId(String mailId) { this.mailId = mailId; }
+    }
+    
+    // Response for checking starred status
+    class StarredResponse {
+        private boolean starred;
+        
+        public boolean isStarred() { return starred; }
+        public void setStarred(boolean starred) { this.starred = starred; }
     }
 } 

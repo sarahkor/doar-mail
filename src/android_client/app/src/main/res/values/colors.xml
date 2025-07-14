@@ -22,7 +22,9 @@
     
     <!-- Border and Divider Colors -->
     <color name="divider">#E0E0E0</color>
+    <color name="divider_color">#E0E0E0</color>
     <color name="border">#E0E0E0</color>
+    <color name="primary_color">#007bff</color>
     
     <!-- Status Colors -->
     <color name="error">#dc3545</color>
