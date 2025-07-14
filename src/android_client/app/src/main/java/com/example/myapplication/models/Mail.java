@@ -74,6 +74,16 @@ public class Mail {
         return fromName != null && !fromName.trim().isEmpty() ? fromName : from;
     }
     
+    public String getDisplayTo() {
+        return toName != null && !toName.trim().isEmpty() ? toName : to;
+    }
+    
+    public String getDisplayTitleWithRecipient() {
+        String recipient = getDisplayTo();
+        String subject = getDisplaySubject();
+        return "To: " + (recipient != null ? recipient : "Unknown") + " - " + subject;
+    }
+    
     // Utility method to convert MongoDB ObjectId to integer for local use
     public void convertIdFromString() {
         if (_id != null && !_id.isEmpty()) {

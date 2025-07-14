@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
         mailAdapter = new MailAdapter(filteredMails, this::onMailClick, this::onStarClick);
         mailAdapter.setOnMailLongClickListener(this::onMailLongClick);
         mailAdapter.setOnSelectionChangedListener(this::updateSelectedCount);
+        mailAdapter.setCurrentFolder(currentFolder); // Set initial folder
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(mailAdapter);
     }
@@ -243,6 +244,12 @@ public class MainActivity extends AppCompatActivity {
         item.setBackgroundResource(R.drawable.nav_item_selected);
         
         currentFolder = folder;
+        
+        // Update adapter with current folder context
+        if (mailAdapter != null) {
+            mailAdapter.setCurrentFolder(folder);
+        }
+        
         loadMailsForFolder(folder);
         
         // Update action bar title

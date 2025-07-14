@@ -28,6 +28,7 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
     private OnSelectionChangedListener onSelectionChangedListener;
     private Set<Integer> selectedMails = new HashSet<>();
     private boolean isSelectionMode = false;
+    private MailFolder currentFolder; // Add folder context
 
     public interface OnMailClickListener {
         void onMailClick(Mail mail);
@@ -49,6 +50,13 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         this.mails = mails;
         this.onMailClickListener = onMailClickListener;
         this.onStarClickListener = onStarClickListener;
+        this.currentFolder = MailFolder.INBOX; // Default folder
+    }
+    
+    // Add method to set the current folder
+    public void setCurrentFolder(MailFolder folder) {
+        this.currentFolder = folder;
+        notifyDataSetChanged(); // Refresh the display
     }
 
     public void setOnMailLongClickListener(OnMailLongClickListener listener) {
@@ -162,8 +170,15 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         }
 
         public void bind(Mail mail) {
-            // Set sender name - use fromName if available, otherwise use from email
-            String displayName = mail.getDisplayFrom();
+            // Determine what name to display based on folder
+            String displayName;
+            if (currentFolder == MailFolder.SENT) {
+                // In Sent folder, show recipient name with "To:" prefix
+                displayName = "To: " + mail.getDisplayTo();
+            } else {
+                // In other folders, show sender name
+                displayName = mail.getDisplayFrom();
+            }
             senderName.setText(displayName);
 
             // Set time
@@ -199,19 +214,32 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
                 itemView.setBackgroundColor(itemView.getContext().getColor(android.R.color.transparent));
             }
 
-            // Load sender avatar - generate from name/email
-            loadSenderAvatar(mail, senderAvatar);
+            // Load avatar based on folder context
+            loadAvatar(mail, senderAvatar);
         }
 
-        private void loadSenderAvatar(Mail mail, ImageView avatarView) {
+        private void loadAvatar(Mail mail, ImageView avatarView) {
             Context context = avatarView.getContext();
             
-            // Generate avatar URL based on sender name/email
-            String name = mail.getFromName();
-            if (name == null || name.trim().isEmpty()) {
-                name = mail.getFrom();
-                if (name != null && name.contains("@")) {
-                    name = name.substring(0, name.indexOf("@"));
+            // Generate avatar URL based on the person we want to show
+            String name;
+            if (currentFolder == MailFolder.SENT) {
+                // In Sent folder, show recipient's avatar
+                name = mail.getToName();
+                if (name == null || name.trim().isEmpty()) {
+                    name = mail.getTo();
+                    if (name != null && name.contains("@")) {
+                        name = name.substring(0, name.indexOf("@"));
+                    }
+                }
+            } else {
+                // In other folders, show sender's avatar
+                name = mail.getFromName();
+                if (name == null || name.trim().isEmpty()) {
+                    name = mail.getFrom();
+                    if (name != null && name.contains("@")) {
+                        name = name.substring(0, name.indexOf("@"));
+                    }
                 }
             }
             
