@@ -53,6 +53,8 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int COMPOSE_REQUEST_CODE = 1;
+    
     private ActivityMainBinding binding;
     private DrawerLayout drawerLayout;
     private RecyclerView recyclerView;
@@ -147,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
      private void setupComposeButton() {
         binding.fabCompose.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ComposeActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, COMPOSE_REQUEST_CODE);
         });
     }
 
@@ -543,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
     private void loadMailsForFolder(MailFolder folder) {
         showLoading(true);
         
-        Call<List<Mail>> call;
+        Call<ApiService.PaginatedMailResponse> call;
         switch (folder) {
             case INBOX:
                 call = apiService.getInbox(authManager.getBearerToken());
@@ -569,13 +571,18 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         
-        call.enqueue(new Callback<List<Mail>>() {
+        call.enqueue(new Callback<ApiService.PaginatedMailResponse>() {
             @Override
-            public void onResponse(Call<List<Mail>> call, Response<List<Mail>> response) {
+            public void onResponse(Call<ApiService.PaginatedMailResponse> call, Response<ApiService.PaginatedMailResponse> response) {
                 showLoading(false);
-                if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful() && response.body() != null && response.body().getMails() != null) {
                     allMails.clear();
-                    allMails.addAll(response.body());
+                    
+                    // Process each mail to convert IDs and handle server fields
+                    for (Mail mail : response.body().getMails()) {
+                        mail.convertIdFromString(); // Convert MongoDB ObjectId to integer
+                        allMails.add(mail);
+                    }
                     
                     // Clear search when switching folders
                     binding.etSearch.setText("");
@@ -590,7 +597,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<Mail>> call, Throwable t) {
+            public void onFailure(Call<ApiService.PaginatedMailResponse> call, Throwable t) {
                 showLoading(false);
                 showError("Network error: " + t.getMessage());
                 // Load demo data for testing
@@ -875,6 +882,16 @@ public class MainActivity extends AppCompatActivity {
             drawerLayout.closeDrawer(Gravity.START);
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == COMPOSE_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Email was sent successfully, refresh the current folder
+            loadMails();
         }
     }
 }

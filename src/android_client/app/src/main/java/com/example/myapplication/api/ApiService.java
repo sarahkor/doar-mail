@@ -47,28 +47,28 @@ public interface ApiService {
     
     // Mail operations
     @GET("api/mails")
-    Call<List<Mail>> getMails(@Header("Authorization") String token);
+    Call<PaginatedMailResponse> getMails(@Header("Authorization") String token);
     
     @GET("api/mails/all")
-    Call<List<Mail>> getAllMails(@Header("Authorization") String token);
+    Call<PaginatedMailResponse> getAllMails(@Header("Authorization") String token);
     
     @GET("api/inbox")
-    Call<List<Mail>> getInbox(@Header("Authorization") String token);
+    Call<PaginatedMailResponse> getInbox(@Header("Authorization") String token);
     
     @GET("api/sent")
-    Call<List<Mail>> getSent(@Header("Authorization") String token);
+    Call<PaginatedMailResponse> getSent(@Header("Authorization") String token);
     
     @GET("api/drafts")
-    Call<List<Mail>> getDrafts(@Header("Authorization") String token);
+    Call<PaginatedMailResponse> getDrafts(@Header("Authorization") String token);
     
     @GET("api/starred")
-    Call<List<Mail>> getStarred(@Header("Authorization") String token);
+    Call<PaginatedMailResponse> getStarred(@Header("Authorization") String token);
     
     @GET("api/spam")
-    Call<List<Mail>> getSpam(@Header("Authorization") String token);
+    Call<PaginatedMailResponse> getSpam(@Header("Authorization") String token);
     
     @GET("api/trash")
-    Call<List<Mail>> getTrash(@Header("Authorization") String token);
+    Call<PaginatedMailResponse> getTrash(@Header("Authorization") String token);
     
     // Search
     @GET("api/search")
@@ -102,6 +102,10 @@ public interface ApiService {
     
     @DELETE("api/labels/{id}/mails/{mailId}")
     Call<ApiResponse> removeMailFromLabel(@Header("Authorization") String token, @Path("id") int labelId, @Path("mailId") int mailId);
+    
+    // Mail creation
+    @POST("api/mails")
+    Call<Mail> createMail(@Header("Authorization") String token, @Body CreateMailRequest request);
     
     // Response models
     class LoginRequest {
@@ -229,5 +233,43 @@ public interface ApiService {
         
         public String getStatus() { return status; }
         public String getMessage() { return message; }
+    }
+    
+    // Mail creation request
+    class CreateMailRequest {
+        private String to;
+        private String subject;
+        private String bodyPreview;
+        private String status;
+        
+        public CreateMailRequest(String to, String subject, String bodyPreview, String status) {
+            this.to = to;
+            this.subject = subject;
+            this.bodyPreview = bodyPreview;
+            this.status = status;
+        }
+        
+        public String getTo() { return to; }
+        public String getSubject() { return subject; }
+        public String getBodyPreview() { return bodyPreview; }
+        public String getStatus() { return status; }
+    }
+    
+    // Paginated response wrapper for mail endpoints
+    class PaginatedMailResponse {
+        private int page;
+        private int limit;
+        private int total;
+        private List<Mail> mails;
+        
+        public int getPage() { return page; }
+        public int getLimit() { return limit; }
+        public int getTotal() { return total; }
+        public List<Mail> getMails() { return mails; }
+        
+        public void setPage(int page) { this.page = page; }
+        public void setLimit(int limit) { this.limit = limit; }
+        public void setTotal(int total) { this.total = total; }
+        public void setMails(List<Mail> mails) { this.mails = mails; }
     }
 } 
