@@ -770,6 +770,7 @@ public class MainActivity extends AppCompatActivity {
             MailDetailDialog dialog = MailDetailDialog.newInstance(mail.get_id(), currentFolder);
             dialog.setOnMailUpdatedListener(() -> {
                 // Refresh the mail list when mail is updated
+                // For starred folder, we could reload or handle removal more efficiently
                 loadMails();
             });
             dialog.show(getSupportFragmentManager(), "MailDetailDialog");
@@ -779,10 +780,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onStarClick(Mail mail) {
-        // TODO: Implement star toggle functionality
-        mail.setStarred(!mail.isStarred());
+        if (mail.get_id() == null) {
+            showError("Cannot star mail: ID not available");
+            return;
+        }
+        
+        // Store original state for rollback if API fails
+        boolean originalStarredState = mail.isStarred();
+        
+        // Optimistically update UI
+        mail.setStarred(!originalStarredState);
         mailAdapter.notifyDataSetChanged();
-        showError("Star functionality not fully implemented yet");
+        
+        // Call API to toggle star
+        apiService.toggleStar(authManager.getBearerToken(), mail.get_id())
+                .enqueue(new Callback<ApiService.ToggleStarResponse>() {
+                    @Override
+                    public void onResponse(Call<ApiService.ToggleStarResponse> call, 
+                                         Response<ApiService.ToggleStarResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            // Update with server response to ensure consistency
+                            mail.setStarred(response.body().isStarred());
+                            mailAdapter.notifyDataSetChanged();
+                            
+                            // If we're in starred folder and mail was unstarred, remove it from view
+                            if (currentFolder == MailFolder.STARRED && !response.body().isStarred()) {
+                                filteredMails.remove(mail);
+                                allMails.remove(mail);
+                                mailAdapter.notifyDataSetChanged();
+                                updateEmptyState();
+                            }
+                        } else {
+                            // Revert optimistic update on failure
+                            mail.setStarred(originalStarredState);
+                            mailAdapter.notifyDataSetChanged();
+                            showError("Failed to toggle star");
+                        }
+                    }
+                    
+                    @Override
+                    public void onFailure(Call<ApiService.ToggleStarResponse> call, Throwable t) {
+                        // Revert optimistic update on failure
+                        mail.setStarred(originalStarredState);
+                        mailAdapter.notifyDataSetChanged();
+                        showError("Network error: " + t.getMessage());
+                    }
+                });
     }
 
     private void onMailLongClick(Mail mail) {
