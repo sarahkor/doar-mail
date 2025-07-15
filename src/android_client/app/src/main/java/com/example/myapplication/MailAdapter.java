@@ -24,10 +24,12 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
     private List<Mail> mails;
     private OnMailClickListener onMailClickListener;
     private OnStarClickListener onStarClickListener;
+
     private OnMailLongClickListener onMailLongClickListener;
     private OnSelectionChangedListener onSelectionChangedListener;
     private Set<Integer> selectedMails = new HashSet<>();
     private boolean isSelectionMode = false;
+    private MailFolder currentFolder; // Add folder context
 
     public interface OnMailClickListener {
         void onMailClick(Mail mail);
@@ -36,6 +38,8 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
     public interface OnStarClickListener {
         void onStarClick(Mail mail);
     }
+
+
 
     public interface OnMailLongClickListener {
         void onMailLongClick(Mail mail);
@@ -49,7 +53,16 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         this.mails = mails;
         this.onMailClickListener = onMailClickListener;
         this.onStarClickListener = onStarClickListener;
+        this.currentFolder = MailFolder.INBOX; // Default folder
     }
+    
+    // Add method to set the current folder
+    public void setCurrentFolder(MailFolder folder) {
+        this.currentFolder = folder;
+        notifyDataSetChanged(); // Refresh the display
+    }
+
+
 
     public void setOnMailLongClickListener(OnMailLongClickListener listener) {
         this.onMailLongClickListener = listener;
@@ -122,6 +135,8 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         private TextView bodyPreview;
         private ImageButton starButton;
 
+        private View unreadIndicator;
+
         public MailViewHolder(@NonNull View itemView) {
             super(itemView);
             senderAvatar = itemView.findViewById(R.id.iv_sender_avatar);
@@ -130,6 +145,8 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
             subject = itemView.findViewById(R.id.tv_subject);
             bodyPreview = itemView.findViewById(R.id.tv_body_preview);
             starButton = itemView.findViewById(R.id.btn_star);
+
+            unreadIndicator = itemView.findViewById(R.id.unread_indicator);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -159,11 +176,23 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
                     onStarClickListener.onStarClick(mails.get(position));
                 }
             });
+
+
         }
 
         public void bind(Mail mail) {
-            // Set sender name - use fromName if available, otherwise use from email
-            String displayName = mail.getDisplayFrom();
+            // Determine what name to display based on folder and mail status
+            String displayName;
+            if ("draft".equals(mail.getStatus())) {
+                // For drafts, show just the recipient name (no prefix)
+                displayName = mail.getDisplayTo();
+            } else if (currentFolder == MailFolder.SENT) {
+                // In Sent folder, show recipient name with "To:" prefix
+                displayName = "To: " + mail.getDisplayTo();
+            } else {
+                // In other folders, show sender name
+                displayName = mail.getDisplayFrom();
+            }
             senderName.setText(displayName);
 
             // Set time
@@ -173,8 +202,14 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
                 time.setText("");
             }
 
-            // Set subject
-            subject.setText(mail.getDisplaySubject());
+            // Set subject - show "Draft" in red if it's a draft
+            if ("draft".equals(mail.getStatus())) {
+                subject.setText("Draft");
+                subject.setTextColor(itemView.getContext().getColor(R.color.draft_indicator));
+            } else {
+                subject.setText(mail.getDisplaySubject());
+                // Subject color will be set later based on read/unread status
+            }
 
             // Set body preview
             if (mail.getBodyPreview() != null && !mail.getBodyPreview().trim().isEmpty()) {
@@ -187,8 +222,13 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
             // Set star icon
             starButton.setImageResource(mail.isStarred() ? R.drawable.ic_star_filled : R.drawable.ic_star_outline);
 
+
+
             // Handle selection mode visual state
             boolean isSelected = selectedMails.contains(mail.getId());
+            boolean isUnread = !mail.isRead();
+            boolean isDraft = "draft".equals(mail.getStatus());
+            
             if (isSelectionMode) {
                 itemView.setAlpha(isSelected ? 0.7f : 1.0f);
                 itemView.setBackgroundColor(isSelected ? 
@@ -196,22 +236,73 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
                     itemView.getContext().getColor(android.R.color.transparent));
             } else {
                 itemView.setAlpha(1.0f);
-                itemView.setBackgroundColor(itemView.getContext().getColor(android.R.color.transparent));
+                // Apply unread styling when not in selection mode and not a draft
+                if (isUnread && !isDraft) {
+                    itemView.setBackgroundColor(itemView.getContext().getColor(R.color.unread_mail_background));
+                } else {
+                    itemView.setBackgroundColor(itemView.getContext().getColor(android.R.color.transparent));
+                }
+            }
+            
+            // Apply text styling based on draft/unread status
+            if (isDraft) {
+                // Drafts: normal styling except subject is already set to red "Draft"
+                unreadIndicator.setVisibility(View.GONE);
+                senderName.setTextColor(itemView.getContext().getColor(R.color.mail_sender));
+                senderName.setTypeface(senderName.getTypeface(), android.graphics.Typeface.NORMAL);
+                // subject color is already set to red above
+                subject.setTypeface(subject.getTypeface(), android.graphics.Typeface.NORMAL);
+                time.setTextColor(itemView.getContext().getColor(R.color.mail_time));
+                time.setTypeface(time.getTypeface(), android.graphics.Typeface.NORMAL);
+            } else {
+                // Non-draft emails: apply unread styling if unread and not in selection mode
+                if (isUnread && !isSelectionMode) {
+                    senderName.setTextColor(itemView.getContext().getColor(R.color.unread_mail_sender));
+                    senderName.setTypeface(senderName.getTypeface(), android.graphics.Typeface.BOLD);
+                    subject.setTextColor(itemView.getContext().getColor(R.color.unread_mail_subject));
+                    subject.setTypeface(subject.getTypeface(), android.graphics.Typeface.BOLD);
+                    time.setTextColor(itemView.getContext().getColor(R.color.unread_mail_time));
+                    time.setTypeface(time.getTypeface(), android.graphics.Typeface.BOLD);
+                    unreadIndicator.setVisibility(View.VISIBLE);
+                } else {
+                    senderName.setTextColor(itemView.getContext().getColor(R.color.mail_sender));
+                    senderName.setTypeface(senderName.getTypeface(), android.graphics.Typeface.NORMAL);
+                    subject.setTextColor(itemView.getContext().getColor(R.color.mail_subject));
+                    subject.setTypeface(subject.getTypeface(), android.graphics.Typeface.NORMAL);
+                    time.setTextColor(itemView.getContext().getColor(R.color.mail_time));
+                    time.setTypeface(time.getTypeface(), android.graphics.Typeface.NORMAL);
+                    unreadIndicator.setVisibility(View.GONE);
+                }
             }
 
-            // Load sender avatar - generate from name/email
-            loadSenderAvatar(mail, senderAvatar);
+            // Load avatar based on folder context
+            loadAvatar(mail, senderAvatar);
         }
 
-        private void loadSenderAvatar(Mail mail, ImageView avatarView) {
+
+
+        private void loadAvatar(Mail mail, ImageView avatarView) {
             Context context = avatarView.getContext();
             
-            // Generate avatar URL based on sender name/email
-            String name = mail.getFromName();
-            if (name == null || name.trim().isEmpty()) {
-                name = mail.getFrom();
-                if (name != null && name.contains("@")) {
-                    name = name.substring(0, name.indexOf("@"));
+            // Generate avatar URL based on the person we want to show
+            String name;
+            if (currentFolder == MailFolder.SENT) {
+                // In Sent folder, show recipient's avatar
+                name = mail.getToName();
+                if (name == null || name.trim().isEmpty()) {
+                    name = mail.getTo();
+                    if (name != null && name.contains("@")) {
+                        name = name.substring(0, name.indexOf("@"));
+                    }
+                }
+            } else {
+                // In other folders, show sender's avatar
+                name = mail.getFromName();
+                if (name == null || name.trim().isEmpty()) {
+                    name = mail.getFrom();
+                    if (name != null && name.contains("@")) {
+                        name = name.substring(0, name.indexOf("@"));
+                    }
                 }
             }
             

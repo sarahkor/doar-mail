@@ -33,6 +33,7 @@ import com.example.myapplication.dialogs.DeleteLabelDialog;
 import com.example.myapplication.dialogs.EditLabelDialog;
 import com.example.myapplication.dialogs.LabelEmailDialog;
 import com.example.myapplication.dialogs.LabelOptionsBottomSheet;
+import com.example.myapplication.dialogs.MailDetailDialog;
 import com.example.myapplication.dialogs.NewLabelDialog;
 import com.example.myapplication.models.Label;
 import com.example.myapplication.models.Mail;
@@ -53,6 +54,8 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int COMPOSE_REQUEST_CODE = 1;
+    
     private ActivityMainBinding binding;
     private DrawerLayout drawerLayout;
     private RecyclerView recyclerView;
@@ -113,6 +116,16 @@ public class MainActivity extends AppCompatActivity {
         // Setup action mode bar click listeners
         binding.btnCloseSelection.setOnClickListener(v -> exitSelectionMode());
         binding.btnDeleteMails.setOnClickListener(v -> deleteSelectedMails());
+        binding.btnDeleteMails.setOnLongClickListener(v -> {
+            if (currentFolder == MailFolder.TRASH && !isSelectionMode) {
+                emptyTrash();
+                return true;
+            }
+            return false;
+        });
+        
+        // Setup empty trash functionality for when in trash folder
+        setupEmptyTrashButton();
         binding.btnLabelMails.setOnClickListener(v -> showLabelDialog());
     }
 
@@ -147,15 +160,17 @@ public class MainActivity extends AppCompatActivity {
      private void setupComposeButton() {
         binding.fabCompose.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ComposeActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, COMPOSE_REQUEST_CODE);
         });
     }
 
 
     private void setupRecyclerView() {
         mailAdapter = new MailAdapter(filteredMails, this::onMailClick, this::onStarClick);
+
         mailAdapter.setOnMailLongClickListener(this::onMailLongClick);
         mailAdapter.setOnSelectionChangedListener(this::updateSelectedCount);
+        mailAdapter.setCurrentFolder(currentFolder); // Set initial folder
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(mailAdapter);
     }
@@ -241,6 +256,12 @@ public class MainActivity extends AppCompatActivity {
         item.setBackgroundResource(R.drawable.nav_item_selected);
         
         currentFolder = folder;
+        
+        // Update adapter with current folder context
+        if (mailAdapter != null) {
+            mailAdapter.setCurrentFolder(folder);
+        }
+        
         loadMailsForFolder(folder);
         
         // Update action bar title
@@ -543,7 +564,7 @@ public class MainActivity extends AppCompatActivity {
     private void loadMailsForFolder(MailFolder folder) {
         showLoading(true);
         
-        Call<List<Mail>> call;
+        Call<ApiService.PaginatedMailResponse> call;
         switch (folder) {
             case INBOX:
                 call = apiService.getInbox(authManager.getBearerToken());
@@ -569,13 +590,18 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         
-        call.enqueue(new Callback<List<Mail>>() {
+        call.enqueue(new Callback<ApiService.PaginatedMailResponse>() {
             @Override
-            public void onResponse(Call<List<Mail>> call, Response<List<Mail>> response) {
+            public void onResponse(Call<ApiService.PaginatedMailResponse> call, Response<ApiService.PaginatedMailResponse> response) {
                 showLoading(false);
-                if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful() && response.body() != null && response.body().getMails() != null) {
                     allMails.clear();
-                    allMails.addAll(response.body());
+                    
+                    // Process each mail to convert IDs and handle server fields
+                    for (Mail mail : response.body().getMails()) {
+                        mail.convertIdFromString(); // Convert MongoDB ObjectId to integer
+                        allMails.add(mail);
+                    }
                     
                     // Clear search when switching folders
                     binding.etSearch.setText("");
@@ -590,7 +616,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<Mail>> call, Throwable t) {
+            public void onFailure(Call<ApiService.PaginatedMailResponse> call, Throwable t) {
                 showLoading(false);
                 showError("Network error: " + t.getMessage());
                 // Load demo data for testing
@@ -610,6 +636,7 @@ public class MainActivity extends AppCompatActivity {
         mail1.setBodyPreview("Don't forget about our meeting tomorrow at 10 AM...");
         mail1.setTime("10:30");
         mail1.setStarred(false);
+        mail1.setRead(false); // Unread mail
         allMails.add(mail1);
 
         Mail mail2 = new Mail();
@@ -620,7 +647,42 @@ public class MainActivity extends AppCompatActivity {
         mail2.setBodyPreview("The project is progressing well. Here's the latest update...");
         mail2.setTime("09:15");
         mail2.setStarred(true);
+        mail2.setRead(true); // Read mail
         allMails.add(mail2);
+
+        Mail mail3 = new Mail();
+        mail3.setId(3);
+        mail3.setFrom("admin@doar.com");
+        mail3.setFromName("Admin");
+        mail3.setSubject("New Feature Available!");
+        mail3.setBodyPreview("We're excited to announce a new feature in our app...");
+        mail3.setTime("14:22");
+        mail3.setStarred(false);
+        mail3.setRead(false); // Unread mail
+        allMails.add(mail3);
+
+        Mail mail4 = new Mail();
+        mail4.setId(4);
+        mail4.setFrom("support@doar.com");
+        mail4.setFromName("Support Team");
+        mail4.setSubject("Account Verification");
+        mail4.setBodyPreview("Please verify your account by clicking the link below...");
+        mail4.setTime("16:45");
+        mail4.setStarred(false);
+        mail4.setRead(true); // Read mail
+        allMails.add(mail4);
+
+        Mail mail5 = new Mail();
+        mail5.setId(5);
+        mail5.setTo("friend@doar.com");
+        mail5.setToName("Friend");
+        mail5.setSubject("Draft Message");
+        mail5.setBodyPreview("This is a draft message that I'm working on...");
+        mail5.setTime("18:30");
+        mail5.setStarred(false);
+        mail5.setRead(false); // Draft should not show as unread
+        mail5.setStatus("draft"); // Mark as draft
+        allMails.add(mail5);
 
         filteredMails.clear();
         filteredMails.addAll(allMails);
@@ -750,16 +812,84 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onMailClick(Mail mail) {
-        // TODO: Implement mail detail view
-        showError("Mail detail view not implemented yet");
+        // Check if this is a draft mail
+        if ("draft".equals(mail.getStatus())) {
+            // Open draft in compose activity for editing - don't mark as read
+            Intent intent = new Intent(MainActivity.this, ComposeActivity.class);
+            intent.putExtra("draft_mail", mail);
+            startActivityForResult(intent, COMPOSE_REQUEST_CODE);
+        } else {
+            // Mark email as read if it's unread (only for non-draft emails)
+            if (!mail.isRead()) {
+                mail.setRead(true);
+                mailAdapter.notifyDataSetChanged(); // Update UI immediately
+            }
+            
+            // Open mail detail dialog for non-draft emails
+            if (mail.get_id() != null) {
+                MailDetailDialog dialog = MailDetailDialog.newInstance(mail.get_id(), currentFolder);
+                dialog.setOnMailUpdatedListener(() -> {
+                    // Refresh the mail list when mail is updated
+                    // For starred folder, we could reload or handle removal more efficiently
+                    loadMails();
+                });
+                dialog.show(getSupportFragmentManager(), "MailDetailDialog");
+            } else {
+                showError("Cannot open mail: ID not available");
+            }
+        }
     }
 
     private void onStarClick(Mail mail) {
-        // TODO: Implement star toggle functionality
-        mail.setStarred(!mail.isStarred());
+        if (mail.get_id() == null) {
+            showError("Cannot star mail: ID not available");
+            return;
+        }
+        
+        // Store original state for rollback if API fails
+        boolean originalStarredState = mail.isStarred();
+        
+        // Optimistically update UI
+        mail.setStarred(!originalStarredState);
         mailAdapter.notifyDataSetChanged();
-        showError("Star functionality not fully implemented yet");
+        
+        // Call API to toggle star
+        apiService.toggleStar(authManager.getBearerToken(), mail.get_id())
+                .enqueue(new Callback<ApiService.ToggleStarResponse>() {
+                    @Override
+                    public void onResponse(Call<ApiService.ToggleStarResponse> call, 
+                                         Response<ApiService.ToggleStarResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            // Update with server response to ensure consistency
+                            mail.setStarred(response.body().isStarred());
+                            mailAdapter.notifyDataSetChanged();
+                            
+                            // If we're in starred folder and mail was unstarred, remove it from view
+                            if (currentFolder == MailFolder.STARRED && !response.body().isStarred()) {
+                                filteredMails.remove(mail);
+                                allMails.remove(mail);
+                                mailAdapter.notifyDataSetChanged();
+                                updateEmptyState();
+                            }
+                        } else {
+                            // Revert optimistic update on failure
+                            mail.setStarred(originalStarredState);
+                            mailAdapter.notifyDataSetChanged();
+                            showError("Failed to toggle star");
+                        }
+                    }
+                    
+                    @Override
+                    public void onFailure(Call<ApiService.ToggleStarResponse> call, Throwable t) {
+                        // Revert optimistic update on failure
+                        mail.setStarred(originalStarredState);
+                        mailAdapter.notifyDataSetChanged();
+                        showError("Network error: " + t.getMessage());
+                    }
+                });
     }
+
+
 
     private void onMailLongClick(Mail mail) {
         enterSelectionMode();
@@ -807,19 +937,21 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        String title = currentFolder == MailFolder.TRASH ? "Permanently delete" : "Delete Emails";
+        String message = currentFolder == MailFolder.TRASH ? 
+            "Are you sure you want to permanently delete " + selectedIds.size() + " email(s)?" :
+            "Are you sure you want to move " + selectedIds.size() + " email(s) to trash?";
+
         // Show confirmation dialog
         new androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Delete Emails")
-            .setMessage("Are you sure you want to delete " + selectedIds.size() + " email(s)?")
+            .setTitle(title)
+            .setMessage(message)
             .setPositiveButton("Delete", (dialog, which) -> {
-                // TODO: Implement actual deletion via API
-                // For now, just remove from the local list
-                filteredMails.removeIf(mail -> selectedIds.contains(mail.getId()));
-                allMails.removeIf(mail -> selectedIds.contains(mail.getId()));
-                mailAdapter.notifyDataSetChanged();
-                exitSelectionMode();
-                updateEmptyState();
-                showError("Emails deleted (local only - API not implemented)");
+                if (currentFolder == MailFolder.TRASH) {
+                    permanentlyDeleteSelectedMails(selectedIds);
+                } else {
+                    moveSelectedMailsToTrash(selectedIds);
+                }
             })
             .setNegativeButton("Cancel", null)
             .show();
@@ -863,6 +995,143 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
     }
 
+
+
+
+
+    private void moveSelectedMailsToTrash(Set<Integer> selectedIds) {
+        // Count successful operations
+        final int[] completedCount = {0};
+        final int totalCount = selectedIds.size();
+
+        for (Integer mailId : selectedIds) {
+            // Find the mail by ID
+            Mail mail = findMailById(mailId);
+            if (mail == null || mail.get_id() == null) continue;
+
+            apiService.moveToTrash(authManager.getBearerToken(), mail.get_id())
+                    .enqueue(new Callback<ApiService.ApiResponse>() {
+                        @Override
+                        public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
+                            completedCount[0]++;
+                            if (response.isSuccessful()) {
+                                // Remove from local lists
+                                filteredMails.removeIf(m -> m.getId() == mailId);
+                                allMails.removeIf(m -> m.getId() == mailId);
+                            }
+                            
+                            // Check if all operations completed
+                            if (completedCount[0] == totalCount) {
+                                mailAdapter.notifyDataSetChanged();
+                                exitSelectionMode();
+                                updateEmptyState();
+                                showError(completedCount[0] + " mail(s) moved to trash");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
+                            completedCount[0]++;
+                            if (completedCount[0] == totalCount) {
+                                mailAdapter.notifyDataSetChanged();
+                                exitSelectionMode();
+                                updateEmptyState();
+                                showError("Some operations failed");
+                            }
+                        }
+                    });
+        }
+    }
+
+    private void permanentlyDeleteSelectedMails(Set<Integer> selectedIds) {
+        // Count successful operations
+        final int[] completedCount = {0};
+        final int totalCount = selectedIds.size();
+
+        for (Integer mailId : selectedIds) {
+            // Find the mail by ID
+            Mail mail = findMailById(mailId);
+            if (mail == null || mail.get_id() == null) continue;
+
+            apiService.permanentlyDelete(authManager.getBearerToken(), mail.get_id())
+                    .enqueue(new Callback<ApiService.ApiResponse>() {
+                        @Override
+                        public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
+                            completedCount[0]++;
+                            if (response.isSuccessful()) {
+                                // Remove from local lists
+                                filteredMails.removeIf(m -> m.getId() == mailId);
+                                allMails.removeIf(m -> m.getId() == mailId);
+                            }
+                            
+                            // Check if all operations completed
+                            if (completedCount[0] == totalCount) {
+                                mailAdapter.notifyDataSetChanged();
+                                exitSelectionMode();
+                                updateEmptyState();
+                                showError(completedCount[0] + " mail(s) permanently deleted");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
+                            completedCount[0]++;
+                            if (completedCount[0] == totalCount) {
+                                mailAdapter.notifyDataSetChanged();
+                                exitSelectionMode();
+                                updateEmptyState();
+                                showError("Some operations failed");
+                            }
+                        }
+                    });
+        }
+    }
+
+    private Mail findMailById(int id) {
+        for (Mail mail : allMails) {
+            if (mail.getId() == id) {
+                return mail;
+            }
+        }
+        return null;
+    }
+
+    private void setupEmptyTrashButton() {
+        // This will be called when currentFolder changes to TRASH
+        // For now, we'll add it as a long-click on the delete button when in trash
+    }
+
+    private void emptyTrash() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Empty Trash")
+            .setMessage("Are you sure you want to permanently delete all emails in trash? This action cannot be undone.")
+            .setPositiveButton("Empty Trash", (dialog, which) -> {
+                apiService.emptyTrash(authManager.getBearerToken())
+                        .enqueue(new Callback<ApiService.ApiResponse>() {
+                            @Override
+                            public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
+                                if (response.isSuccessful()) {
+                                    // Clear all mails from current view
+                                    allMails.clear();
+                                    filteredMails.clear();
+                                    mailAdapter.notifyDataSetChanged();
+                                    updateEmptyState();
+                                    showError("Trash emptied successfully");
+                                } else {
+                                    showError("Failed to empty trash");
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
+                                showError("Network error: " + t.getMessage());
+                            }
+                        });
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
     private void showError(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
@@ -875,6 +1144,16 @@ public class MainActivity extends AppCompatActivity {
             drawerLayout.closeDrawer(Gravity.START);
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == COMPOSE_REQUEST_CODE && resultCode == RESULT_OK) {
+            // Email was sent successfully, refresh the current folder
+            loadMails();
         }
     }
 }

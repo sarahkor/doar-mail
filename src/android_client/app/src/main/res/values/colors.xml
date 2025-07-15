@@ -22,7 +22,9 @@
     
     <!-- Border and Divider Colors -->
     <color name="divider">#E0E0E0</color>
+    <color name="divider_color">#E0E0E0</color>
     <color name="border">#E0E0E0</color>
+    <color name="primary_color">#007bff</color>
     
     <!-- Status Colors -->
     <color name="error">#dc3545</color>
@@ -41,6 +43,16 @@
     <color name="mail_preview">#666666</color>
     <color name="mail_time">#999999</color>
     <color name="selected_mail_background">#E8F4FD</color>
+    
+    <!-- Unread Mail Colors -->
+    <color name="unread_mail_background">#F8F9FA</color>
+    <color name="unread_mail_sender">#000000</color>
+    <color name="unread_mail_subject">#000000</color>
+    <color name="unread_mail_time">#333333</color>
+    <color name="unread_indicator">#007bff</color>
+    
+    <!-- Draft Mail Colors -->
+    <color name="draft_indicator">#dc3545</color>
     
     <!-- Dialog Colors -->
     <color name="dialog_background">#FFFFFF</color>

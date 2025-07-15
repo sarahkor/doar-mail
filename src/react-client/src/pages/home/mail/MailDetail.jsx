@@ -264,7 +264,7 @@ export default function MailDetail({ onCompose }) {
 
         <div className="mail-detail-header">
           <h1 className="mail-detail-subject">
-            {mail.subject || '(no subject)'}
+            To: {toFull} - {mail.subject || '(no subject)'}
           </h1>
 
           {mailLabels.length > 0 && (

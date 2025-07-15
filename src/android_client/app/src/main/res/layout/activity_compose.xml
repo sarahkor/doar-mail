@@ -23,7 +23,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_sent"
             android:contentDescription="Send Email"
-            app:tint="@color/black" />
+            app:tint="@color/text_primary" />
 
         <!-- Spacer to push the next icons to the right -->
         <View
@@ -44,7 +44,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_attach"
                 android:contentDescription="Attach File"
-                app:tint="@color/black" />
+                app:tint="@color/text_primary" />
 
             <ImageButton
                 android:id="@+id/btn_delete"
@@ -54,7 +54,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_delete_compose"
                 android:contentDescription="Clear Fields"
-                app:tint="@color/black" />
+                app:tint="@color/text_primary" />
 
             <ImageButton
                 android:id="@+id/btn_close"
@@ -64,7 +64,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_clear"
                 android:contentDescription="Close Compose"
-                app:tint="@color/black" />
+                app:tint="@color/text_primary" />
         </LinearLayout>
     </LinearLayout>
 
@@ -76,7 +76,10 @@
         android:minHeight="48dp"
         android:hint="To"
         android:inputType="textEmailAddress"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_hint"
+        android:background="@drawable/edittext_background" />
 
     <!-- SUBJECT Field -->
     <EditText
@@ -86,7 +89,10 @@
         android:minHeight="48dp"
         android:hint="Subject"
         android:inputType="text"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_hint"
+        android:background="@drawable/edittext_background" />
 
     <!-- BODY Field -->
     <EditText
@@ -98,6 +104,9 @@
         android:gravity="top"
         android:inputType="textMultiLine"
         android:layout_marginBottom="16dp"
-        android:background="@null" />
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_hint"
+        android:background="@drawable/edittext_background"
+        android:padding="12dp" />
 
 </LinearLayout>

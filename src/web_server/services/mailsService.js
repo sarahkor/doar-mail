@@ -7,6 +7,14 @@ const Label = require('../models/labels');
 const { dedupeByMailId } = require('../utils/mailUtils');
 const REAL_FOLDERS = ['inbox', 'sent', 'draft', 'spam'];
 
+// Helper function to create display name from user object
+const createDisplayName = (user) => {
+  if (!user) return '';
+  const firstName = user.firstName || '';
+  const lastName = user.lastName || '';
+  return lastName ? `${firstName} ${lastName}`.trim() : firstName.trim();
+};
+
 const listMailsByUser = async (username) => {
   const views = await MailUserView.find({
     username,
@@ -59,9 +67,9 @@ const createMail = async ({ sender, recipient, subject, bodyPreview, status = 'd
   const now = Date.now();
   const mail = await Mail.create({
     from: sender.username,
-    fromName: `${sender.firstName} ${sender.lastName}`,
+    fromName: createDisplayName(sender),
     to: recipient.username,
-    toName: `${recipient.firstName} ${recipient.lastName}`,
+    toName: createDisplayName(recipient),
     subject,
     bodyPreview,
     timestamp: now,
@@ -149,7 +157,7 @@ const updateMailById = async (username, mailId, { to, recipient, subject, bodyPr
   if (bodyPreview !== undefined) mail.bodyPreview = bodyPreview;
   if (to !== undefined && recipient) {
     mail.to = recipient.username;
-    mail.toName = `${recipient.firstName} ${recipient.lastName}`;
+    mail.toName = createDisplayName(recipient);
   }
   await mail.save();
 
