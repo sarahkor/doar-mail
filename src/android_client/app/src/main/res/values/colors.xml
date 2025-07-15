@@ -44,6 +44,13 @@
     <color name="mail_time">#999999</color>
     <color name="selected_mail_background">#E8F4FD</color>
     
+    <!-- Unread Mail Colors -->
+    <color name="unread_mail_background">#F8F9FA</color>
+    <color name="unread_mail_sender">#000000</color>
+    <color name="unread_mail_subject">#000000</color>
+    <color name="unread_mail_time">#333333</color>
+    <color name="unread_indicator">#007bff</color>
+    
     <!-- Dialog Colors -->
     <color name="dialog_background">#FFFFFF</color>
     <color name="dialog_text">#333333</color>

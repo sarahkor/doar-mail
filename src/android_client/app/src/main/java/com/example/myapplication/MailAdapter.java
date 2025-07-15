@@ -139,6 +139,7 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         private TextView bodyPreview;
         private ImageButton starButton;
         private ImageButton trashButton;
+        private View unreadIndicator;
 
         public MailViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -149,6 +150,7 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
             bodyPreview = itemView.findViewById(R.id.tv_body_preview);
             starButton = itemView.findViewById(R.id.btn_star);
             trashButton = itemView.findViewById(R.id.btn_trash);
+            unreadIndicator = itemView.findViewById(R.id.unread_indicator);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -234,6 +236,8 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
 
             // Handle selection mode visual state
             boolean isSelected = selectedMails.contains(mail.getId());
+            boolean isUnread = !mail.isRead();
+            
             if (isSelectionMode) {
                 itemView.setAlpha(isSelected ? 0.7f : 1.0f);
                 itemView.setBackgroundColor(isSelected ? 
@@ -241,7 +245,31 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
                     itemView.getContext().getColor(android.R.color.transparent));
             } else {
                 itemView.setAlpha(1.0f);
-                itemView.setBackgroundColor(itemView.getContext().getColor(android.R.color.transparent));
+                // Apply unread styling when not in selection mode
+                if (isUnread) {
+                    itemView.setBackgroundColor(itemView.getContext().getColor(R.color.unread_mail_background));
+                } else {
+                    itemView.setBackgroundColor(itemView.getContext().getColor(android.R.color.transparent));
+                }
+            }
+            
+            // Apply unread text styling
+            if (isUnread && !isSelectionMode) {
+                senderName.setTextColor(itemView.getContext().getColor(R.color.unread_mail_sender));
+                senderName.setTypeface(senderName.getTypeface(), android.graphics.Typeface.BOLD);
+                subject.setTextColor(itemView.getContext().getColor(R.color.unread_mail_subject));
+                subject.setTypeface(subject.getTypeface(), android.graphics.Typeface.BOLD);
+                time.setTextColor(itemView.getContext().getColor(R.color.unread_mail_time));
+                time.setTypeface(time.getTypeface(), android.graphics.Typeface.BOLD);
+                unreadIndicator.setVisibility(View.VISIBLE);
+            } else {
+                senderName.setTextColor(itemView.getContext().getColor(R.color.mail_sender));
+                senderName.setTypeface(senderName.getTypeface(), android.graphics.Typeface.NORMAL);
+                subject.setTextColor(itemView.getContext().getColor(R.color.mail_subject));
+                subject.setTypeface(subject.getTypeface(), android.graphics.Typeface.NORMAL);
+                time.setTextColor(itemView.getContext().getColor(R.color.mail_time));
+                time.setTypeface(time.getTypeface(), android.graphics.Typeface.NORMAL);
+                unreadIndicator.setVisibility(View.GONE);
             }
 
             // Load avatar based on folder context

@@ -15,6 +15,16 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
+        <!-- Unread Indicator -->
+        <View
+            android:id="@+id/unread_indicator"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/circle_shape"
+            android:backgroundTint="@color/unread_indicator"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone" />
+
         <!-- Sender Avatar -->
         <ImageView
             android:id="@+id/iv_sender_avatar"

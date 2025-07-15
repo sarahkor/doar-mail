@@ -636,6 +636,7 @@ public class MainActivity extends AppCompatActivity {
         mail1.setBodyPreview("Don't forget about our meeting tomorrow at 10 AM...");
         mail1.setTime("10:30");
         mail1.setStarred(false);
+        mail1.setRead(false); // Unread mail
         allMails.add(mail1);
 
         Mail mail2 = new Mail();
@@ -646,7 +647,30 @@ public class MainActivity extends AppCompatActivity {
         mail2.setBodyPreview("The project is progressing well. Here's the latest update...");
         mail2.setTime("09:15");
         mail2.setStarred(true);
+        mail2.setRead(true); // Read mail
         allMails.add(mail2);
+
+        Mail mail3 = new Mail();
+        mail3.setId(3);
+        mail3.setFrom("admin@doar.com");
+        mail3.setFromName("Admin");
+        mail3.setSubject("New Feature Available!");
+        mail3.setBodyPreview("We're excited to announce a new feature in our app...");
+        mail3.setTime("14:22");
+        mail3.setStarred(false);
+        mail3.setRead(false); // Unread mail
+        allMails.add(mail3);
+
+        Mail mail4 = new Mail();
+        mail4.setId(4);
+        mail4.setFrom("support@doar.com");
+        mail4.setFromName("Support Team");
+        mail4.setSubject("Account Verification");
+        mail4.setBodyPreview("Please verify your account by clicking the link below...");
+        mail4.setTime("16:45");
+        mail4.setStarred(false);
+        mail4.setRead(true); // Read mail
+        allMails.add(mail4);
 
         filteredMails.clear();
         filteredMails.addAll(allMails);
@@ -776,6 +800,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onMailClick(Mail mail) {
+        // Mark email as read if it's unread
+        if (!mail.isRead()) {
+            mail.setRead(true);
+            mailAdapter.notifyDataSetChanged(); // Update UI immediately
+        }
+        
         // Check if this is a draft mail
         if ("draft".equals(mail.getStatus())) {
             // Open draft in compose activity for editing
