@@ -51,6 +51,9 @@
     <color name="unread_mail_time">#333333</color>
     <color name="unread_indicator">#007bff</color>
     
+    <!-- Draft Mail Colors -->
+    <color name="draft_indicator">#dc3545</color>
+    
     <!-- Dialog Colors -->
     <color name="dialog_background">#FFFFFF</color>
     <color name="dialog_text">#333333</color>

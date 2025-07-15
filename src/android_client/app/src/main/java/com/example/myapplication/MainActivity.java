@@ -672,6 +672,18 @@ public class MainActivity extends AppCompatActivity {
         mail4.setRead(true); // Read mail
         allMails.add(mail4);
 
+        Mail mail5 = new Mail();
+        mail5.setId(5);
+        mail5.setTo("friend@doar.com");
+        mail5.setToName("Friend");
+        mail5.setSubject("Draft Message");
+        mail5.setBodyPreview("This is a draft message that I'm working on...");
+        mail5.setTime("18:30");
+        mail5.setStarred(false);
+        mail5.setRead(false); // Draft should not show as unread
+        mail5.setStatus("draft"); // Mark as draft
+        allMails.add(mail5);
+
         filteredMails.clear();
         filteredMails.addAll(allMails);
         mailAdapter.notifyDataSetChanged();
@@ -800,19 +812,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onMailClick(Mail mail) {
-        // Mark email as read if it's unread
-        if (!mail.isRead()) {
-            mail.setRead(true);
-            mailAdapter.notifyDataSetChanged(); // Update UI immediately
-        }
-        
         // Check if this is a draft mail
         if ("draft".equals(mail.getStatus())) {
-            // Open draft in compose activity for editing
+            // Open draft in compose activity for editing - don't mark as read
             Intent intent = new Intent(MainActivity.this, ComposeActivity.class);
             intent.putExtra("draft_mail", mail);
             startActivityForResult(intent, COMPOSE_REQUEST_CODE);
         } else {
+            // Mark email as read if it's unread (only for non-draft emails)
+            if (!mail.isRead()) {
+                mail.setRead(true);
+                mailAdapter.notifyDataSetChanged(); // Update UI immediately
+            }
+            
             // Open mail detail dialog for non-draft emails
             if (mail.get_id() != null) {
                 MailDetailDialog dialog = MailDetailDialog.newInstance(mail.get_id(), currentFolder);
