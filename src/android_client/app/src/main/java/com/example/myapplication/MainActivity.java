@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         mailAdapter = new MailAdapter(filteredMails, this::onMailClick, this::onStarClick);
-        mailAdapter.setOnTrashClickListener(this::onTrashClick);
+
         mailAdapter.setOnMailLongClickListener(this::onMailLongClick);
         mailAdapter.setOnSelectionChangedListener(this::updateSelectedCount);
         mailAdapter.setCurrentFolder(currentFolder); // Set initial folder
@@ -889,27 +889,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void onTrashClick(Mail mail) {
-        if (mail.get_id() == null) {
-            showError("Cannot delete mail: ID not available");
-            return;
-        }
 
-        if (currentFolder == MailFolder.TRASH) {
-            // Permanent delete - show confirmation
-            new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Permanently delete")
-                .setMessage("Are you sure you want to permanently delete this mail?")
-                .setPositiveButton("Delete", (dialog, which) -> {
-                    permanentlyDeleteMail(mail);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-        } else {
-            // Move to trash
-            moveMailToTrash(mail);
-        }
-    }
 
     private void onMailLongClick(Mail mail) {
         enterSelectionMode();
@@ -1015,53 +995,9 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
     }
 
-    private void moveMailToTrash(Mail mail) {
-        apiService.moveToTrash(authManager.getBearerToken(), mail.get_id())
-                .enqueue(new Callback<ApiService.ApiResponse>() {
-                    @Override
-                    public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
-                        if (response.isSuccessful()) {
-                            // Remove from current view
-                            filteredMails.remove(mail);
-                            allMails.remove(mail);
-                            mailAdapter.notifyDataSetChanged();
-                            updateEmptyState();
-                            showError("Mail moved to trash");
-                        } else {
-                            showError("Failed to move mail to trash");
-                        }
-                    }
 
-                    @Override
-                    public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
-                        showError("Network error: " + t.getMessage());
-                    }
-                });
-    }
 
-    private void permanentlyDeleteMail(Mail mail) {
-        apiService.permanentlyDelete(authManager.getBearerToken(), mail.get_id())
-                .enqueue(new Callback<ApiService.ApiResponse>() {
-                    @Override
-                    public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
-                        if (response.isSuccessful()) {
-                            // Remove from current view
-                            filteredMails.remove(mail);
-                            allMails.remove(mail);
-                            mailAdapter.notifyDataSetChanged();
-                            updateEmptyState();
-                            showError("Mail permanently deleted");
-                        } else {
-                            showError("Failed to permanently delete mail");
-                        }
-                    }
 
-                    @Override
-                    public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
-                        showError("Network error: " + t.getMessage());
-                    }
-                });
-    }
 
     private void moveSelectedMailsToTrash(Set<Integer> selectedIds) {
         // Count successful operations

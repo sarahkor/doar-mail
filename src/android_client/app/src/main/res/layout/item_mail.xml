@@ -120,16 +120,7 @@
                 android:contentDescription="Star"
                 android:layout_marginEnd="4dp" />
 
-            <!-- Trash Icon -->
-            <ImageButton
-                android:id="@+id/btn_trash"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_trash"
-                android:tint="@color/text_secondary"
-                android:contentDescription="Delete"
-                android:visibility="visible" />
+
 
         </LinearLayout>
 
