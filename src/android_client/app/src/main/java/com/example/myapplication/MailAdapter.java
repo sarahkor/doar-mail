@@ -24,6 +24,7 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
     private List<Mail> mails;
     private OnMailClickListener onMailClickListener;
     private OnStarClickListener onStarClickListener;
+    private OnTrashClickListener onTrashClickListener;
     private OnMailLongClickListener onMailLongClickListener;
     private OnSelectionChangedListener onSelectionChangedListener;
     private Set<Integer> selectedMails = new HashSet<>();
@@ -36,6 +37,10 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
 
     public interface OnStarClickListener {
         void onStarClick(Mail mail);
+    }
+
+    public interface OnTrashClickListener {
+        void onTrashClick(Mail mail);
     }
 
     public interface OnMailLongClickListener {
@@ -57,6 +62,10 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
     public void setCurrentFolder(MailFolder folder) {
         this.currentFolder = folder;
         notifyDataSetChanged(); // Refresh the display
+    }
+
+    public void setOnTrashClickListener(OnTrashClickListener listener) {
+        this.onTrashClickListener = listener;
     }
 
     public void setOnMailLongClickListener(OnMailLongClickListener listener) {
@@ -129,6 +138,7 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         private TextView subject;
         private TextView bodyPreview;
         private ImageButton starButton;
+        private ImageButton trashButton;
 
         public MailViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -138,6 +148,7 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
             subject = itemView.findViewById(R.id.tv_subject);
             bodyPreview = itemView.findViewById(R.id.tv_body_preview);
             starButton = itemView.findViewById(R.id.btn_star);
+            trashButton = itemView.findViewById(R.id.btn_trash);
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
@@ -165,6 +176,13 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION && onStarClickListener != null) {
                     onStarClickListener.onStarClick(mails.get(position));
+                }
+            });
+
+            trashButton.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && onTrashClickListener != null) {
+                    onTrashClickListener.onTrashClick(mails.get(position));
                 }
             });
         }
@@ -202,6 +220,9 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
             // Set star icon
             starButton.setImageResource(mail.isStarred() ? R.drawable.ic_star_filled : R.drawable.ic_star_outline);
 
+            // Configure trash button based on folder
+            configureTrashButton(mail);
+
             // Handle selection mode visual state
             boolean isSelected = selectedMails.contains(mail.getId());
             if (isSelectionMode) {
@@ -216,6 +237,25 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
 
             // Load avatar based on folder context
             loadAvatar(mail, senderAvatar);
+        }
+
+        private void configureTrashButton(Mail mail) {
+            if (currentFolder == MailFolder.TRASH) {
+                // In trash folder, show trash button as permanent delete
+                trashButton.setVisibility(View.VISIBLE);
+                trashButton.setImageResource(R.drawable.ic_delete);
+                trashButton.setContentDescription("Delete permanently");
+            } else {
+                // In other folders, show as move to trash
+                trashButton.setVisibility(View.VISIBLE);
+                trashButton.setImageResource(R.drawable.ic_trash);
+                trashButton.setContentDescription("Move to trash");
+            }
+            
+            // Hide trash button in selection mode to avoid confusion
+            if (isSelectionMode) {
+                trashButton.setVisibility(View.GONE);
+            }
         }
 
         private void loadAvatar(Mail mail, ImageView avatarView) {

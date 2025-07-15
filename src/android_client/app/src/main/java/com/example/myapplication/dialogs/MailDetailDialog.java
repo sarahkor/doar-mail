@@ -365,10 +365,44 @@ public class MailDetailDialog extends DialogFragment {
         
         if (currentFolder == MailFolder.SPAM) {
             // Unspam
-            showError("Unspam functionality not yet implemented");
+            apiService.unmarkAsSpam(authManager.getBearerToken(), mailId)
+                    .enqueue(new Callback<ApiService.ApiResponse>() {
+                        @Override
+                        public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
+                            if (response.isSuccessful()) {
+                                showError("Mail unmarked as spam");
+                                notifyMailUpdated();
+                                dismiss();
+                            } else {
+                                showError("Failed to unmark as spam");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
+                            showError("Network error: " + t.getMessage());
+                        }
+                    });
         } else {
             // Report as spam
-            showError("Spam reporting not yet implemented");
+            apiService.markAsSpam(authManager.getBearerToken(), mailId)
+                    .enqueue(new Callback<ApiService.ApiResponse>() {
+                        @Override
+                        public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
+                            if (response.isSuccessful()) {
+                                showError("Mail marked as spam");
+                                notifyMailUpdated();
+                                dismiss();
+                            } else {
+                                showError("Failed to mark as spam");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
+                            showError("Network error: " + t.getMessage());
+                        }
+                    });
         }
     }
     
@@ -381,28 +415,81 @@ public class MailDetailDialog extends DialogFragment {
                     .setTitle("Permanently delete")
                     .setMessage("Are you sure you want to permanently delete this mail?")
                     .setPositiveButton("Delete", (dialog, which) -> {
-                        // TODO: Implement permanent delete
-                        showError("Permanent delete not yet implemented");
-                        dismiss();
+                        permanentlyDeleteMail();
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
         } else {
             // Move to trash
-            // TODO: Implement move to trash
-            showError("Move to trash not yet implemented");
-            dismiss();
+            moveMailToTrash();
         }
     }
     
     private void restoreFromTrash() {
         if (currentMail == null) return;
         
-        // TODO: Implement restore from trash
-        showError("Restore functionality not yet implemented");
-        dismiss();
+        apiService.restoreFromTrash(authManager.getBearerToken(), mailId)
+                .enqueue(new Callback<ApiService.ApiResponse>() {
+                    @Override
+                    public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
+                        if (response.isSuccessful()) {
+                            showError("Mail restored from trash");
+                            notifyMailUpdated();
+                            dismiss();
+                        } else {
+                            showError("Failed to restore mail from trash");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
+                        showError("Network error: " + t.getMessage());
+                    }
+                });
     }
     
+    private void moveMailToTrash() {
+        apiService.moveToTrash(authManager.getBearerToken(), mailId)
+                .enqueue(new Callback<ApiService.ApiResponse>() {
+                    @Override
+                    public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
+                        if (response.isSuccessful()) {
+                            showError("Mail moved to trash");
+                            notifyMailUpdated();
+                            dismiss();
+                        } else {
+                            showError("Failed to move mail to trash");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
+                        showError("Network error: " + t.getMessage());
+                    }
+                });
+    }
+
+    private void permanentlyDeleteMail() {
+        apiService.permanentlyDelete(authManager.getBearerToken(), mailId)
+                .enqueue(new Callback<ApiService.ApiResponse>() {
+                    @Override
+                    public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
+                        if (response.isSuccessful()) {
+                            showError("Mail permanently deleted");
+                            notifyMailUpdated();
+                            dismiss();
+                        } else {
+                            showError("Failed to permanently delete mail");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
+                        showError("Network error: " + t.getMessage());
+                    }
+                });
+    }
+
     private void showError(String message) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
     }

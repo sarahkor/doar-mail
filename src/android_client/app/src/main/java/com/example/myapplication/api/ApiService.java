@@ -78,6 +78,26 @@ public interface ApiService {
     @GET("api/trash")
     Call<PaginatedMailResponse> getTrash(@Header("Authorization") String token);
     
+    // Trash operations
+    @DELETE("api/mails/{id}")
+    Call<ApiResponse> moveToTrash(@Header("Authorization") String token, @Path("id") String mailId);
+    
+    @POST("api/trash/{id}/restore")
+    Call<ApiResponse> restoreFromTrash(@Header("Authorization") String token, @Path("id") String mailId);
+    
+    @DELETE("api/trash/{id}")
+    Call<ApiResponse> permanentlyDelete(@Header("Authorization") String token, @Path("id") String mailId);
+    
+    @DELETE("api/trash/empty")
+    Call<ApiResponse> emptyTrash(@Header("Authorization") String token);
+    
+    // Spam operations
+    @POST("api/spam/{id}")
+    Call<ApiResponse> markAsSpam(@Header("Authorization") String token, @Path("id") String mailId);
+    
+    @POST("api/spam/{id}/unspam")
+    Call<ApiResponse> unmarkAsSpam(@Header("Authorization") String token, @Path("id") String mailId);
+    
     // Get individual mail details
     @GET("api/mails/{id}")
     Call<Mail> getMailById(@Header("Authorization") String token, @Path("id") String mailId);
