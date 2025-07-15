@@ -19,6 +19,7 @@ import com.example.myapplication.utils.AuthManager;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import android.content.Intent;
 
 public class ComposeActivity extends AppCompatActivity {
 
@@ -26,6 +27,10 @@ public class ComposeActivity extends AppCompatActivity {
     private ImageButton btnSend;
     private ApiService apiService;
     private AuthManager authManager;
+    
+    // Draft support fields
+    private Mail existingDraft = null;
+    private boolean isEditingDraft = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +51,9 @@ public class ComposeActivity extends AppCompatActivity {
         ImageButton btnAttach = findViewById(R.id.btn_attach);
         ImageButton btnDelete = findViewById(R.id.btn_delete);
         ImageButton btnClose = findViewById(R.id.btn_close);
+        
+        // Check if we're editing an existing draft
+        loadDraftFromIntent();
 
         // Set focus to 'To' field and show keyboard manually
         etTo.requestFocus();
@@ -79,7 +87,71 @@ public class ComposeActivity extends AppCompatActivity {
             return true;
         });
 
-        btnClose.setOnClickListener(v -> finish());
+        btnClose.setOnClickListener(v -> saveDraftAndClose());
+    }
+
+    /**
+     * Load draft data from intent if we're editing an existing draft
+     */
+    private void loadDraftFromIntent() {
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("draft_mail")) {
+            existingDraft = (Mail) intent.getSerializableExtra("draft_mail");
+            if (existingDraft != null) {
+                isEditingDraft = true;
+                
+                // Populate fields with draft data
+                etTo.setText(existingDraft.getTo() != null ? existingDraft.getTo() : "");
+                etSubject.setText(existingDraft.getSubject() != null && !existingDraft.getSubject().equals("(no subject)") 
+                    ? existingDraft.getSubject() : "");
+                etBody.setText(existingDraft.getBodyPreview() != null && !existingDraft.getBodyPreview().equals("No content.") 
+                    ? existingDraft.getBodyPreview() : "");
+                
+                // Update title to indicate we're editing a draft
+                setTitle("Edit Draft");
+            }
+        }
+    }
+
+    /**
+     * Save current email as draft and close the activity
+     */
+    private void saveDraftAndClose() {
+        String to = etTo.getText().toString().trim();
+        String subject = etSubject.getText().toString().trim();
+        String body = etBody.getText().toString().trim();
+        
+        // Check if there's any content to save
+        boolean hasContent = !to.isEmpty() || !subject.isEmpty() || !body.isEmpty();
+        
+        if (!hasContent) {
+            // No content to save, just close
+            finish();
+            return;
+        }
+        
+        // Validate email format if recipient is provided
+        if (!to.isEmpty() && !to.endsWith("@doar.com")) {
+            Toast.makeText(this, "You can only send mail to Doar users. Please use an @doar.com address.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        // If no recipient but has other content, show message
+        if (to.isEmpty()) {
+            Toast.makeText(this, "Please enter a recipient email address to save as draft.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        // Show loading state
+        setLoadingState(true);
+        
+        if (isEditingDraft && existingDraft != null) {
+            // Update existing draft
+            updateDraft(to, subject, body);
+        } else {
+            // Create new draft
+            createDraft(to, subject, body);
+        }
     }
 
 
@@ -102,6 +174,19 @@ public class ComposeActivity extends AppCompatActivity {
         // Show loading state
         setLoadingState(true);
 
+        if (isEditingDraft && existingDraft != null) {
+            // Update existing draft to sent status
+            updateDraftToSent(to, subject, body);
+        } else {
+            // Create and send new mail
+            createAndSendMail(to, subject, body);
+        }
+    }
+    
+    /**
+     * Create and send a new mail
+     */
+    private void createAndSendMail(String to, String subject, String body) {
         // Create mail request
         ApiService.CreateMailRequest mailRequest = new ApiService.CreateMailRequest(
                 to, 
@@ -131,20 +216,7 @@ public class ComposeActivity extends AppCompatActivity {
                     finish(); // Close the compose activity
                     
                 } else {
-                    // Handle different error codes
-                    String errorMessage = "Failed to send mail.";
-                    
-                    if (response.code() == 400) {
-                        errorMessage = "Invalid email data. Please check the recipient address.";
-                    } else if (response.code() == 401) {
-                        errorMessage = "Authentication failed. Please login again.";
-                    } else if (response.code() == 404) {
-                        errorMessage = "Recipient not found. Please check the email address.";
-                    } else if (response.code() == 500) {
-                        errorMessage = "Server error. Please try again later.";
-                    }
-                    
-                    Toast.makeText(ComposeActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                    handleSendError(response.code());
                 }
             }
 
@@ -154,6 +226,146 @@ public class ComposeActivity extends AppCompatActivity {
                 Toast.makeText(ComposeActivity.this, "Network error. Please check your connection.", Toast.LENGTH_LONG).show();
             }
         });
+    }
+    
+    /**
+     * Update existing draft to sent status
+     */
+    private void updateDraftToSent(String to, String subject, String body) {
+        ApiService.UpdateMailRequest updateRequest = new ApiService.UpdateMailRequest(
+                to,
+                subject.isEmpty() ? "(no subject)" : subject,
+                body,
+                "sent"
+        );
+        
+        Call<Void> call = apiService.updateMail(authManager.getBearerToken(), existingDraft.get_id(), updateRequest);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                setLoadingState(false);
+                
+                if (response.isSuccessful()) {
+                    Toast.makeText(ComposeActivity.this, "Mail sent successfully!", Toast.LENGTH_LONG).show();
+                    setResult(RESULT_OK); // Set result for MainActivity to refresh
+                    finish(); // Close the compose activity
+                } else {
+                    handleSendError(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                setLoadingState(false);
+                Toast.makeText(ComposeActivity.this, "Network error. Please check your connection.", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    
+    /**
+     * Create a new draft
+     */
+    private void createDraft(String to, String subject, String body) {
+        ApiService.CreateMailRequest draftRequest = new ApiService.CreateMailRequest(
+                to,
+                subject.isEmpty() ? "(no subject)" : subject,
+                body,
+                "draft"
+        );
+        
+        Call<Mail> call = apiService.createMail(authManager.getBearerToken(), draftRequest);
+        call.enqueue(new Callback<Mail>() {
+            @Override
+            public void onResponse(Call<Mail> call, Response<Mail> response) {
+                setLoadingState(false);
+                
+                if (response.isSuccessful()) {
+                    Toast.makeText(ComposeActivity.this, "Draft saved successfully!", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK); // Set result for MainActivity to refresh
+                    finish();
+                } else {
+                    handleDraftError(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Mail> call, Throwable t) {
+                setLoadingState(false);
+                Toast.makeText(ComposeActivity.this, "Network error. Could not save draft.", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    
+    /**
+     * Update existing draft
+     */
+    private void updateDraft(String to, String subject, String body) {
+        ApiService.UpdateMailRequest updateRequest = new ApiService.UpdateMailRequest(
+                to,
+                subject.isEmpty() ? "(no subject)" : subject,
+                body,
+                "draft"
+        );
+        
+        Call<Void> call = apiService.updateMail(authManager.getBearerToken(), existingDraft.get_id(), updateRequest);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                setLoadingState(false);
+                
+                if (response.isSuccessful()) {
+                    Toast.makeText(ComposeActivity.this, "Draft updated successfully!", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK); // Set result for MainActivity to refresh
+                    finish();
+                } else {
+                    handleDraftError(response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                setLoadingState(false);
+                Toast.makeText(ComposeActivity.this, "Network error. Could not update draft.", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    
+    /**
+     * Handle send error responses
+     */
+    private void handleSendError(int responseCode) {
+        String errorMessage = "Failed to send mail.";
+        
+        if (responseCode == 400) {
+            errorMessage = "Invalid email data. Please check the recipient address.";
+        } else if (responseCode == 401) {
+            errorMessage = "Authentication failed. Please login again.";
+        } else if (responseCode == 404) {
+            errorMessage = "Recipient not found. Please check the email address.";
+        } else if (responseCode == 500) {
+            errorMessage = "Server error. Please try again later.";
+        }
+        
+        Toast.makeText(ComposeActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+    }
+    
+    /**
+     * Handle draft error responses
+     */
+    private void handleDraftError(int responseCode) {
+        String errorMessage = "Failed to save draft.";
+        
+        if (responseCode == 400) {
+            errorMessage = "Invalid draft data. Please check the recipient address.";
+        } else if (responseCode == 401) {
+            errorMessage = "Authentication failed. Please login again.";
+        } else if (responseCode == 404) {
+            errorMessage = "Recipient does not exist.";
+        } else if (responseCode == 500) {
+            errorMessage = "Server error. Please try again later.";
+        }
+        
+        Toast.makeText(ComposeActivity.this, errorMessage, Toast.LENGTH_LONG).show();
     }
     
     private void setLoadingState(boolean loading) {

@@ -188,9 +188,12 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         }
 
         public void bind(Mail mail) {
-            // Determine what name to display based on folder
+            // Determine what name to display based on folder and mail status
             String displayName;
-            if (currentFolder == MailFolder.SENT) {
+            if ("draft".equals(mail.getStatus())) {
+                // For drafts, show recipient name with "Draft - To:" prefix
+                displayName = "Draft - To: " + mail.getDisplayTo();
+            } else if (currentFolder == MailFolder.SENT) {
                 // In Sent folder, show recipient name with "To:" prefix
                 displayName = "To: " + mail.getDisplayTo();
             } else {
@@ -206,8 +209,14 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
                 time.setText("");
             }
 
-            // Set subject
-            subject.setText(mail.getDisplaySubject());
+            // Set subject - add Draft prefix if it's a draft
+            String subjectText;
+            if ("draft".equals(mail.getStatus())) {
+                subjectText = "[Draft] " + mail.getDisplaySubject();
+            } else {
+                subjectText = mail.getDisplaySubject();
+            }
+            subject.setText(subjectText);
 
             // Set body preview
             if (mail.getBodyPreview() != null && !mail.getBodyPreview().trim().isEmpty()) {

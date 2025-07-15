@@ -32,7 +32,7 @@ public class LabelOptionsBottomSheet extends BottomSheetDialogFragment {
     public static LabelOptionsBottomSheet newInstance(Label label) {
         LabelOptionsBottomSheet bottomSheet = new LabelOptionsBottomSheet();
         Bundle args = new Bundle();
-        args.putInt(ARG_LABEL_ID, label.getId+());
+        args.putInt(ARG_LABEL_ID, label.getId());
         args.putString(ARG_LABEL_NAME, label.getName());
         args.putString(ARG_LABEL_COLOR, label.getColor());
         bottomSheet.setArguments(args);

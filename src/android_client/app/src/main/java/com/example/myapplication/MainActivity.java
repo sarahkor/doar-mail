@@ -776,17 +776,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onMailClick(Mail mail) {
-        // Open mail detail dialog
-        if (mail.get_id() != null) {
-            MailDetailDialog dialog = MailDetailDialog.newInstance(mail.get_id(), currentFolder);
-            dialog.setOnMailUpdatedListener(() -> {
-                // Refresh the mail list when mail is updated
-                // For starred folder, we could reload or handle removal more efficiently
-                loadMails();
-            });
-            dialog.show(getSupportFragmentManager(), "MailDetailDialog");
+        // Check if this is a draft mail
+        if ("draft".equals(mail.getStatus())) {
+            // Open draft in compose activity for editing
+            Intent intent = new Intent(MainActivity.this, ComposeActivity.class);
+            intent.putExtra("draft_mail", mail);
+            startActivityForResult(intent, COMPOSE_REQUEST_CODE);
         } else {
-            showError("Cannot open mail: ID not available");
+            // Open mail detail dialog for non-draft emails
+            if (mail.get_id() != null) {
+                MailDetailDialog dialog = MailDetailDialog.newInstance(mail.get_id(), currentFolder);
+                dialog.setOnMailUpdatedListener(() -> {
+                    // Refresh the mail list when mail is updated
+                    // For starred folder, we could reload or handle removal more efficiently
+                    loadMails();
+                });
+                dialog.show(getSupportFragmentManager(), "MailDetailDialog");
+            } else {
+                showError("Cannot open mail: ID not available");
+            }
         }
     }
 

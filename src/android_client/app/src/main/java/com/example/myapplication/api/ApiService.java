@@ -20,6 +20,7 @@ import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.Multipart;
+import retrofit2.http.PATCH;
 
 public interface ApiService {
     
@@ -139,6 +140,10 @@ public interface ApiService {
     @POST("api/mails")
     Call<Mail> createMail(@Header("Authorization") String token, @Body CreateMailRequest request);
     
+    // Mail update (for drafts)
+    @PATCH("api/mails/{id}")
+    Call<Void> updateMail(@Header("Authorization") String token, @Path("id") String mailId, @Body UpdateMailRequest request);
+
     // Response models
     class LoginRequest {
         private String username;
@@ -287,6 +292,26 @@ public interface ApiService {
         public String getStatus() { return status; }
     }
     
+    // Mail update request (for drafts)
+    class UpdateMailRequest {
+        private String to;
+        private String subject;
+        private String bodyPreview;
+        private String status;
+        
+        public UpdateMailRequest(String to, String subject, String bodyPreview, String status) {
+            this.to = to;
+            this.subject = subject;
+            this.bodyPreview = bodyPreview;
+            this.status = status;
+        }
+        
+        public String getTo() { return to; }
+        public String getSubject() { return subject; }
+        public String getBodyPreview() { return bodyPreview; }
+        public String getStatus() { return status; }
+    }
+
     // Paginated response wrapper for mail endpoints
     class PaginatedMailResponse {
         private int page;

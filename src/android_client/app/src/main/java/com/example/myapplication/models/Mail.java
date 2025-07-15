@@ -4,10 +4,11 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.Ignore;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity(tableName = "mail")
-public class Mail {
+public class Mail implements Serializable {
     @PrimaryKey
     private int id;
     private String _id; // MongoDB ObjectId from server
