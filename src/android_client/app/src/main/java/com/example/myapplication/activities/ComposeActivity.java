@@ -9,6 +9,8 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import com.example.myapplication.viewModel.ComposeViewModel;
 
 import com.example.myapplication.R;
 import com.example.myapplication.api.ApiClient;
@@ -32,6 +34,8 @@ public class ComposeActivity extends AppCompatActivity {
     private Mail existingDraft = null;
     private boolean isEditingDraft = false;
 
+    private ComposeViewModel composeViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +44,8 @@ public class ComposeActivity extends AppCompatActivity {
         // Initialize API and auth
         apiService = ApiClient.getInstance().getApiService();
         authManager = AuthManager.getInstance(this);
+        composeViewModel = new ViewModelProvider(this).get(ComposeViewModel.class);
+        observeViewModel();
 
         // Initialize input fields
         etTo = findViewById(R.id.et_to);
@@ -147,10 +153,10 @@ public class ComposeActivity extends AppCompatActivity {
         
         if (isEditingDraft && existingDraft != null) {
             // Update existing draft
-            updateDraft(to, subject, body);
+            composeViewModel.updateDraft(authManager.getBearerToken(), existingDraft.get_id(), to, subject, body);
         } else {
             // Create new draft
-            createDraft(to, subject, body);
+            composeViewModel.createDraft(authManager.getBearerToken(), to, subject, body);
         }
     }
 
@@ -176,156 +182,33 @@ public class ComposeActivity extends AppCompatActivity {
 
         if (isEditingDraft && existingDraft != null) {
             // Update existing draft to sent status
-            updateDraftToSent(to, subject, body);
+            composeViewModel.updateDraftToSent(authManager.getBearerToken(), existingDraft.get_id(), to, subject, body);
         } else {
             // Create and send new mail
-            createAndSendMail(to, subject, body);
+            composeViewModel.sendMail(authManager.getBearerToken(), to, subject, body);
         }
     }
     
-    /**
-     * Create and send a new mail
-     */
-    private void createAndSendMail(String to, String subject, String body) {
-        // Create mail request
-        ApiService.CreateMailRequest mailRequest = new ApiService.CreateMailRequest(
-                to, 
-                subject.isEmpty() ? "(no subject)" : subject, 
-                body, 
-                "sent"
-        );
-
-        // Send mail via API
-        Call<Mail> call = apiService.createMail(authManager.getBearerToken(), mailRequest);
-        call.enqueue(new Callback<Mail>() {
-            @Override
-            public void onResponse(Call<Mail> call, Response<Mail> response) {
-                setLoadingState(false);
-                
-                if (response.isSuccessful() && response.body() != null) {
-                    Mail createdMail = response.body();
-                    
-                    // Check if mail was delivered to spam
-                    String message = "Mail sent successfully!";
-                    if ("spam".equals(createdMail.getStatus())) {
-                        message = "Mail sent but delivered to spam due to blacklisted content.";
-                    }
-                    
-                    Toast.makeText(ComposeActivity.this, message, Toast.LENGTH_LONG).show();
-                    setResult(RESULT_OK); // Set result for MainActivity to refresh
-                    finish(); // Close the compose activity
-                    
-                } else {
-                    handleSendError(response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Mail> call, Throwable t) {
-                setLoadingState(false);
-                Toast.makeText(ComposeActivity.this, "Network error. Please check your connection.", Toast.LENGTH_LONG).show();
+    private void observeViewModel() {
+        composeViewModel.getLoading().observe(this, isLoading -> setLoadingState(isLoading != null && isLoading));
+        composeViewModel.getErrorMessage().observe(this, error -> {
+            if (error != null && !error.isEmpty())
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+        });
+        composeViewModel.getSendInfoMessage().observe(this, info -> {
+            if (info != null && !info.isEmpty())
+                Toast.makeText(this, info, Toast.LENGTH_LONG).show();
+        });
+        composeViewModel.getSendSuccess().observe(this, success -> {
+            if (success != null && success) {
+                setResult(RESULT_OK);
+                finish();
             }
         });
-    }
-    
-    /**
-     * Update existing draft to sent status
-     */
-    private void updateDraftToSent(String to, String subject, String body) {
-        ApiService.UpdateMailRequest updateRequest = new ApiService.UpdateMailRequest(
-                to,
-                subject.isEmpty() ? "(no subject)" : subject,
-                body,
-                "sent"
-        );
-        
-        Call<Void> call = apiService.updateMail(authManager.getBearerToken(), existingDraft.get_id(), updateRequest);
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                setLoadingState(false);
-                
-                if (response.isSuccessful()) {
-                    Toast.makeText(ComposeActivity.this, "Mail sent successfully!", Toast.LENGTH_LONG).show();
-                    setResult(RESULT_OK); // Set result for MainActivity to refresh
-                    finish(); // Close the compose activity
-                } else {
-                    handleSendError(response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                setLoadingState(false);
-                Toast.makeText(ComposeActivity.this, "Network error. Please check your connection.", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-    
-    /**
-     * Create a new draft
-     */
-    private void createDraft(String to, String subject, String body) {
-        ApiService.CreateMailRequest draftRequest = new ApiService.CreateMailRequest(
-                to,
-                subject.isEmpty() ? "(no subject)" : subject,
-                body,
-                "draft"
-        );
-        
-        Call<Mail> call = apiService.createMail(authManager.getBearerToken(), draftRequest);
-        call.enqueue(new Callback<Mail>() {
-            @Override
-            public void onResponse(Call<Mail> call, Response<Mail> response) {
-                setLoadingState(false);
-                
-                if (response.isSuccessful()) {
-                    Toast.makeText(ComposeActivity.this, "Draft saved successfully!", Toast.LENGTH_SHORT).show();
-                    setResult(RESULT_OK); // Set result for MainActivity to refresh
-                    finish();
-                } else {
-                    handleDraftError(response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Mail> call, Throwable t) {
-                setLoadingState(false);
-                Toast.makeText(ComposeActivity.this, "Network error. Could not save draft.", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-    
-    /**
-     * Update existing draft
-     */
-    private void updateDraft(String to, String subject, String body) {
-        ApiService.UpdateMailRequest updateRequest = new ApiService.UpdateMailRequest(
-                to,
-                subject.isEmpty() ? "(no subject)" : subject,
-                body,
-                "draft"
-        );
-        
-        Call<Void> call = apiService.updateMail(authManager.getBearerToken(), existingDraft.get_id(), updateRequest);
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                setLoadingState(false);
-                
-                if (response.isSuccessful()) {
-                    Toast.makeText(ComposeActivity.this, "Draft updated successfully!", Toast.LENGTH_SHORT).show();
-                    setResult(RESULT_OK); // Set result for MainActivity to refresh
-                    finish();
-                } else {
-                    handleDraftError(response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                setLoadingState(false);
-                Toast.makeText(ComposeActivity.this, "Network error. Could not update draft.", Toast.LENGTH_LONG).show();
+        composeViewModel.getDraftSuccess().observe(this, success -> {
+            if (success != null && success) {
+                setResult(RESULT_OK);
+                finish();
             }
         });
     }

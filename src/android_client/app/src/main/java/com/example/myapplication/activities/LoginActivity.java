@@ -11,16 +11,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.api.ApiClient;
 import com.example.myapplication.api.ApiService;
 import com.example.myapplication.utils.AuthManager;
+import com.example.myapplication.viewModel.LoginViewModel;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import android.util.Log;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -32,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvCreateAccount;
     private ApiService apiService;
     private AuthManager authManager;
+    private LoginViewModel loginViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,8 @@ public class LoginActivity extends AppCompatActivity {
 
         initializeViews();
         setupAPI();
+        loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+        observeViewModel();
         setupClickListeners();
     }
 
@@ -64,72 +70,52 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        btnLogin.setOnClickListener(v -> attemptLogin());
+        btnLogin.setOnClickListener(v -> {
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+            loginViewModel.login(username, password);
+        });
         tvCreateAccount.setOnClickListener(v -> navigateToRegister());
     }
 
-    private void attemptLogin() {
-        String username = etUsername.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
-
-        // Validate input
-        if (TextUtils.isEmpty(username)) {
-            etUsername.setError("Username is required");
-            etUsername.requestFocus();
-            return;
-        }
-
-        if (TextUtils.isEmpty(password)) {
-            etPassword.setError("Password is required");
-            etPassword.requestFocus();
-            return;
-        }
-
-        // Show loading state
-        setLoadingState(true);
-        clearError();
-
-        // Create login request
-        ApiService.LoginRequest loginRequest = new ApiService.LoginRequest(username, password);
-
-        // Make API call
-        Call<ApiService.LoginResponse> call = apiService.login(loginRequest);
-        call.enqueue(new Callback<ApiService.LoginResponse>() {
-            @Override
-            public void onResponse(Call<ApiService.LoginResponse> call, Response<ApiService.LoginResponse> response) {
-                setLoadingState(false);
-                
-                if (response.isSuccessful() && response.body() != null) {
-                    ApiService.LoginResponse loginResponse = response.body();
-                    
-                    if ("success".equals(loginResponse.getStatus())) {
-                        // Save token and user info
-                        authManager.saveAuthToken(loginResponse.getToken());
-                        authManager.saveUsername(loginResponse.getUsername());
-                        
-                        // Navigate to main activity
-                        navigateToMainActivity();
-                        
-                        Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                    } else {
-                        showError(loginResponse.getMessage() != null ? loginResponse.getMessage() : "Login failed");
-                    }
-                } else {
-                    // Handle error response
-                    String errorMessage = "Login failed. Please check your credentials.";
-                    if (response.code() == 401) {
-                        errorMessage = "Invalid username or password";
-                    } else if (response.code() == 500) {
-                        errorMessage = "Server error. Please try again later.";
-                    }
-                    showError(errorMessage);
-                }
+    private void observeViewModel() {
+        loginViewModel.getLoading().observe(this, isLoading -> setLoadingState(isLoading != null && isLoading));
+        loginViewModel.getErrorMessage().observe(this, error -> {
+            if (error != null && !error.isEmpty()) showError(error);
+            else clearError();
+        });
+        loginViewModel.getLoginSuccess().observe(this, success -> {
+            if (success != null && success) {
+                // Now handled in authToken/usernameLive observers
             }
-
-            @Override
-            public void onFailure(Call<ApiService.LoginResponse> call, Throwable t) {
-                setLoadingState(false);
-                showError("Network error. Please check your connection.");
+        });
+        loginViewModel.getAuthToken().observe(this, token -> {
+            if (token != null && !token.isEmpty()) {
+                authManager.saveAuthToken(token);
+                // Save username as well if available
+                String username = loginViewModel.getUsernameLive().getValue();
+                if (username != null && !username.isEmpty()) {
+                    authManager.saveUsername(username);
+                }
+                // Fetch latest user details before navigating to MainActivity
+                apiService.getCurrentUser(authManager.getBearerToken()).enqueue(new Callback<ApiService.UserResponse>() {
+                    @Override
+                    public void onResponse(Call<ApiService.UserResponse> call, Response<ApiService.UserResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            ApiService.UserResponse userResponse = response.body();
+                            if (userResponse.getUser() != null) {
+                                Log.d("ProfilePhoto", "Fetched user after login: picture=" + userResponse.getUser().getPicture());
+                            }
+                        }
+                        navigateToMainActivity();
+                    }
+                    @Override
+                    public void onFailure(Call<ApiService.UserResponse> call, Throwable t) {
+                        Log.d("ProfilePhoto", "Failed to fetch user after login: " + t.getMessage());
+                        navigateToMainActivity();
+                    }
+                });
+                Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
             }
         });
     }

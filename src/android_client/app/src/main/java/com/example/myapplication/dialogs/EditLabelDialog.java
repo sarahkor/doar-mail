@@ -15,26 +15,33 @@ import com.example.myapplication.R;
 import com.example.myapplication.models.Label;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.example.myapplication.adapters.ColorAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class EditLabelDialog extends DialogFragment {
     
     private static final String ARG_LABEL_ID = "label_id";
     private static final String ARG_LABEL_NAME = "label_name";
+    private static final String ARG_LABEL_COLOR = "label_color";
     
     private TextInputEditText etLabelName;
+    private RecyclerView rvColors;
     private MaterialButton btnCancel, btnSave;
     private OnLabelEditedListener listener;
-    private int labelId;
+    private String labelId;
+    private String selectedColor = "#e8eaed";
+    private ColorAdapter colorAdapter;
 
     public interface OnLabelEditedListener {
-        void onLabelEdited(int labelId, String newName);
+        void onLabelEdited(String labelId, String newName, String color);
     }
 
     public static EditLabelDialog newInstance(Label label) {
         EditLabelDialog dialog = new EditLabelDialog();
         Bundle args = new Bundle();
-        args.putInt(ARG_LABEL_ID, label.getId());
+        args.putString(ARG_LABEL_ID, label.getId());
         args.putString(ARG_LABEL_NAME, label.getName());
+        args.putString(ARG_LABEL_COLOR, label.getColor());
         dialog.setArguments(args);
         return dialog;
     }
@@ -54,11 +61,13 @@ public class EditLabelDialog extends DialogFragment {
         // Get arguments
         Bundle args = getArguments();
         if (args != null) {
-            labelId = args.getInt(ARG_LABEL_ID);
+            labelId = args.getString(ARG_LABEL_ID);
             String labelName = args.getString(ARG_LABEL_NAME);
+            selectedColor = args.getString(ARG_LABEL_COLOR, "#e8eaed");
             
             initViews(view);
             etLabelName.setText(labelName);
+            setupColorPicker();
             setupClickListeners();
         }
         
@@ -68,8 +77,20 @@ public class EditLabelDialog extends DialogFragment {
 
     private void initViews(View view) {
         etLabelName = view.findViewById(R.id.et_label_name);
+        rvColors = view.findViewById(R.id.rv_colors);
         btnCancel = view.findViewById(R.id.btn_cancel);
         btnSave = view.findViewById(R.id.btn_save);
+    }
+
+    private void setupColorPicker() {
+        colorAdapter = new ColorAdapter(getContext(), ColorAdapter.getDefaultColors());
+        colorAdapter.setSelectedColor(selectedColor);
+        rvColors.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(getContext(), 6));
+        rvColors.setAdapter(colorAdapter);
+        colorAdapter.setOnColorSelectedListener(color -> {
+            selectedColor = color;
+            colorAdapter.setSelectedColor(color);
+        });
     }
 
     private void setupClickListeners() {
@@ -84,7 +105,7 @@ public class EditLabelDialog extends DialogFragment {
             }
             
             if (listener != null) {
-                listener.onLabelEdited(labelId, newName);
+                listener.onLabelEdited(labelId, newName, selectedColor);
             }
             
             dismiss();

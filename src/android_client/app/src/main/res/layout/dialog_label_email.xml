@@ -11,11 +11,27 @@
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Change Label"
+        android:text="Select label"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/dialog_text"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginBottom="8dp" />
+
+    <!-- Label Badge -->
+    <TextView
+        android:id="@+id/tv_label_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LabelName"
+        android:textSize="14sp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/bg_label_badge"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
 
     <!-- Labels Container -->
     <ScrollView

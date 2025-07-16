@@ -35,7 +35,9 @@ exports.createLabel = async (req, res) => {
         requiredFields: Label.REQUIRED_FIELDS
       });
 
-    const { name, color = 'gray', parentId } = body;
+    let { name, color = 'gray', parentId } = body;
+    // Defensive fix: treat "0" or 0 as null
+    if (parentId === "0" || parentId === 0) parentId = null;
 
     if (color && !Label.ALLOWED_COLORS.includes(color))
       return res.status(400).json({

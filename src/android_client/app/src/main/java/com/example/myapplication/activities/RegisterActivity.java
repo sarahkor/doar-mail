@@ -19,12 +19,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 import com.example.myapplication.api.ApiClient;
 import com.example.myapplication.api.ApiService;
 import com.example.myapplication.utils.FileUtils;
+import com.example.myapplication.utils.PhotoHandler;
+import com.example.myapplication.viewModel.RegisterViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -36,6 +39,7 @@ import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import android.graphics.Bitmap;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -56,6 +60,8 @@ public class RegisterActivity extends AppCompatActivity {
     private Uri selectedImageUri;
     private static final int PICK_IMAGE_REQUEST = 1;
     private String selectedGender = "";
+    private RegisterViewModel registerViewModel;
+    private PhotoHandler photoHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +73,9 @@ public class RegisterActivity extends AppCompatActivity {
         setupGenderSpinner();
         setupClickListeners();
         setupFieldValidation();
+        registerViewModel = new ViewModelProvider(this).get(RegisterViewModel.class);
+        observeViewModel();
+        photoHandler = new PhotoHandler(ivProfilePhoto, this);
     }
 
     private void initializeViews() {
@@ -113,11 +122,91 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        btnProfilePhoto.setOnClickListener(v -> openImagePicker());
+        btnProfilePhoto.setOnClickListener(v -> showPhotoOptions());
         etBirthDate.setOnClickListener(v -> showDatePicker());
         btnRegister.setOnClickListener(v -> {
-            Toast.makeText(this, "Continue pressed", Toast.LENGTH_SHORT).show();
-            attemptRegister();
+            // Validation logic (same as before)
+            String firstName = etFirstName.getText().toString().trim();
+            String lastName = etLastName.getText().toString().trim();
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+            String confirmPassword = etConfirmPassword.getText().toString().trim();
+            String birthDate = etBirthDate.getText().toString().trim();
+            String gender = selectedGender;
+
+            String nameRegex = "^[a-zA-Z\u0590-\u05FF\\s]+$";
+            if (!firstName.matches(nameRegex)) {
+                etFirstName.setError("First name can only contain letters.");
+                etFirstName.requestFocus();
+                return;
+            }
+            if (!lastName.isEmpty() && !lastName.matches(nameRegex)) {
+                etLastName.setError("Last name can only contain letters.");
+                etLastName.requestFocus();
+                return;
+            }
+            if (TextUtils.isEmpty(firstName)) {
+                etFirstName.setError("First name is required");
+                etFirstName.requestFocus();
+                return;
+            }
+            if (TextUtils.isEmpty(username)) {
+                etUsername.setError("Username is required");
+                etUsername.requestFocus();
+                return;
+            }
+            if (!username.endsWith("@doar.com")) {
+                etUsername.setError("Username must end with @doar.com");
+                etUsername.requestFocus();
+                return;
+            }
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
+                etUsername.setError("Invalid email format");
+                etUsername.requestFocus();
+                return;
+            }
+            if (TextUtils.isEmpty(password)) {
+                etPassword.setError("Password is required");
+                etPassword.requestFocus();
+                return;
+            }
+            if (!isValidPassword(password)) {
+                etPassword.setError("Password must be at least 8 chars, include upper, lower, number, special");
+                etPassword.requestFocus();
+                return;
+            }
+            if (!password.equals(confirmPassword)) {
+                etConfirmPassword.setError("Passwords do not match");
+                etConfirmPassword.requestFocus();
+                return;
+            }
+            if (TextUtils.isEmpty(birthDate)) {
+                etBirthDate.setError("Birth date is required");
+                etBirthDate.requestFocus();
+                return;
+            }
+            if (!isValidPastDate(birthDate)) {
+                etBirthDate.setError("Birth date must be a valid past date");
+                etBirthDate.requestFocus();
+                return;
+            }
+            if (TextUtils.isEmpty(gender)) {
+                Toast.makeText(this, "Please select a gender", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String photoFilePath = null;
+            String photoMimeType = null;
+            if (selectedImageUri != null) {
+                try {
+                    photoFilePath = com.example.myapplication.utils.FileUtils.getPath(this, selectedImageUri);
+                    photoMimeType = getContentResolver().getType(selectedImageUri);
+                } catch (Exception e) {
+                    showError("Failed to process selected photo");
+                    return;
+                }
+            }
+            registerViewModel.register(firstName, lastName, username, password, birthDate, gender, photoFilePath, photoMimeType);
         });
         tvBackToLogin.setOnClickListener(v -> navigateToLogin());
     }
@@ -177,141 +266,16 @@ public class RegisterActivity extends AppCompatActivity {
         tvError.setVisibility(errorMsg != null ? View.VISIBLE : View.GONE);
     }
 
-    private void attemptRegister() {
-        String firstName = etFirstName.getText().toString().trim();
-        String lastName = etLastName.getText().toString().trim();
-        String username = etUsername.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
-        String confirmPassword = etConfirmPassword.getText().toString().trim();
-        String birthDate = etBirthDate.getText().toString().trim();
-        String gender = selectedGender;
-
-        // Name validation: only letters (including Hebrew) and spaces
-        String nameRegex = "^[a-zA-Z\u0590-\u05FF\\s]+$";
-        if (!firstName.matches(nameRegex)) {
-            etFirstName.setError("First name can only contain letters.");
-            etFirstName.requestFocus();
-            return;
-        }
-        if (!lastName.isEmpty() && !lastName.matches(nameRegex)) {
-            etLastName.setError("Last name can only contain letters.");
-            etLastName.requestFocus();
-            return;
-        }
-
-        // Validation
-        if (TextUtils.isEmpty(firstName)) {
-            etFirstName.setError("First name is required");
-            etFirstName.requestFocus();
-            return;
-        }
-        // Last name is optional, no check
-        if (TextUtils.isEmpty(username)) {
-            etUsername.setError("Username is required");
-            etUsername.requestFocus();
-            return;
-        }
-        if (!username.endsWith("@doar.com")) {
-            etUsername.setError("Username must end with @doar.com");
-            etUsername.requestFocus();
-            return;
-        }
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
-            etUsername.setError("Invalid email format");
-            etUsername.requestFocus();
-            return;
-        }
-        if (TextUtils.isEmpty(password)) {
-            etPassword.setError("Password is required");
-            etPassword.requestFocus();
-            return;
-        }
-        if (!isValidPassword(password)) {
-            etPassword.setError("Password must be at least 8 chars, include upper, lower, number, special");
-            etPassword.requestFocus();
-            return;
-        }
-        if (!password.equals(confirmPassword)) {
-            etConfirmPassword.setError("Passwords do not match");
-            etConfirmPassword.requestFocus();
-            return;
-        }
-        if (TextUtils.isEmpty(birthDate)) {
-            etBirthDate.setError("Birth date is required");
-            etBirthDate.requestFocus();
-            return;
-        }
-        if (!isValidPastDate(birthDate)) {
-            etBirthDate.setError("Birth date must be a valid past date");
-            etBirthDate.requestFocus();
-            return;
-        }
-        if (TextUtils.isEmpty(gender)) {
-            Toast.makeText(this, "Please select a gender", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        setLoadingState(true);
-        clearError();
-
-        // Prepare multipart request bodies
-        RequestBody firstNameBody = RequestBody.create(MediaType.parse("text/plain"), firstName);
-        RequestBody lastNameBody = RequestBody.create(MediaType.parse("text/plain"), lastName);
-        RequestBody usernameBody = RequestBody.create(MediaType.parse("text/plain"), username);
-        RequestBody passwordBody = RequestBody.create(MediaType.parse("text/plain"), password);
-        RequestBody birthdayBody = RequestBody.create(MediaType.parse("text/plain"), birthDate);
-        RequestBody genderBody = RequestBody.create(MediaType.parse("text/plain"), gender);
-        MultipartBody.Part photoPart = null;
-        if (selectedImageUri != null) {
-            try {
-                String filePath = FileUtils.getPath(this, selectedImageUri);
-                java.io.File file = new java.io.File(filePath);
-                RequestBody reqFile = RequestBody.create(MediaType.parse(getContentResolver().getType(selectedImageUri)), file);
-                photoPart = MultipartBody.Part.createFormData("profilePicture", file.getName(), reqFile);
-            } catch (Exception e) {
-                showError("Failed to process selected photo");
-                setLoadingState(false);
-                return;
-            }
-        }
-
-        Call<ApiService.RegisterResponse> call = apiService.register(
-                firstNameBody,
-                lastNameBody,
-                usernameBody,
-                passwordBody,
-                birthdayBody,
-                genderBody,
-                photoPart
-        );
-        call.enqueue(new Callback<ApiService.RegisterResponse>() {
-            @Override
-            public void onResponse(Call<ApiService.RegisterResponse> call, Response<ApiService.RegisterResponse> response) {
-                setLoadingState(false);
-                if (response.isSuccessful() && response.body() != null) {
-                    ApiService.RegisterResponse registerResponse = response.body();
-                    if ("success".equals(registerResponse.getStatus())) {
-                        Toast.makeText(RegisterActivity.this, "Registration successful! Please login.", Toast.LENGTH_LONG).show();
-                        navigateToLogin();
-                    } else {
-                        showError(registerResponse.getMessage() != null ? registerResponse.getMessage() : "Registration failed");
-                    }
-                } else {
-                    String errorMessage = "Registration failed. Please try again.";
-                    if (response.code() == 409) {
-                        errorMessage = "Username already exists";
-                    } else if (response.code() == 400) {
-                        errorMessage = "Invalid registration data";
-                    } else if (response.code() == 500) {
-                        errorMessage = "Server error. Please try again later.";
-                    }
-                    showError(errorMessage);
-                }
-            }
-            @Override
-            public void onFailure(Call<ApiService.RegisterResponse> call, Throwable t) {
-                setLoadingState(false);
-                showError("Network error. Please check your connection.");
+    private void observeViewModel() {
+        registerViewModel.getLoading().observe(this, isLoading -> setLoadingState(isLoading != null && isLoading));
+        registerViewModel.getErrorMessage().observe(this, error -> {
+            if (error != null && !error.isEmpty()) showError(error);
+            else clearError();
+        });
+        registerViewModel.getRegisterSuccess().observe(this, success -> {
+            if (success != null && success) {
+                Toast.makeText(RegisterActivity.this, "Registration successful! Please login.", Toast.LENGTH_LONG).show();
+                navigateToLogin();
             }
         });
     }
@@ -344,11 +308,18 @@ public class RegisterActivity extends AppCompatActivity {
         finish();
     }
 
-    private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    private void showPhotoOptions() {
+        // Show a dialog to choose between camera and gallery
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle("Select Profile Photo")
+                .setItems(new CharSequence[]{"Camera", "Gallery"}, (dialog, which) -> {
+                    if (which == 0) {
+                        photoHandler.askCameraPermissions();
+                    } else {
+                        photoHandler.checkPermissionAndOpenGallery();
+                    }
+                })
+                .show();
     }
 
     private void showDatePicker() {
@@ -370,13 +341,16 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
-            selectedImageUri = data.getData();
-            if (selectedImageUri != null) {
-                Glide.with(this)
-                        .load(selectedImageUri)
-                        .circleCrop()
-                        .into(ivProfilePhoto);
+        // Use PhotoHandler to handle result and update image
+        Bitmap bitmap = photoHandler.onActivityResult(requestCode, resultCode, data);
+        if (bitmap != null) {
+            // Save the URI for upload
+            if (requestCode == 102 || requestCode == 103) { // CAMERA_REQUEST or GALLERY_PERM
+                // Get the URI from the ImageView
+                Uri uri = photoHandler.uri;
+                if (uri != null) {
+                    selectedImageUri = uri;
+                }
             }
         }
     }

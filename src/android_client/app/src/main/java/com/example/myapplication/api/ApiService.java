@@ -121,20 +121,20 @@ public interface ApiService {
     @POST("api/labels")
     Call<Label> createLabel(@Header("Authorization") String token, @Body CreateLabelRequest request);
     
-    @PUT("api/labels/{id}")
-    Call<Label> updateLabel(@Header("Authorization") String token, @Path("id") int id, @Body UpdateLabelRequest request);
+    @PATCH("api/labels/{id}")
+    Call<Label> updateLabel(@Header("Authorization") String token, @Path("id") String id, @Body UpdateLabelRequest request);
     
     @DELETE("api/labels/{id}")
-    Call<ApiResponse> deleteLabel(@Header("Authorization") String token, @Path("id") int id);
+    Call<ApiResponse> deleteLabel(@Header("Authorization") String token, @Path("id") String id);
     
     @PUT("api/labels/{id}/color")
-    Call<Label> updateLabelColor(@Header("Authorization") String token, @Path("id") int id, @Body ColorRequest request);
+    Call<Label> updateLabelColor(@Header("Authorization") String token, @Path("id") String id, @Body ColorRequest request);
     
     @POST("api/labels/{id}/mails/{mailId}")
-    Call<ApiResponse> addMailToLabel(@Header("Authorization") String token, @Path("id") int labelId, @Path("mailId") int mailId);
+    Call<ApiResponse> addMailToLabel(@Header("Authorization") String token, @Path("id") String labelId, @Path("mailId") String mailId);
     
     @DELETE("api/labels/{id}/mails/{mailId}")
-    Call<ApiResponse> removeMailFromLabel(@Header("Authorization") String token, @Path("id") int labelId, @Path("mailId") int mailId);
+    Call<ApiResponse> removeMailFromLabel(@Header("Authorization") String token, @Path("id") String labelId, @Path("mailId") String mailId);
     
     // Mail creation
     @POST("api/mails")
@@ -228,9 +228,9 @@ public interface ApiService {
     class CreateLabelRequest {
         private String name;
         private String color;
-        private Integer parentId;
+        private String parentId;
         
-        public CreateLabelRequest(String name, String color, Integer parentId) {
+        public CreateLabelRequest(String name, String color, String parentId) {
             this.name = name;
             this.color = color;
             this.parentId = parentId;
@@ -238,19 +238,22 @@ public interface ApiService {
         
         public String getName() { return name; }
         public String getColor() { return color; }
-        public Integer getParentId() { return parentId; }
+        public String getParentId() { return parentId; }
     }
     
     class UpdateLabelRequest {
         private String name;
+        private String color;
         private Integer parentId;
         
-        public UpdateLabelRequest(String name, Integer parentId) {
+        public UpdateLabelRequest(String name, String color, Integer parentId) {
             this.name = name;
+            this.color = color;
             this.parentId = parentId;
         }
         
         public String getName() { return name; }
+        public String getColor() { return color; }
         public Integer getParentId() { return parentId; }
     }
     

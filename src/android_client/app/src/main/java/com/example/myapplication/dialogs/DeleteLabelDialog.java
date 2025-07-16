@@ -20,16 +20,16 @@ public class DeleteLabelDialog extends DialogFragment {
 
     private MaterialButton btnCancel, btnDelete;
     private OnLabelDeletedListener listener;
-    private int labelId;
+    private String labelId;
 
     public interface OnLabelDeletedListener {
-        void onLabelDeleted(int labelId);
+        void onLabelDeleted(String labelId);
     }
 
     public static DeleteLabelDialog newInstance(Label label) {
         DeleteLabelDialog dialog = new DeleteLabelDialog();
         Bundle args = new Bundle();
-        args.putInt(ARG_LABEL_ID, label.getId());
+        args.putString(ARG_LABEL_ID, label.getId());
         args.putString(ARG_LABEL_NAME, label.getName());
         dialog.setArguments(args);
         return dialog;
@@ -50,7 +50,7 @@ public class DeleteLabelDialog extends DialogFragment {
         // Get arguments
         Bundle args = getArguments();
         if (args != null) {
-            labelId = args.getInt(ARG_LABEL_ID);
+            labelId = args.getString(ARG_LABEL_ID);
 
             initViews(view);
             setupClickListeners();

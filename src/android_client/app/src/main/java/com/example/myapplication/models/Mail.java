@@ -25,6 +25,7 @@ public class Mail implements Serializable {
     private boolean starred;
     private boolean read; // Missing field from server  
     private String folder; // Missing field from server
+    private List<String> labelIds;
     @Ignore
     private List<Attachment> attachments;
 
@@ -47,6 +48,7 @@ public class Mail implements Serializable {
     public boolean isStarred() { return starred; }
     public boolean isRead() { return read; }
     public String getFolder() { return folder; }
+    public List<String> getLabelIds() { return labelIds; }
     public List<Attachment> getAttachments() { return attachments; }
 
     // Setters
@@ -65,6 +67,7 @@ public class Mail implements Serializable {
     public void setStarred(boolean starred) { this.starred = starred; }
     public void setRead(boolean read) { this.read = read; }
     public void setFolder(String folder) { this.folder = folder; }
+    public void setLabelIds(List<String> labelIds) { this.labelIds = labelIds; }
     public void setAttachments(List<Attachment> attachments) { this.attachments = attachments; }
 
     public String getDisplaySubject() {

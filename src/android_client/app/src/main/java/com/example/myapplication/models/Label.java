@@ -1,18 +1,20 @@
 package com.example.myapplication.models;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class Label {
-    private int id;
+    @SerializedName(value = "id", alternate = {"_id"})
+    private String id;
     private String name;
     private String color;
-    private Integer parentId;
-    private List<Integer> mailIds;
+    private String parentId;
+    private List<String> mailIds;
 
     // Constructors
     public Label() {}
 
-    public Label(int id, String name, String color, Integer parentId, List<Integer> mailIds) {
+    public Label(String id, String name, String color, String parentId, List<String> mailIds) {
         this.id = id;
         this.name = name;
         this.color = color;
@@ -21,43 +23,14 @@ public class Label {
     }
 
     // Getters and Setters
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public Integer getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Integer parentId) {
-        this.parentId = parentId;
-    }
-
-    public List<Integer> getMailIds() {
-        return mailIds;
-    }
-
-    public void setMailIds(List<Integer> mailIds) {
-        this.mailIds = mailIds;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getColor() { return color; }
+    public void setColor(String color) { this.color = color; }
+    public String getParentId() { return parentId; }
+    public void setParentId(String parentId) { this.parentId = parentId; }
+    public List<String> getMailIds() { return mailIds; }
+    public void setMailIds(List<String> mailIds) { this.mailIds = mailIds; }
 } 
