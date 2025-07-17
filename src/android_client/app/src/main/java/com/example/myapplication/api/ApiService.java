@@ -130,8 +130,8 @@ public interface ApiService {
     @PUT("api/labels/{id}/color")
     Call<Label> updateLabelColor(@Header("Authorization") String token, @Path("id") String id, @Body ColorRequest request);
     
-    @POST("api/labels/{id}/mails/{mailId}")
-    Call<ApiResponse> addMailToLabel(@Header("Authorization") String token, @Path("id") String labelId, @Path("mailId") String mailId);
+    @POST("api/labels/{id}/addMail")
+    Call<ApiResponse> addMailToLabel(@Header("Authorization") String token, @Path("id") String labelId, @Body java.util.Map<String, String> body);
     
     @DELETE("api/labels/{id}/mails/{mailId}")
     Call<ApiResponse> removeMailFromLabel(@Header("Authorization") String token, @Path("id") String labelId, @Path("mailId") String mailId);

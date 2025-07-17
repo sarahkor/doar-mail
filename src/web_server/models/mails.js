@@ -17,7 +17,8 @@ const mailSchema = new mongoose.Schema({
   timestamp: Number,
   date: String,
   time: String,
-  attachments: [attachmentSchema]
+  attachments: [attachmentSchema],
+  labelIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Label' }]
 });
 
 module.exports = mongoose.model('Mail', mailSchema);

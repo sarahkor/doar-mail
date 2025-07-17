@@ -2,6 +2,7 @@ const Label = require('../models/labels');
 const mongoose = require('mongoose');
 const MailUserView = require('../models/mailUserView');
 const { dedupeByMailId } = require('../utils/mailUtils');
+const Mail = require('../models/mails'); // Ensure Mail model is imported
 
 const listLabelsByUser = async (username) => {
   // find all labels owned by this user, sorted by name
@@ -160,6 +161,13 @@ const addMailToLabel = async (username, labelId, mailId) => {
   // Push and save
   label.mailIds.push(mailId);
   await label.save();
+
+  // Also update the mail's labelIds
+  await Mail.updateOne(
+    { _id: mailId },
+    { $addToSet: { labelIds: labelId } }
+  );
+
   return true;
 };
 
