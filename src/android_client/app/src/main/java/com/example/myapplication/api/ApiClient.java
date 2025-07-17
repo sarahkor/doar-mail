@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
     // Try this IP if 192.168.1.150 doesn't work. Check your phone's WiFi settings to see which network it's connected to.
     // Alternative IPs from your computer: 192.168.75.1, 192.168.132.1, or 172.26.208.1
-    private static final String BASE_URL = "http://192.168.1.150:8080/"; // Use actual computer IP for physical device
+    private static final String BASE_URL = "http://10.0.2.2:8080/"; // Use 10.0.2.2 for Android emulator to access host backend
     private static ApiClient instance;
     private ApiService apiService;
 

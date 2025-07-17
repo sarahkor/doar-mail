@@ -41,12 +41,13 @@ public class LabelEmailDialog extends DialogFragment {
     private RadioGroup labelsContainer;
     private MaterialButton btnCancel, btnApply;
     private TextView titleText;
+    private TextView labelBadge;
     private OnLabelsAppliedListener listener;
     private ApiService apiService;
     private AuthManager authManager;
     
     private List<Label> allLabels = new ArrayList<>();
-    private Set<Integer> mailIds = new HashSet<>();
+    private Set<String> mailIds = new HashSet<>();
     private boolean isSingleMail;
     private String mailSubject;
 
@@ -54,10 +55,10 @@ public class LabelEmailDialog extends DialogFragment {
         void onLabelsApplied();
     }
 
-    public static LabelEmailDialog newInstance(Set<Integer> mailIds, boolean isSingleMail, String mailSubject) {
+    public static LabelEmailDialog newInstance(Set<String> mailIds, boolean isSingleMail, String mailSubject) {
         LabelEmailDialog dialog = new LabelEmailDialog();
         Bundle args = new Bundle();
-        args.putIntegerArrayList(ARG_MAIL_IDS, new ArrayList<>(mailIds));
+        args.putStringArrayList(ARG_MAIL_IDS, new ArrayList<>(mailIds));
         args.putBoolean(ARG_IS_SINGLE_MAIL, isSingleMail);
         args.putString(ARG_MAIL_SUBJECT, mailSubject);
         dialog.setArguments(args);
@@ -65,8 +66,8 @@ public class LabelEmailDialog extends DialogFragment {
     }
 
     public static LabelEmailDialog newInstance(Mail mail) {
-        Set<Integer> mailIds = new HashSet<>();
-        mailIds.add(mail.getId());
+        Set<String> mailIds = new HashSet<>();
+        mailIds.add(mail.get_id());
         return newInstance(mailIds, true, mail.getDisplaySubject());
     }
 
@@ -85,7 +86,7 @@ public class LabelEmailDialog extends DialogFragment {
         // Get arguments
         Bundle args = getArguments();
         if (args != null) {
-            ArrayList<Integer> mailIdsList = args.getIntegerArrayList(ARG_MAIL_IDS);
+            ArrayList<String> mailIdsList = args.getStringArrayList(ARG_MAIL_IDS);
             if (mailIdsList != null) {
                 mailIds.addAll(mailIdsList);
             }
@@ -107,10 +108,11 @@ public class LabelEmailDialog extends DialogFragment {
         btnCancel = view.findViewById(R.id.btn_cancel);
         btnApply = view.findViewById(R.id.btn_apply);
         titleText = view.findViewById(R.id.tv_title);
-        
+        labelBadge = view.findViewById(R.id.tv_label_badge);
+
         // Set title
-        titleText.setText("Change Label");
-        
+        titleText.setText("Select label");
+        labelBadge.setVisibility(View.GONE); // Default hidden
         // Change button text
         btnApply.setText("OK");
     }
@@ -150,7 +152,7 @@ public class LabelEmailDialog extends DialogFragment {
 
     private void displayLabels() {
         labelsContainer.removeAllViews();
-        
+        labelBadge.setVisibility(View.GONE); // Hide badge initially
         if (allLabels.isEmpty()) {
             TextView emptyText = new TextView(getContext());
             emptyText.setText("No labels available. Create labels first to organize your emails.");
@@ -159,15 +161,28 @@ public class LabelEmailDialog extends DialogFragment {
             labelsContainer.addView(emptyText);
             return;
         }
-
         for (Label label : allLabels) {
             RadioButton radioButton = new RadioButton(getContext());
             radioButton.setText(label.getName());
             radioButton.setTag(label.getId());
             radioButton.setPadding(16, 12, 16, 12);
             radioButton.setTextColor(getContext().getColor(R.color.text_primary));
-            
             labelsContainer.addView(radioButton);
+            radioButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    labelBadge.setText(label.getName());
+                    try {
+                        int color = android.graphics.Color.parseColor(label.getColor());
+                        android.graphics.drawable.GradientDrawable bg = (android.graphics.drawable.GradientDrawable) labelBadge.getBackground();
+                        bg.setColor(color);
+                    } catch (Exception e) {
+                        // fallback to default
+                        android.graphics.drawable.GradientDrawable bg = (android.graphics.drawable.GradientDrawable) labelBadge.getBackground();
+                        bg.setColor(getContext().getColor(R.color.primary));
+                    }
+                    labelBadge.setVisibility(View.VISIBLE);
+                }
+            });
         }
     }
 
@@ -185,20 +200,20 @@ public class LabelEmailDialog extends DialogFragment {
             return;
         }
 
-        Integer selectedLabelId = (Integer) selectedRadioButton.getTag();
-        List<Integer> selectedLabelIds = new ArrayList<>();
+        String selectedLabelId = (String) selectedRadioButton.getTag();
+        List<String> selectedLabelIds = new ArrayList<>();
         selectedLabelIds.add(selectedLabelId);
 
         // Apply the selected label to all selected emails
         applyLabelsToEmails(selectedLabelIds);
     }
 
-    private void applyLabelsToEmails(List<Integer> labelIds) {
+    private void applyLabelsToEmails(List<String> labelIds) {
         int totalOperations = mailIds.size() * labelIds.size();
         int[] completedOperations = {0};
         
-        for (Integer mailId : mailIds) {
-            for (Integer labelId : labelIds) {
+        for (String mailId : mailIds) {
+            for (String labelId : labelIds) {
                 Call<ApiService.ApiResponse> call = apiService.addMailToLabel(authManager.getBearerToken(), labelId, mailId);
                 call.enqueue(new Callback<ApiService.ApiResponse>() {
                     @Override

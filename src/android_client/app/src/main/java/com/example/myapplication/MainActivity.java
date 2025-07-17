@@ -47,10 +47,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -82,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSelectionMode = false;
     private View actionModeBar;
     private TextView selectedCountText;
+
+    private boolean labelsLoaded = false;
+    private boolean mailsLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,10 +172,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         mailAdapter = new MailAdapter(filteredMails, this::onMailClick, this::onStarClick);
-
+        mailAdapter.setAllLabels(labels); // Pass labels list for badge lookup
         mailAdapter.setOnMailLongClickListener(this::onMailLongClick);
         mailAdapter.setOnSelectionChangedListener(this::updateSelectedCount);
         mailAdapter.setCurrentFolder(currentFolder); // Set initial folder
+        mailAdapter.setOnLabelMailClickListener(this::onLabelMailClick);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(mailAdapter);
     }
@@ -301,6 +307,12 @@ public class MainActivity extends AppCompatActivity {
                     if (labelAdapter != null) {
                         labelAdapter.notifyDataSetChanged();
                     }
+                    if (mailAdapter != null) {
+                        mailAdapter.setAllLabels(labels);
+                        mailAdapter.notifyDataSetChanged();
+                    }
+                    labelsLoaded = true;
+                    onBothLoaded();
                 } else {
                     // Load demo labels for testing
                     loadDemoLabels();
@@ -319,19 +331,19 @@ public class MainActivity extends AppCompatActivity {
         labels.clear();
         
         Label workLabel = new Label();
-        workLabel.setId(1);
+        workLabel.setId("1");
         workLabel.setName("Work");
         workLabel.setColor("#FF4444");
         labels.add(workLabel);
 
         Label personalLabel = new Label();
-        personalLabel.setId(2);
+        personalLabel.setId("2");
         personalLabel.setName("Personal");
         personalLabel.setColor("#00C851");
         labels.add(personalLabel);
 
         Label importantLabel = new Label();
-        importantLabel.setId(3);
+        importantLabel.setId("3");
         importantLabel.setName("Important");
         importantLabel.setColor("#FF8800");
         labels.add(importantLabel);
@@ -342,8 +354,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onLabelClick(Label label) {
-        // TODO: Implement filtering mails by label
-        showError("Label filtering not implemented yet");
+        // Filter mails by label
+        filteredMails.clear();
+        for (Mail mail : allMails) {
+            if (mail.getLabelIds() != null && mail.getLabelIds().contains(label.getId())) {
+                filteredMails.add(mail);
+            }
+        }
+        if (mailAdapter != null) {
+            mailAdapter.notifyDataSetChanged();
+        }
+        setTitle(label.getName()); // Update action bar title
         drawerLayout.closeDrawer(Gravity.START);
     }
 
@@ -351,15 +372,15 @@ public class MainActivity extends AppCompatActivity {
         LabelOptionsBottomSheet bottomSheet = LabelOptionsBottomSheet.newInstance(label);
         bottomSheet.setOnOptionSelectedListener(new LabelOptionsBottomSheet.OnOptionSelectedListener() {
             @Override
-            public void onColorOptionSelected(Label label) {
-                showColorPickerDialog(label);
+            public void onAddSublabelOptionSelected(Label parentLabel) {
+                NewLabelDialog dialog = NewLabelDialog.newInstance();
+                dialog.setOnLabelCreatedListener((name, color) -> createLabel(name, color, parentLabel.getId()));
+                dialog.show(getSupportFragmentManager(), "NewLabelDialog");
             }
-
             @Override
             public void onEditOptionSelected(Label label) {
                 showEditLabelDialog(label);
             }
-
             @Override
             public void onDeleteOptionSelected(Label label) {
                 showDeleteLabelDialog(label);
@@ -370,13 +391,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void showNewLabelDialog() {
         NewLabelDialog dialog = NewLabelDialog.newInstance();
-        dialog.setOnLabelCreatedListener(this::createLabel);
+        dialog.setOnLabelCreatedListener((name, color) -> createLabel(name, color, null));
         dialog.show(getSupportFragmentManager(), "NewLabelDialog");
     }
 
     private void showEditLabelDialog(Label label) {
         EditLabelDialog dialog = EditLabelDialog.newInstance(label);
-        dialog.setOnLabelEditedListener(this::updateLabel);
+        dialog.setOnLabelEditedListener((labelId, newName, color) -> updateLabel(labelId, newName, color));
         dialog.show(getSupportFragmentManager(), "EditLabelDialog");
     }
 
@@ -392,17 +413,15 @@ public class MainActivity extends AppCompatActivity {
         dialog.show(getSupportFragmentManager(), "DeleteLabelDialog");
     }
 
-    private void createLabel(String name, String color) {
-        ApiService.CreateLabelRequest request = new ApiService.CreateLabelRequest(name, color, null);
-        
+    // This method is called when a new label is created from the dialog
+    private void createLabel(String name, String color, String parentId) {
+        // Always send null for parentId unless you support nested labels
+        ApiService.CreateLabelRequest request = new ApiService.CreateLabelRequest(name, color, parentId);
         apiService.createLabel(authManager.getBearerToken(), request).enqueue(new Callback<Label>() {
             @Override
             public void onResponse(Call<Label> call, Response<Label> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    labels.add(response.body());
-                    if (labelAdapter != null) {
-                        labelAdapter.notifyDataSetChanged();
-                    }
+                    loadLabels();
                     showError("Label created successfully");
                 } else {
                     showError("Failed to create label");
@@ -416,8 +435,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void updateLabel(int labelId, String newName) {
-        ApiService.UpdateLabelRequest request = new ApiService.UpdateLabelRequest(newName, null);
+    private void updateLabel(String labelId, String newName, String color) {
+        ApiService.UpdateLabelRequest request = new ApiService.UpdateLabelRequest(newName, color, null);
         
         apiService.updateLabel(authManager.getBearerToken(), labelId, request).enqueue(new Callback<Label>() {
             @Override
@@ -425,7 +444,7 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     // Update local label
                     for (int i = 0; i < labels.size(); i++) {
-                        if (labels.get(i).getId() == labelId) {
+                        if (labels.get(i).getId().equals(labelId)) {
                             labels.set(i, response.body());
                             break;
                         }
@@ -435,18 +454,29 @@ public class MainActivity extends AppCompatActivity {
                     }
                     showError("Label updated successfully");
                 } else {
+                    // Log error details
+                    String errorBody = "";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorBody = response.errorBody().string();
+                        }
+                    } catch (Exception e) {
+                        errorBody = "Error reading error body: " + e.getMessage();
+                    }
+                    Log.e("LabelUpdate", "Failed to update label. Code: " + response.code() + ", Error: " + errorBody);
                     showError("Failed to update label");
                 }
             }
 
             @Override
             public void onFailure(Call<Label> call, Throwable t) {
+                Log.e("LabelUpdate", "Network error: " + t.getMessage());
                 showError("Network error: " + t.getMessage());
             }
         });
     }
 
-    private void updateLabelColor(int labelId, String color) {
+    private void updateLabelColor(String labelId, String color) {
         ApiService.ColorRequest request = new ApiService.ColorRequest(color);
         
         apiService.updateLabelColor(authManager.getBearerToken(), labelId, request).enqueue(new Callback<Label>() {
@@ -455,7 +485,7 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     // Update local label
                     for (int i = 0; i < labels.size(); i++) {
-                        if (labels.get(i).getId() == labelId) {
+                        if (labels.get(i).getId().equals(labelId)) {
                             labels.set(i, response.body());
                             break;
                         }
@@ -476,13 +506,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void deleteLabel(int labelId) {
+    private void deleteLabel(String labelId) {
         apiService.deleteLabel(authManager.getBearerToken(), labelId).enqueue(new Callback<ApiService.ApiResponse>() {
             @Override
             public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
                 if (response.isSuccessful()) {
                     // Remove from local list
-                    labels.removeIf(label -> label.getId() == labelId);
+                    labels.removeIf(label -> label.getId().equals(labelId));
                     if (labelAdapter != null) {
                         labelAdapter.notifyDataSetChanged();
                     }
@@ -610,6 +640,8 @@ public class MainActivity extends AppCompatActivity {
                     filteredMails.addAll(allMails);
                     mailAdapter.notifyDataSetChanged();
                     updateEmptyState();
+                    mailsLoaded = true;
+                    onBothLoaded();
                 } else {
                     showError("Failed to load " + folder.getDisplayName().toLowerCase() + " mails");
                 }
@@ -715,15 +747,20 @@ public class MainActivity extends AppCompatActivity {
         if (currentUser != null) {
             profileEmail.setText(currentUser.getUsername() != null ? currentUser.getUsername() : "user@doar.com");
             profileGreeting.setText("Hi, " + (currentUser.getFirstName() != null ? currentUser.getFirstName() : "User"));
-            
+            // Log the picture field
+            Log.d("ProfilePhoto", "Picture field: " + currentUser.getPicture());
             // Load profile picture if available
             if (currentUser.getPicture() != null && !currentUser.getPicture().isEmpty()) {
-                String imageUrl = ApiClient.getInstance().getBaseUrl() + currentUser.getPicture();
+                String baseUrl = ApiClient.getInstance().getBaseUrl();
+                String imageUrl = (baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl) + currentUser.getPicture();
+                Log.d("ProfilePhoto", "Loading image: " + imageUrl);
                 Glide.with(this)
                     .load(imageUrl)
                     .placeholder(R.drawable.ic_account_circle)
                     .error(R.drawable.ic_account_circle)
                     .into(profilePicture);
+            } else {
+                profilePicture.setImageResource(R.drawable.ic_account_circle);
             }
         }
 
@@ -767,15 +804,20 @@ public class MainActivity extends AppCompatActivity {
             phone.setText(formatPhone(currentUser.getPhone()));
             birthday.setText(formatDate(currentUser.getBirthday()));
             gender.setText(formatGender(currentUser.getGender()));
-            
+            // Log the picture field
+            Log.d("ProfilePhoto", "Picture field: " + currentUser.getPicture());
             // Load profile picture if available
             if (currentUser.getPicture() != null && !currentUser.getPicture().isEmpty()) {
-                String imageUrl = ApiClient.getInstance().getBaseUrl() + currentUser.getPicture();
+                String baseUrl = ApiClient.getInstance().getBaseUrl();
+                String imageUrl = (baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl) + currentUser.getPicture();
+                Log.d("ProfilePhoto", "Loading image: " + imageUrl);
                 Glide.with(this)
                     .load(imageUrl)
                     .placeholder(R.drawable.ic_account_circle)
                     .error(R.drawable.ic_account_circle)
                     .into(profilePicture);
+            } else {
+                profilePicture.setImageResource(R.drawable.ic_account_circle);
             }
         }
 
@@ -976,7 +1018,11 @@ public class MainActivity extends AppCompatActivity {
         String mailSubject = firstMail != null ? firstMail.getDisplaySubject() : "Selected emails";
         boolean isSingleMail = selectedIds.size() == 1;
 
-        LabelEmailDialog dialog = LabelEmailDialog.newInstance(selectedIds, isSingleMail, mailSubject);
+        LabelEmailDialog dialog = LabelEmailDialog.newInstance(
+            selectedIds.stream().map(String::valueOf).collect(Collectors.toSet()),
+            isSingleMail,
+            mailSubject
+        );
         dialog.setOnLabelsAppliedListener(() -> {
             exitSelectionMode();
             // Optionally refresh the mail list or update UI
@@ -1154,6 +1200,38 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == COMPOSE_REQUEST_CODE && resultCode == RESULT_OK) {
             // Email was sent successfully, refresh the current folder
             loadMails();
+        }
+    }
+
+    private void onLabelMailClick(Mail mail) {
+        LabelEmailDialog dialog = LabelEmailDialog.newInstance(mail);
+        dialog.setOnLabelsAppliedListener(() -> {
+            showError("Mail labeled successfully");
+            loadMails(); // Optionally refresh mails
+        });
+        dialog.show(getSupportFragmentManager(), "LabelEmailDialog");
+    }
+
+    private void assignLabelIdsToMails() {
+        for (Mail mail : allMails) {
+            List<String> labelIds = new ArrayList<>();
+            for (Label label : labels) {
+                if (label.getMailIds() != null && mail.get_id() != null && label.getMailIds().contains(mail.get_id())) {
+                    labelIds.add(label.getId());
+                }
+            }
+            mail.setLabelIds(labelIds);
+        }
+    }
+
+    private void onBothLoaded() {
+        if (labelsLoaded && mailsLoaded) {
+            assignLabelIdsToMails();
+            filteredMails.clear();
+            filteredMails.addAll(allMails);
+            if (mailAdapter != null) mailAdapter.notifyDataSetChanged();
+            labelsLoaded = false;
+            mailsLoaded = false;
         }
     }
 }

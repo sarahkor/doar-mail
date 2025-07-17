@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.myapplication.api.ApiClient;
 import com.example.myapplication.models.Mail;
+import com.example.myapplication.models.Label;
 
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +31,8 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
     private Set<Integer> selectedMails = new HashSet<>();
     private boolean isSelectionMode = false;
     private MailFolder currentFolder; // Add folder context
+    private OnLabelMailClickListener onLabelMailClickListener;
+    private List<Label> allLabels;
 
     public interface OnMailClickListener {
         void onMailClick(Mail mail);
@@ -49,6 +52,10 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         void onSelectionChanged();
     }
 
+    public interface OnLabelMailClickListener {
+        void onLabelMailClick(Mail mail);
+    }
+
     public MailAdapter(List<Mail> mails, OnMailClickListener onMailClickListener, OnStarClickListener onStarClickListener) {
         this.mails = mails;
         this.onMailClickListener = onMailClickListener;
@@ -62,6 +69,9 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         notifyDataSetChanged(); // Refresh the display
     }
 
+    public void setAllLabels(List<Label> labels) {
+        this.allLabels = labels;
+    }
 
 
     public void setOnMailLongClickListener(OnMailLongClickListener listener) {
@@ -109,6 +119,10 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         notifyDataSetChanged();
     }
 
+    public void setOnLabelMailClickListener(OnLabelMailClickListener listener) {
+        this.onLabelMailClickListener = listener;
+    }
+
     @NonNull
     @Override
     public MailViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -134,6 +148,8 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
         private TextView subject;
         private TextView bodyPreview;
         private ImageButton starButton;
+        private ImageButton labelMailButton;
+        private TextView labelBadge;
 
         private View unreadIndicator;
 
@@ -145,6 +161,8 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
             subject = itemView.findViewById(R.id.tv_subject);
             bodyPreview = itemView.findViewById(R.id.tv_body_preview);
             starButton = itemView.findViewById(R.id.btn_star);
+            labelMailButton = itemView.findViewById(R.id.btn_label_mail);
+            labelBadge = itemView.findViewById(R.id.tv_label_badge);
 
             unreadIndicator = itemView.findViewById(R.id.unread_indicator);
 
@@ -174,6 +192,13 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION && onStarClickListener != null) {
                     onStarClickListener.onStarClick(mails.get(position));
+                }
+            });
+
+            labelMailButton.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && onLabelMailClickListener != null) {
+                    onLabelMailClickListener.onLabelMailClick(mails.get(position));
                 }
             });
 
@@ -222,7 +247,34 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
             // Set star icon
             starButton.setImageResource(mail.isStarred() ? R.drawable.ic_star_filled : R.drawable.ic_star_outline);
 
-
+            // Label badge logic
+            if (mail.getLabelIds() != null && !mail.getLabelIds().isEmpty() && allLabels != null) {
+                String labelId = mail.getLabelIds().get(0); // Show first label only
+                Label found = null;
+                for (Label l : allLabels) {
+                    if (l.getId().equals(labelId)) {
+                        found = l;
+                        break;
+                    }
+                }
+                if (found != null) {
+                    labelBadge.setText(found.getName());
+                    try {
+                        int color = android.graphics.Color.parseColor(found.getColor());
+                        android.graphics.drawable.GradientDrawable bg = (android.graphics.drawable.GradientDrawable) labelBadge.getBackground();
+                        bg.setColor(color);
+                    } catch (Exception e) {
+                        // fallback to default
+                        android.graphics.drawable.GradientDrawable bg = (android.graphics.drawable.GradientDrawable) labelBadge.getBackground();
+                        bg.setColor(itemView.getContext().getColor(R.color.primary));
+                    }
+                    labelBadge.setVisibility(View.VISIBLE);
+                } else {
+                    labelBadge.setVisibility(View.GONE);
+                }
+            } else {
+                labelBadge.setVisibility(View.GONE);
+            }
 
             // Handle selection mode visual state
             boolean isSelected = selectedMails.contains(mail.getId());

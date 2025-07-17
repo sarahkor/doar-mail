@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 
 exports.registerUser = async (req, res) => {
   try {
-    console.log('Received file:', req.file); // Log file info
     const user = await registerUserService(req.body, req.file);
     res.status(201).json({
       status: "success",

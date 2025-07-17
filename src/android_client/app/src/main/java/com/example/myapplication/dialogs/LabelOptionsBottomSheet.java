@@ -19,12 +19,12 @@ public class LabelOptionsBottomSheet extends BottomSheetDialogFragment {
     private static final String ARG_LABEL_NAME = "label_name";
     private static final String ARG_LABEL_COLOR = "label_color";
     
-    private LinearLayout optionColor, optionEdit, optionDelete;
+    private LinearLayout optionAddSublabel, optionEdit, optionDelete;
     private OnOptionSelectedListener listener;
     private Label label;
 
     public interface OnOptionSelectedListener {
-        void onColorOptionSelected(Label label);
+        void onAddSublabelOptionSelected(Label label);
         void onEditOptionSelected(Label label);
         void onDeleteOptionSelected(Label label);
     }
@@ -32,7 +32,7 @@ public class LabelOptionsBottomSheet extends BottomSheetDialogFragment {
     public static LabelOptionsBottomSheet newInstance(Label label) {
         LabelOptionsBottomSheet bottomSheet = new LabelOptionsBottomSheet();
         Bundle args = new Bundle();
-        args.putInt(ARG_LABEL_ID, label.getId());
+        args.putString(ARG_LABEL_ID, label.getId());
         args.putString(ARG_LABEL_NAME, label.getName());
         args.putString(ARG_LABEL_COLOR, label.getColor());
         bottomSheet.setArguments(args);
@@ -52,7 +52,7 @@ public class LabelOptionsBottomSheet extends BottomSheetDialogFragment {
         Bundle args = getArguments();
         if (args != null) {
             label = new Label();
-            label.setId(args.getInt(ARG_LABEL_ID));
+            label.setId(args.getString(ARG_LABEL_ID));
             label.setName(args.getString(ARG_LABEL_NAME));
             label.setColor(args.getString(ARG_LABEL_COLOR));
             
@@ -64,26 +64,24 @@ public class LabelOptionsBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void initViews(View view) {
-        optionColor = view.findViewById(R.id.option_color);
+        optionAddSublabel = view.findViewById(R.id.option_add_sublabel);
         optionEdit = view.findViewById(R.id.option_edit);
         optionDelete = view.findViewById(R.id.option_delete);
     }
 
     private void setupClickListeners() {
-        optionColor.setOnClickListener(v -> {
+        optionAddSublabel.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onColorOptionSelected(label);
+                listener.onAddSublabelOptionSelected(label);
             }
             dismiss();
         });
-
         optionEdit.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onEditOptionSelected(label);
             }
             dismiss();
         });
-
         optionDelete.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onDeleteOptionSelected(label);

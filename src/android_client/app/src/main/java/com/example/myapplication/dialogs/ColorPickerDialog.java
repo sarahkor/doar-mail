@@ -25,17 +25,17 @@ public class ColorPickerDialog extends DialogFragment {
     private MaterialButton btnCancel;
     private ColorAdapter colorAdapter;
     private OnColorSelectedListener listener;
-    private int labelId;
+    private String labelId;
     private String selectedColor;
 
     public interface OnColorSelectedListener {
-        void onColorSelected(int labelId, String color);
+        void onColorSelected(String labelId, String color);
     }
 
     public static ColorPickerDialog newInstance(Label label) {
         ColorPickerDialog dialog = new ColorPickerDialog();
         Bundle args = new Bundle();
-        args.putInt(ARG_LABEL_ID, label.getId());
+        args.putString(ARG_LABEL_ID, label.getId());
         args.putString(ARG_CURRENT_COLOR, label.getColor());
         dialog.setArguments(args);
         return dialog;
@@ -56,7 +56,7 @@ public class ColorPickerDialog extends DialogFragment {
         // Get arguments
         Bundle args = getArguments();
         if (args != null) {
-            labelId = args.getInt(ARG_LABEL_ID);
+            labelId = args.getString(ARG_LABEL_ID);
             selectedColor = args.getString(ARG_CURRENT_COLOR, "#666666");
             
             initViews(view);
