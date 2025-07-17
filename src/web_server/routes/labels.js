@@ -12,6 +12,7 @@ router.route('/:id')
   .patch(authenticateToken, labelController.editLabel)
   .delete(authenticateToken, labelController.deleteLabel);
 
+router.post('/:id/addMail', authenticateToken, labelController.addMailToLabel);
 router.post('/:id/mails', authenticateToken, labelController.addMailToLabel);
 router.delete('/:labelId/:mailId', authenticateToken, labelController.removeFromLabel);
 

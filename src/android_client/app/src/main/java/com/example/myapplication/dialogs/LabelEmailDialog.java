@@ -31,6 +31,7 @@ import java.util.Set;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import android.util.Log;
 
 public class LabelEmailDialog extends DialogFragment {
     
@@ -214,10 +215,24 @@ public class LabelEmailDialog extends DialogFragment {
         
         for (String mailId : mailIds) {
             for (String labelId : labelIds) {
-                Call<ApiService.ApiResponse> call = apiService.addMailToLabel(authManager.getBearerToken(), labelId, mailId);
+                java.util.Map<String, String> body = new java.util.HashMap<>();
+                body.put("mailId", mailId);
+                Log.d("LabelDebug", "Assigning mailId " + mailId + " to labelId " + labelId);
+                Log.d("LabelDebug", "Request body: " + body.toString());
+                Call<ApiService.ApiResponse> call = apiService.addMailToLabel(authManager.getBearerToken(), labelId, body);
                 call.enqueue(new Callback<ApiService.ApiResponse>() {
                     @Override
                     public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
+                        Log.d("LabelDebug", "Response code: " + response.code());
+                        if (response.isSuccessful()) {
+                            Log.d("LabelDebug", "Label applied successfully!");
+                        } else {
+                            try {
+                                Log.d("LabelDebug", "Failed to apply label. Error body: " + (response.errorBody() != null ? response.errorBody().string() : "null"));
+                            } catch (Exception e) {
+                                Log.d("LabelDebug", "Failed to read error body: " + e.getMessage());
+                            }
+                        }
                         completedOperations[0]++;
                         if (completedOperations[0] == totalOperations) {
                             // All operations completed
@@ -231,6 +246,7 @@ public class LabelEmailDialog extends DialogFragment {
 
                     @Override
                     public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
+                        Log.d("LabelDebug", "Network error: " + t.getMessage());
                         completedOperations[0]++;
                         // Continue even if some operations fail
                         if (completedOperations[0] == totalOperations) {

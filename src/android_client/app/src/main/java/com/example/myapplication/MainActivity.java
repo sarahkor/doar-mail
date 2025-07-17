@@ -85,9 +85,6 @@ public class MainActivity extends AppCompatActivity {
     private View actionModeBar;
     private TextView selectedCountText;
 
-    private boolean labelsLoaded = false;
-    private boolean mailsLoaded = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -311,8 +308,6 @@ public class MainActivity extends AppCompatActivity {
                         mailAdapter.setAllLabels(labels);
                         mailAdapter.notifyDataSetChanged();
                     }
-                    labelsLoaded = true;
-                    onBothLoaded();
                 } else {
                     // Load demo labels for testing
                     loadDemoLabels();
@@ -640,8 +635,6 @@ public class MainActivity extends AppCompatActivity {
                     filteredMails.addAll(allMails);
                     mailAdapter.notifyDataSetChanged();
                     updateEmptyState();
-                    mailsLoaded = true;
-                    onBothLoaded();
                 } else {
                     showError("Failed to load " + folder.getDisplayName().toLowerCase() + " mails");
                 }
@@ -1025,7 +1018,7 @@ public class MainActivity extends AppCompatActivity {
         );
         dialog.setOnLabelsAppliedListener(() -> {
             exitSelectionMode();
-            // Optionally refresh the mail list or update UI
+            loadMails(); // Refresh the mail list after labeling
         });
         dialog.show(getSupportFragmentManager(), "LabelEmailDialog");
     }
@@ -1207,31 +1200,8 @@ public class MainActivity extends AppCompatActivity {
         LabelEmailDialog dialog = LabelEmailDialog.newInstance(mail);
         dialog.setOnLabelsAppliedListener(() -> {
             showError("Mail labeled successfully");
-            loadMails(); // Optionally refresh mails
+            loadMails(); // Refresh mails after labeling
         });
         dialog.show(getSupportFragmentManager(), "LabelEmailDialog");
-    }
-
-    private void assignLabelIdsToMails() {
-        for (Mail mail : allMails) {
-            List<String> labelIds = new ArrayList<>();
-            for (Label label : labels) {
-                if (label.getMailIds() != null && mail.get_id() != null && label.getMailIds().contains(mail.get_id())) {
-                    labelIds.add(label.getId());
-                }
-            }
-            mail.setLabelIds(labelIds);
-        }
-    }
-
-    private void onBothLoaded() {
-        if (labelsLoaded && mailsLoaded) {
-            assignLabelIdsToMails();
-            filteredMails.clear();
-            filteredMails.addAll(allMails);
-            if (mailAdapter != null) mailAdapter.notifyDataSetChanged();
-            labelsLoaded = false;
-            mailsLoaded = false;
-        }
     }
 }
