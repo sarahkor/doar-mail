@@ -1,4 +1,5 @@
 package com.example.myapplication;
+
 import android.content.Intent;
 import android.app.Dialog;
 import android.graphics.drawable.ColorDrawable;
@@ -16,8 +17,10 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.example.myapplication.activities.ComposeActivity;
 import com.example.myapplication.activities.LoginActivity;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,34 +55,35 @@ import java.util.stream.Collectors;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int COMPOSE_REQUEST_CODE = 1;
-    
+
     private ActivityMainBinding binding;
     private DrawerLayout drawerLayout;
     private RecyclerView recyclerView;
     private MailAdapter mailAdapter;
     private ProgressBar progressLoading;
     private LinearLayout emptyStateLayout;
-    
+
     // Label-related fields
     private RecyclerView labelsRecyclerView;
     private LabelAdapter labelAdapter;
     private List<Label> labels = new ArrayList<>();
     private ImageView btnAddLabel;
-    
+
     private ApiService apiService;
     private AuthManager authManager;
     private User currentUser;
     private List<Mail> allMails = new ArrayList<>();
     private List<Mail> filteredMails = new ArrayList<>();
-    
+
     private MailFolder currentFolder = MailFolder.INBOX;
     private View currentSelectedNavItem;
-    
+
     // Selection mode fields
     private boolean isSelectionMode = false;
     private View actionModeBar;
@@ -110,11 +114,11 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = binding.rvMails;
         progressLoading = binding.progressLoading;
         emptyStateLayout = binding.layoutEmptyState;
-        
+
         // Initialize action mode bar
         actionModeBar = binding.actionModeBar;
         selectedCountText = binding.tvSelectedCount;
-        
+
         // Setup action mode bar click listeners
         binding.btnCloseSelection.setOnClickListener(v -> exitSelectionMode());
         binding.btnDeleteMails.setOnClickListener(v -> deleteSelectedMails());
@@ -125,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
-        
+
         // Setup empty trash functionality for when in trash folder
         setupEmptyTrashButton();
         binding.btnLabelMails.setOnClickListener(v -> showLabelDialog());
@@ -145,10 +149,10 @@ public class MainActivity extends AppCompatActivity {
     private void logout() {
         // Clear authentication data
         authManager.logout();
-        
+
         // Navigate to login
         navigateToLogin();
-        
+
         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
     }
 
@@ -159,7 +163,8 @@ public class MainActivity extends AppCompatActivity {
         setupNavigationDrawer();
         setupComposeButton();
     }
-     private void setupComposeButton() {
+
+    private void setupComposeButton() {
         binding.fabCompose.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ComposeActivity.class);
             startActivityForResult(intent, COMPOSE_REQUEST_CODE);
@@ -181,7 +186,8 @@ public class MainActivity extends AppCompatActivity {
     private void setupSearchBar() {
         binding.etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -190,7 +196,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         binding.btnClearSearch.setOnClickListener(v -> {
@@ -257,16 +264,16 @@ public class MainActivity extends AppCompatActivity {
         // Set new selection
         currentSelectedNavItem = item;
         item.setBackgroundResource(R.drawable.nav_item_selected);
-        
+
         currentFolder = folder;
-        
+
         // Update adapter with current folder context
         if (mailAdapter != null) {
             mailAdapter.setCurrentFolder(folder);
         }
-        
+
         loadMailsForFolder(folder);
-        
+
         // Update action bar title
         setTitle(folder.getDisplayName());
     }
@@ -324,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadDemoLabels() {
         labels.clear();
-        
+
         Label workLabel = new Label();
         workLabel.setId("1");
         workLabel.setName("Work");
@@ -372,10 +379,12 @@ public class MainActivity extends AppCompatActivity {
                 dialog.setOnLabelCreatedListener((name, color) -> createLabel(name, color, parentLabel.getId()));
                 dialog.show(getSupportFragmentManager(), "NewLabelDialog");
             }
+
             @Override
             public void onEditOptionSelected(Label label) {
                 showEditLabelDialog(label);
             }
+
             @Override
             public void onDeleteOptionSelected(Label label) {
                 showDeleteLabelDialog(label);
@@ -432,7 +441,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateLabel(String labelId, String newName, String color) {
         ApiService.UpdateLabelRequest request = new ApiService.UpdateLabelRequest(newName, color, null);
-        
+
         apiService.updateLabel(authManager.getBearerToken(), labelId, request).enqueue(new Callback<Label>() {
             @Override
             public void onResponse(Call<Label> call, Response<Label> response) {
@@ -473,7 +482,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateLabelColor(String labelId, String color) {
         ApiService.ColorRequest request = new ApiService.ColorRequest(color);
-        
+
         apiService.updateLabelColor(authManager.getBearerToken(), labelId, request).enqueue(new Callback<Label>() {
             @Override
             public void onResponse(Call<Label> call, Response<Label> response) {
@@ -526,7 +535,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void filterMails(String query) {
         filteredMails.clear();
-        
+
         if (query.isEmpty()) {
             filteredMails.addAll(allMails);
         } else {
@@ -537,22 +546,22 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        
+
         mailAdapter.notifyDataSetChanged();
         updateEmptyState();
     }
 
     private boolean mailMatchesQuery(Mail mail, String query) {
         return (mail.getFrom() != null && mail.getFrom().toLowerCase().contains(query)) ||
-               (mail.getFromName() != null && mail.getFromName().toLowerCase().contains(query)) ||
-               (mail.getSubject() != null && mail.getSubject().toLowerCase().contains(query)) ||
-               (mail.getBodyPreview() != null && mail.getBodyPreview().toLowerCase().contains(query)) ||
-               (mail.getTo() != null && mail.getTo().toLowerCase().contains(query));
+                (mail.getFromName() != null && mail.getFromName().toLowerCase().contains(query)) ||
+                (mail.getSubject() != null && mail.getSubject().toLowerCase().contains(query)) ||
+                (mail.getBodyPreview() != null && mail.getBodyPreview().toLowerCase().contains(query)) ||
+                (mail.getTo() != null && mail.getTo().toLowerCase().contains(query));
     }
 
     private void loadUserProfile() {
         showLoading(true);
-        
+
         apiService.getCurrentUser(authManager.getBearerToken()).enqueue(new Callback<ApiService.UserResponse>() {
             @Override
             public void onResponse(Call<ApiService.UserResponse> call, Response<ApiService.UserResponse> response) {
@@ -588,7 +597,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadMailsForFolder(MailFolder folder) {
         showLoading(true);
-        
+
         Call<ApiService.PaginatedMailResponse> call;
         switch (folder) {
             case INBOX:
@@ -614,23 +623,23 @@ public class MainActivity extends AppCompatActivity {
                 call = apiService.getAllMails(authManager.getBearerToken());
                 break;
         }
-        
+
         call.enqueue(new Callback<ApiService.PaginatedMailResponse>() {
             @Override
             public void onResponse(Call<ApiService.PaginatedMailResponse> call, Response<ApiService.PaginatedMailResponse> response) {
                 showLoading(false);
                 if (response.isSuccessful() && response.body() != null && response.body().getMails() != null) {
                     allMails.clear();
-                    
+
                     // Process each mail to convert IDs and handle server fields
                     for (Mail mail : response.body().getMails()) {
                         mail.convertIdFromString(); // Convert MongoDB ObjectId to integer
                         allMails.add(mail);
                     }
-                    
+
                     // Clear search when switching folders
                     binding.etSearch.setText("");
-                    
+
                     filteredMails.clear();
                     filteredMails.addAll(allMails);
                     mailAdapter.notifyDataSetChanged();
@@ -718,7 +727,7 @@ public class MainActivity extends AppCompatActivity {
     private void showProfileMenu() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_profile_menu);
-        
+
         Window window = dialog.getWindow();
         if (window != null) {
             window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -745,13 +754,15 @@ public class MainActivity extends AppCompatActivity {
             // Load profile picture if available
             if (currentUser.getPicture() != null && !currentUser.getPicture().isEmpty()) {
                 String baseUrl = ApiClient.getInstance().getBaseUrl();
-                String imageUrl = (baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl) + currentUser.getPicture();
+                String imageUrl = baseUrl + (currentUser.getPicture().startsWith("/") ?
+                        currentUser.getPicture().substring(1) : currentUser.getPicture());
                 Log.d("ProfilePhoto", "Loading image: " + imageUrl);
                 Glide.with(this)
-                    .load(imageUrl)
-                    .placeholder(R.drawable.ic_account_circle)
-                    .error(R.drawable.ic_account_circle)
-                    .into(profilePicture);
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_account_circle)
+                        .error(R.drawable.ic_account_circle)
+                        .circleCrop()
+                        .into(profilePicture);
             } else {
                 profilePicture.setImageResource(R.drawable.ic_account_circle);
             }
@@ -773,7 +784,7 @@ public class MainActivity extends AppCompatActivity {
     private void showProfileDetails() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_profile_details);
-        
+
         Window window = dialog.getWindow();
         if (window != null) {
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -802,13 +813,15 @@ public class MainActivity extends AppCompatActivity {
             // Load profile picture if available
             if (currentUser.getPicture() != null && !currentUser.getPicture().isEmpty()) {
                 String baseUrl = ApiClient.getInstance().getBaseUrl();
-                String imageUrl = (baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl) + currentUser.getPicture();
+                String imageUrl = baseUrl + (currentUser.getPicture().startsWith("/") ?
+                        currentUser.getPicture().substring(1) : currentUser.getPicture());
                 Log.d("ProfilePhoto", "Loading image: " + imageUrl);
                 Glide.with(this)
-                    .load(imageUrl)
-                    .placeholder(R.drawable.ic_account_circle)
-                    .error(R.drawable.ic_account_circle)
-                    .into(profilePicture);
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_account_circle)
+                        .error(R.drawable.ic_account_circle)
+                        .circleCrop()
+                        .into(profilePicture);
             } else {
                 profilePicture.setImageResource(R.drawable.ic_account_circle);
             }
@@ -820,7 +833,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String formatPhone(String phone) {
         if (phone == null || phone.isEmpty()) return "Not provided";
-        
+
         // Format Israeli phone number (0501234567 -> 050-123-4567)
         if (phone.length() == 10 && phone.startsWith("05")) {
             return phone.substring(0, 3) + "-" + phone.substring(3, 6) + "-" + phone.substring(6);
@@ -830,7 +843,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String formatDate(String dateString) {
         if (dateString == null || dateString.isEmpty()) return "Not provided";
-        
+
         try {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             SimpleDateFormat outputFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());
@@ -859,7 +872,7 @@ public class MainActivity extends AppCompatActivity {
                 mail.setRead(true);
                 mailAdapter.notifyDataSetChanged(); // Update UI immediately
             }
-            
+
             // Open mail detail dialog for non-draft emails
             if (mail.get_id() != null) {
                 MailDetailDialog dialog = MailDetailDialog.newInstance(mail.get_id(), currentFolder);
@@ -880,25 +893,25 @@ public class MainActivity extends AppCompatActivity {
             showError("Cannot star mail: ID not available");
             return;
         }
-        
+
         // Store original state for rollback if API fails
         boolean originalStarredState = mail.isStarred();
-        
+
         // Optimistically update UI
         mail.setStarred(!originalStarredState);
         mailAdapter.notifyDataSetChanged();
-        
+
         // Call API to toggle star
         apiService.toggleStar(authManager.getBearerToken(), mail.get_id())
                 .enqueue(new Callback<ApiService.ToggleStarResponse>() {
                     @Override
-                    public void onResponse(Call<ApiService.ToggleStarResponse> call, 
-                                         Response<ApiService.ToggleStarResponse> response) {
+                    public void onResponse(Call<ApiService.ToggleStarResponse> call,
+                                           Response<ApiService.ToggleStarResponse> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             // Update with server response to ensure consistency
                             mail.setStarred(response.body().isStarred());
                             mailAdapter.notifyDataSetChanged();
-                            
+
                             // If we're in starred folder and mail was unstarred, remove it from view
                             if (currentFolder == MailFolder.STARRED && !response.body().isStarred()) {
                                 filteredMails.remove(mail);
@@ -913,7 +926,7 @@ public class MainActivity extends AppCompatActivity {
                             showError("Failed to toggle star");
                         }
                     }
-                    
+
                     @Override
                     public void onFailure(Call<ApiService.ToggleStarResponse> call, Throwable t) {
                         // Revert optimistic update on failure
@@ -923,7 +936,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-
 
 
     private void onMailLongClick(Mail mail) {
@@ -937,7 +949,7 @@ public class MainActivity extends AppCompatActivity {
             isSelectionMode = true;
             mailAdapter.setSelectionMode(true);
             actionModeBar.setVisibility(View.VISIBLE);
-            
+
             // Hide the search bar when in selection mode
             binding.btnMenu.setVisibility(View.GONE);
             binding.btnProfile.setVisibility(View.GONE);
@@ -949,7 +961,7 @@ public class MainActivity extends AppCompatActivity {
             isSelectionMode = false;
             mailAdapter.setSelectionMode(false);
             actionModeBar.setVisibility(View.GONE);
-            
+
             // Show the search bar again
             binding.btnMenu.setVisibility(View.VISIBLE);
             binding.btnProfile.setVisibility(View.VISIBLE);
@@ -973,23 +985,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String title = currentFolder == MailFolder.TRASH ? "Permanently delete" : "Delete Emails";
-        String message = currentFolder == MailFolder.TRASH ? 
-            "Are you sure you want to permanently delete " + selectedIds.size() + " email(s)?" :
-            "Are you sure you want to move " + selectedIds.size() + " email(s) to trash?";
+        String message = currentFolder == MailFolder.TRASH ?
+                "Are you sure you want to permanently delete " + selectedIds.size() + " email(s)?" :
+                "Are you sure you want to move " + selectedIds.size() + " email(s) to trash?";
 
         // Show confirmation dialog
         new androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton("Delete", (dialog, which) -> {
-                if (currentFolder == MailFolder.TRASH) {
-                    permanentlyDeleteSelectedMails(selectedIds);
-                } else {
-                    moveSelectedMailsToTrash(selectedIds);
-                }
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    if (currentFolder == MailFolder.TRASH) {
+                        permanentlyDeleteSelectedMails(selectedIds);
+                    } else {
+                        moveSelectedMailsToTrash(selectedIds);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void showLabelDialog() {
@@ -1012,9 +1024,9 @@ public class MainActivity extends AppCompatActivity {
         boolean isSingleMail = selectedIds.size() == 1;
 
         LabelEmailDialog dialog = LabelEmailDialog.newInstance(
-            selectedIds.stream().map(String::valueOf).collect(Collectors.toSet()),
-            isSingleMail,
-            mailSubject
+                selectedIds.stream().map(String::valueOf).collect(Collectors.toSet()),
+                isSingleMail,
+                mailSubject
         );
         dialog.setOnLabelsAppliedListener(() -> {
             exitSelectionMode();
@@ -1033,9 +1045,6 @@ public class MainActivity extends AppCompatActivity {
         emptyStateLayout.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
         recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
     }
-
-
-
 
 
     private void moveSelectedMailsToTrash(Set<Integer> selectedIds) {
@@ -1058,7 +1067,7 @@ public class MainActivity extends AppCompatActivity {
                                 filteredMails.removeIf(m -> m.getId() == mailId);
                                 allMails.removeIf(m -> m.getId() == mailId);
                             }
-                            
+
                             // Check if all operations completed
                             if (completedCount[0] == totalCount) {
                                 mailAdapter.notifyDataSetChanged();
@@ -1102,7 +1111,7 @@ public class MainActivity extends AppCompatActivity {
                                 filteredMails.removeIf(m -> m.getId() == mailId);
                                 allMails.removeIf(m -> m.getId() == mailId);
                             }
-                            
+
                             // Check if all operations completed
                             if (completedCount[0] == totalCount) {
                                 mailAdapter.notifyDataSetChanged();
@@ -1142,33 +1151,33 @@ public class MainActivity extends AppCompatActivity {
 
     private void emptyTrash() {
         new androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Empty Trash")
-            .setMessage("Are you sure you want to permanently delete all emails in trash? This action cannot be undone.")
-            .setPositiveButton("Empty Trash", (dialog, which) -> {
-                apiService.emptyTrash(authManager.getBearerToken())
-                        .enqueue(new Callback<ApiService.ApiResponse>() {
-                            @Override
-                            public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
-                                if (response.isSuccessful()) {
-                                    // Clear all mails from current view
-                                    allMails.clear();
-                                    filteredMails.clear();
-                                    mailAdapter.notifyDataSetChanged();
-                                    updateEmptyState();
-                                    showError("Trash emptied successfully");
-                                } else {
-                                    showError("Failed to empty trash");
+                .setTitle("Empty Trash")
+                .setMessage("Are you sure you want to permanently delete all emails in trash? This action cannot be undone.")
+                .setPositiveButton("Empty Trash", (dialog, which) -> {
+                    apiService.emptyTrash(authManager.getBearerToken())
+                            .enqueue(new Callback<ApiService.ApiResponse>() {
+                                @Override
+                                public void onResponse(Call<ApiService.ApiResponse> call, Response<ApiService.ApiResponse> response) {
+                                    if (response.isSuccessful()) {
+                                        // Clear all mails from current view
+                                        allMails.clear();
+                                        filteredMails.clear();
+                                        mailAdapter.notifyDataSetChanged();
+                                        updateEmptyState();
+                                        showError("Trash emptied successfully");
+                                    } else {
+                                        showError("Failed to empty trash");
+                                    }
                                 }
-                            }
 
-                            @Override
-                            public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
-                                showError("Network error: " + t.getMessage());
-                            }
-                        });
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
+                                @Override
+                                public void onFailure(Call<ApiService.ApiResponse> call, Throwable t) {
+                                    showError("Network error: " + t.getMessage());
+                                }
+                            });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void showError(String message) {
@@ -1189,7 +1198,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        
+
         if (requestCode == COMPOSE_REQUEST_CODE && resultCode == RESULT_OK) {
             // Email was sent successfully, refresh the current folder
             loadMails();

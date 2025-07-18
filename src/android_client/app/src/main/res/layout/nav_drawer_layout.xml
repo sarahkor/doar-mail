@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="280dp"
     android:layout_height="match_parent"
     android:background="@color/surface"
     android:orientation="vertical"
-    android:padding="0dp">
+    android:padding="0dp"
+    android:fitsSystemWindows="true">
 
     <!-- Header with app logo and title -->
     <LinearLayout
@@ -18,14 +20,14 @@
             android:layout_height="72dp"
             android:layout_marginTop="10dp"
             android:layout_marginStart="14dp"
-            android:contentDescription="Doar Logo"
+            android:contentDescription="@string/logo_desc"
             android:scaleType="fitCenter"
             android:src="@drawable/doarlight" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Doar"
+            android:text="@string/app_name"
             android:textColor="@color/text_primary"
             android:textSize="22sp"
             android:textStyle="bold" />
@@ -72,13 +74,14 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_inbox"
                         android:layout_marginEnd="12dp"
-                        android:tint="@color/nav_icon_tint" />
+                        android:contentDescription="@string/inbox_icon_desc"
+                        app:tint="@color/nav_icon_tint" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Inbox"
+                        android:text="@string/inbox"
                         android:textSize="14sp"
                         android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
@@ -106,13 +109,14 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_sent"
                         android:layout_marginEnd="12dp"
-                        android:tint="@color/nav_icon_tint" />
+                        app:tint="@color/nav_icon_tint"
+                        android:contentDescription="@string/sent_icon_desc"/>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Sent"
+                        android:text="@string/sent"
                         android:textSize="14sp"
                         android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
@@ -140,13 +144,14 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_drafts"
                         android:layout_marginEnd="12dp"
-                        android:tint="@color/nav_icon_tint" />
+                        app:tint="@color/nav_icon_tint"
+                        android:contentDescription="@string/drafts_icon_desc"/>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Drafts"
+                        android:text="@string/drafts"
                         android:textSize="14sp"
                         android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
@@ -174,13 +179,14 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_spam"
                         android:layout_marginEnd="12dp"
-                        android:tint="@color/nav_icon_tint" />
+                        app:tint="@color/nav_icon_tint"
+                        android:contentDescription="@string/spam_icon_desc"/>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Spam"
+                        android:text="@string/spam"
                         android:textSize="14sp"
                         android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
@@ -208,13 +214,14 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_trash"
                         android:layout_marginEnd="12dp"
-                        android:tint="@color/nav_icon_tint" />
+                        app:tint="@color/nav_icon_tint"
+                        android:contentDescription="@string/trash_icon_desc"/>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Trash"
+                        android:text="@string/trash"
                         android:textSize="14sp"
                         android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
@@ -242,13 +249,14 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_star_outline"
                         android:layout_marginEnd="12dp"
-                        android:tint="@color/nav_icon_tint" />
+                        app:tint="@color/nav_icon_tint"
+                        android:contentDescription="@string/starred_icon_desc"/>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Starred"
+                        android:text="@string/starred"
                         android:textSize="14sp"
                         android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
@@ -276,13 +284,14 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_all_mail"
                         android:layout_marginEnd="12dp"
-                        android:tint="@color/nav_icon_tint" />
+                        app:tint="@color/nav_icon_tint"
+                        android:contentDescription="@string/all_icon_desc"/>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="All Doar"
+                        android:text="@string/all"
                         android:textSize="14sp"
                         android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
@@ -314,13 +323,14 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_label"
                         android:layout_marginEnd="12dp"
-                        android:tint="@color/nav_icon_tint" />
+                        app:tint="@color/nav_icon_tint"
+                        android:contentDescription="@string/labels_icon_desc"/>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Labels"
+                        android:text="@string/labels"
                         android:textSize="14sp"
                         android:textColor="@color/nav_item_text"
                         android:fontFamily="sans-serif-medium" />
@@ -334,8 +344,8 @@
                         android:focusable="true"
                         android:padding="4dp"
                         android:src="@drawable/ic_add"
-                        android:contentDescription="Add Label"
-                        android:tint="@color/text_secondary" />
+                        android:contentDescription="@string/add_btn_desc"
+                        app:tint="@color/text_secondary" />
 
                 </LinearLayout>
 
@@ -343,7 +353,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_labels"
                     android:layout_width="match_parent"
-                    android:layout_height="150dp"
+                    android:layout_height="match_parent"
                     android:nestedScrollingEnabled="true" />
 
             </LinearLayout>

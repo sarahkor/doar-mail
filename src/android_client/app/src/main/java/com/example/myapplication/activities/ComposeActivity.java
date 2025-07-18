@@ -2,7 +2,6 @@ package com.example.myapplication.activities;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -18,9 +17,6 @@ import com.example.myapplication.api.ApiService;
 import com.example.myapplication.models.Mail;
 import com.example.myapplication.utils.AuthManager;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import android.content.Intent;
 
 public class ComposeActivity extends AppCompatActivity {

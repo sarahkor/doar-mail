@@ -16,7 +16,7 @@
             android:id="@+id/tv_subject"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Subject: Sample Email Subject"
+            android:text="@string/example_subject"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
@@ -47,7 +47,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="From: "
+                    android:text="@string/from"
                     android:textSize="14sp"
                     android:textColor="@color/text_secondary"
                     android:layout_marginEnd="4dp" />
@@ -56,7 +56,7 @@
                     android:id="@+id/tv_from_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="John Doe"
+                    android:text="@string/example_sender_name"
                     android:textSize="14sp"
                     android:textColor="@color/text_primary"
                     android:layout_marginEnd="4dp" />
@@ -66,7 +66,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="&lt;john@doar.com&gt;"
+                    android:text="@string/example_sender_mail"
                     android:textSize="14sp"
                     android:textColor="@color/text_secondary" />
 
@@ -83,7 +83,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="To: "
+                    android:text="@string/to"
                     android:textSize="14sp"
                     android:textColor="@color/text_secondary"
                     android:layout_marginEnd="4dp" />
@@ -92,7 +92,7 @@
                     android:id="@+id/tv_to_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Jane Smith"
+                    android:text="@string/example_receiver_name"
                     android:textSize="14sp"
                     android:textColor="@color/text_primary"
                     android:layout_marginEnd="4dp" />
@@ -102,7 +102,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="&lt;jane@doar.com&gt;"
+                    android:text="@string/example_receiver_mail"
                     android:textSize="14sp"
                     android:textColor="@color/text_secondary" />
 
@@ -118,7 +118,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Date: "
+                    android:text="@string/date"
                     android:textSize="14sp"
                     android:textColor="@color/text_secondary"
                     android:layout_marginEnd="4dp" />
@@ -128,7 +128,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="July 14, 2025 at 7:41 PM"
+                    android:text="@string/example_date"
                     android:textSize="14sp"
                     android:textColor="@color/text_secondary" />
 
@@ -147,7 +147,7 @@
             android:id="@+id/tv_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="This is the mail body content. It can be quite long and will scroll if needed."
+            android:text="@string/example_body_content"
             android:textSize="16sp"
             android:textColor="@color/text_primary"
             android:lineSpacingMultiplier="1.3"
@@ -167,7 +167,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Attachments:"
+                android:text="@string/attachments"
                 android:textStyle="bold"
                 android:textSize="14sp"
                 android:textColor="@color/text_primary"
@@ -197,9 +197,9 @@
                 android:layout_height="48dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_star_outline"
-                android:contentDescription="Star mail"
+                android:contentDescription="@string/star_mail"
                 android:layout_marginEnd="32dp"
-                android:tint="?android:attr/textColorSecondary" />
+                app:tint="?android:attr/textColorSecondary" />
 
             <ImageButton
                 android:id="@+id/btn_spam"
@@ -207,9 +207,9 @@
                 android:layout_height="48dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_spam"
-                android:contentDescription="Report spam"
+                android:contentDescription="@string/report_spam"
                 android:layout_marginEnd="32dp"
-                android:tint="?android:attr/textColorSecondary" />
+                app:tint="?android:attr/textColorSecondary" />
 
             <ImageButton
                 android:id="@+id/btn_trash"
@@ -217,8 +217,8 @@
                 android:layout_height="48dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_delete"
-                android:contentDescription="Delete mail"
-                android:tint="?android:attr/textColorSecondary" />
+                android:contentDescription="@string/delete_mail"
+                app:tint="?android:attr/textColorSecondary" />
 
             <ImageButton
                 android:id="@+id/btn_restore"
@@ -226,9 +226,9 @@
                 android:layout_height="48dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_restore"
-                android:contentDescription="Restore mail"
+                android:contentDescription="@string/restore_mail"
                 android:visibility="gone"
-                android:tint="?android:attr/textColorSecondary" />
+                app:tint="?android:attr/textColorSecondary" />
 
         </LinearLayout>
 
@@ -253,13 +253,15 @@
             android:id="@+id/iv_from_avatar"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:contentDescription="@string/hidden_avatar"/>
 
         <ImageView
             android:id="@+id/iv_to_avatar"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:contentDescription="@string/hidden_avatar"/>
 
         <!-- Hidden buttons that are still needed by the code -->
         <com.google.android.material.button.MaterialButton

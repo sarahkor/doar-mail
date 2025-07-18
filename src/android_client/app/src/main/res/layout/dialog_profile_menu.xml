@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -16,12 +17,12 @@
 
         <ImageView
             android:id="@+id/iv_profile_menu_picture"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:background="@drawable/circle_background"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_gravity="center"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_account_circle"
-            android:tint="@color/text_secondary" />
+            android:contentDescription="@string/avatar_desc"/>
 
     </LinearLayout>
 
@@ -30,7 +31,7 @@
         android:id="@+id/tv_profile_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="user@doar.com"
+        android:text="@string/username_example"
         android:textSize="14sp"
         android:textColor="@color/text_secondary"
         android:gravity="center"
@@ -41,7 +42,7 @@
         android:id="@+id/tv_profile_greeting"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hi, User"
+        android:text="@string/hi_user"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
@@ -65,12 +66,13 @@
             android:layout_height="20dp"
             android:src="@drawable/ic_account_circle"
             android:layout_marginEnd="8dp"
-            android:tint="@color/primary" />
+            app:tint="@color/primary"
+            android:contentDescription="@string/little_generic_avatar"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="See Profile Details"
+            android:text="@string/see_details"
             android:textSize="14sp"
             android:textColor="@color/primary"
             android:textStyle="bold" />
@@ -93,12 +95,13 @@
             android:layout_height="20dp"
             android:src="@drawable/ic_logout"
             android:layout_marginEnd="8dp"
-            android:tint="@color/primary" />
+            app:tint="@color/primary"
+            android:contentDescription="@string/log_out_icon"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Log out"
+            android:text="@string/log_out"
             android:textSize="14sp"
             android:textColor="@color/primary"
             android:textStyle="bold" />

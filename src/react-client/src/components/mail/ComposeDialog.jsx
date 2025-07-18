@@ -157,19 +157,19 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
       let response, data = {};
 
       if (draft?._id) {
+        const formData = new FormData();
+        formData.append('to', cleanTo);
+        formData.append('subject', form.subject);
+        formData.append('bodyPreview', form.bodyPreview);
+        formData.append('status', 'draft');
+        if (file) formData.append('attachments', file);
         // Update existing draft
         response = await fetch(`/api/mails/${draft._id}`, {
           method: 'PATCH',
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${sessionStorage.getItem('token')}`,
           },
-          body: JSON.stringify({
-            to: cleanTo,
-            subject: form.subject,
-            bodyPreview: form.bodyPreview,
-            status: 'draft',
-          }),
+          body: formData
         });
         if (response.status !== 204) {
           data = await response.json();

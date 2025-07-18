@@ -4,7 +4,7 @@ const router = express.Router();
 const multer = require('multer');
 
 // Configure multer to save files in 'uploads/' directory
-const upload = multer({ dest: 'uploads/' });
+const upload = require('../utils/upload');
 
 // Importing user controller functions and authentication middleware
 const { registerUser, loginUser, getUserById } = require('../controllers/userController');

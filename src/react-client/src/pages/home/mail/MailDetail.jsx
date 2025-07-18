@@ -23,7 +23,6 @@ export default function MailDetail({ onCompose }) {
   const [mailLabels, setMailLabels] = useState([]); // Labels associated with this mail
   const [error, setError] = useState('');
   const [isStarred, setIsStarred] = useState(false); // Whether the mail is starred by current user
-
   // Fetch mail content using the GET api/mails/:id endpoint
   const fetchMail = useCallback(async () => {
     try {
@@ -247,7 +246,6 @@ export default function MailDetail({ onCompose }) {
   const username = sessionStorage.getItem('username');
   const toFull = mail.to === username ? 'Me' : mail.toName || mail.to;
   const fromFull = mail.from === username ? 'Me' : mail.fromName || mail.from;
-
   return (
     <>
       <ConfirmDialog
@@ -264,7 +262,7 @@ export default function MailDetail({ onCompose }) {
 
         <div className="mail-detail-header">
           <h1 className="mail-detail-subject">
-            To: {toFull} - {mail.subject || '(no subject)'}
+            {mail.subject || '(no subject)'}
           </h1>
 
           {mailLabels.length > 0 && (
@@ -283,15 +281,24 @@ export default function MailDetail({ onCompose }) {
         </div>
 
         <div className="mail-detail-meta">
-          <div className="mail-detail-meta-line">
-            <strong>From:</strong>{' '}
-            <span className="mail-detail-name">{fromFull}</span>{' '}
-            <span
-              className="mail-detail-email"
-              onClick={() => onCompose(mail.from)}
-            >
-              &lt;{mail.from}&gt;
-            </span>
+          <div className="meta-from-block">
+            <div className="meta-from-text">
+              <strong>From:</strong>{' '}
+              {mail.fromPicture && (
+                <img
+                  className="meta-from-avatar"
+                  src={`${API_BASE}${mail.fromPicture}`}
+                  alt={`${fromFull} avatar`}
+                />
+              )}
+              <span className="mail-detail-name">{fromFull}</span>{' '}
+              <span
+                className="mail-detail-email"
+                onClick={() => onCompose(mail.from)}
+              >
+                &lt;{mail.from}&gt;
+              </span>
+            </div>
           </div>
 
           {mail.to && (
@@ -316,7 +323,7 @@ export default function MailDetail({ onCompose }) {
         <hr className="mail-detail-divider" />
 
         <div className="mail-detail-body">
-          {mail.bodyPreview?.trim() || 'No content.'}
+          {mail.bodyPreview?.trim() || ''}
         </div>
 
         {mail.attachments?.length > 0 && (
