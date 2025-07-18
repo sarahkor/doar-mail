@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create New Label"
+        android:text="@string/create_label"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/dialog_text"
@@ -20,7 +20,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Label name:"
+        android:text="@string/the_label_name"
         android:textSize="14sp"
         android:textColor="@color/text_secondary"
         android:layout_marginBottom="8dp" />
@@ -35,7 +35,7 @@
             android:id="@+id/et_label_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter label name"
+            android:hint="@string/enter_label_name"
             android:inputType="text"
             android:textColor="@color/dialog_text"
             android:textColorHint="@color/text_hint"
@@ -47,7 +47,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose color:"
+        android:text="@string/choose_color"
         android:textSize="14sp"
         android:textColor="@color/text_secondary"
         android:layout_marginBottom="16dp" />
@@ -70,7 +70,7 @@
             android:id="@+id/btn_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:textColor="@color/text_secondary"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_marginEnd="12dp" />
@@ -79,7 +79,7 @@
             android:id="@+id/btn_create"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create"
+            android:text="@string/create"
             android:textColor="@android:color/white"
             android:backgroundTint="@color/primary" />
 

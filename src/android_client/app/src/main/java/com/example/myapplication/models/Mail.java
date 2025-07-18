@@ -28,6 +28,7 @@ public class Mail implements Serializable {
     private List<String> labelIds;
     @Ignore
     private List<Attachment> attachments;
+    private String fromPicture;
 
     // Constructors
     public Mail() {}
@@ -50,6 +51,9 @@ public class Mail implements Serializable {
     public String getFolder() { return folder; }
     public List<String> getLabelIds() { return labelIds; }
     public List<Attachment> getAttachments() { return attachments; }
+    public String getFromPicture() {
+        return fromPicture;
+    }
 
     // Setters
     public void setId(int id) { this.id = id; }
@@ -69,6 +73,9 @@ public class Mail implements Serializable {
     public void setFolder(String folder) { this.folder = folder; }
     public void setLabelIds(List<String> labelIds) { this.labelIds = labelIds; }
     public void setAttachments(List<Attachment> attachments) { this.attachments = attachments; }
+    public void setFromPicture(String fromPicture) {
+        this.fromPicture = fromPicture;
+    }
 
     public String getDisplaySubject() {
         return subject != null && !subject.trim().isEmpty() ? subject : "(no subject)";

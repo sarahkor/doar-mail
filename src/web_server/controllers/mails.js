@@ -83,13 +83,11 @@ exports.getMailById = async (req, res) => {
   try {
     const username = req.user.username;
     const mailId = req.params.id;
-
     const mail = await mailService.getMailById(username, mailId);
 
     if (!mail) {
       throw { status: 404, error: 'Mail not found in your inbox, sent, drafts, or spam.' };
     }
-
     res.status(200).json(mail);
   } catch (err) {
     res.status(err.status || 500).json({ error: err.error || 'Failed to get mail' });
@@ -164,21 +162,19 @@ exports.updateMail = async (req, res) => {
     if (status !== undefined) {
       updateData.status = status;
     }
-
-    // Always call updateMailById if anything changed (including just status)
-    const updated = await mailService.updateMailById(username, mailId, updateData);
-    if (!updated) {
-      throw { status: 404, error: 'Update failed' };
-    }
-
-    // Handle any new attachments
     if (files.length > 0) {
-      updated.attachments = files.map(file => ({
+      updateData.attachments = files.map(file => ({
         originalName: file.originalname,
         mimetype: file.mimetype,
         size: file.size,
         url: `/uploads/${file.filename}`
       }));
+    }
+
+    // Always call updateMailById if anything changed (including just status)
+    const updated = await mailService.updateMailById(username, mailId, updateData);
+    if (!updated) {
+      throw { status: 404, error: 'Update failed' };
     }
 
     return res.status(204).end();

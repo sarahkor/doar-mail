@@ -299,3 +299,32 @@
 [data-theme="dark"] .mail-detail-body::-webkit-scrollbar-thumb:hover {
   background-color: #888;
 }
+
+/* 1) flexâ€row for avatar + From text */
+.meta-from-block {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.meta-from-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.75rem;
+  margin-left: 0.75rem;
+}
+
+.meta-from-text {
+  flex: 1;
+}
+
+.indent-line {
+  padding-left: calc(32px + 0.75rem);
+
+}
+
+.mail-detail-meta-line {
+  padding-bottom: 5px;
+}

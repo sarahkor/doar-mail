@@ -30,13 +30,14 @@
         <!-- Sender Avatar -->
         <ImageView
             android:id="@+id/iv_sender_avatar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/circle_background"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:background="@drawable/circle_shape"
             android:scaleType="centerCrop"
+            android:layout_marginRight="10dp"
             android:src="@drawable/ic_account_circle"
-            android:tint="@color/text_secondary"
-            android:layout_marginEnd="12dp" />
+            android:contentDescription="@string/avatar_desc"/>
 
         <!-- Mail Content -->
         <LinearLayout
@@ -58,7 +59,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Sender Name"
+                    android:text="@string/sender_name"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="@color/mail_sender"
@@ -69,7 +70,7 @@
                     android:id="@+id/tv_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="12:34"
+                    android:text="@string/time"
                     android:textSize="12sp"
                     android:textColor="@color/mail_time"
                     android:layout_marginStart="8dp" />
@@ -81,7 +82,7 @@
                 android:id="@+id/tv_subject"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Subject"
+                android:text="@string/subject"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@color/mail_subject"
@@ -94,7 +95,7 @@
                 android:id="@+id/tv_label_badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="LabelName"
+                android:text="@string/label_name"
                 android:textSize="12sp"
                 android:textColor="@android:color/white"
                 android:background="@drawable/bg_label_badge"
@@ -111,7 +112,7 @@
                 android:id="@+id/tv_body_preview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Body preview..."
+                android:text="@string/body_prev"
                 android:textSize="14sp"
                 android:textColor="@color/mail_preview"
                 android:maxLines="2"
@@ -133,9 +134,9 @@
                 android:layout_height="32dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_star_outline"
-                android:tint="@color/text_secondary"
-                android:contentDescription="Star"
-                android:layout_marginEnd="4dp" />
+                android:contentDescription="@string/star_icon"
+                android:layout_marginEnd="4dp"
+                app:tint="@color/text_secondary" />
 
             <!-- Label Icon -->
             <ImageButton
@@ -144,9 +145,9 @@
                 android:layout_height="32dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_label"
-                android:tint="@color/text_secondary"
-                android:contentDescription="Label Mail"
-                android:layout_marginEnd="4dp" />
+                android:contentDescription="@string/label_mail"
+                android:layout_marginEnd="4dp"
+                app:tint="@color/text_secondary" />
 
 
         </LinearLayout>

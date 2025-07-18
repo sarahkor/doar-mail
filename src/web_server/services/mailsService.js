@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const Label = require('../models/labels');
 const { dedupeByMailId } = require('../utils/mailUtils');
 const REAL_FOLDERS = ['inbox', 'sent', 'draft', 'spam'];
+const User = require('../models/userModel');
 
 // Helper function to create display name from user object
 const createDisplayName = (user) => {
@@ -129,6 +130,9 @@ const getMailById = async (username, mailId) => {
     view.read = true;
   }
 
+  const sender = await User.findOne({ username: mail.from }).lean();
+  const fromPicture = sender?.picture || null;
+
   // Strip out timestamp, keep everything else
   const { timestamp, ...mailWithoutTimestamp } = mail;
 
@@ -138,11 +142,12 @@ const getMailById = async (username, mailId) => {
     folder: view.folder,
     read: view.read,
     starred: view.starred,
-    status: view.status
+    status: view.status,
+    fromPicture
   };
 };
 
-const updateMailById = async (username, mailId, { to, recipient, subject, bodyPreview, status }) => {
+const updateMailById = async (username, mailId, { to, recipient, subject, bodyPreview, status, attachments }) => {
   if (!mongoose.isValidObjectId(mailId)) {
     throw new Error(`Invalid mailId: ${mailId}`);
   }
@@ -159,6 +164,7 @@ const updateMailById = async (username, mailId, { to, recipient, subject, bodyPr
     mail.to = recipient.username;
     mail.toName = createDisplayName(recipient);
   }
+  if (attachments !== undefined) mail.attachments = attachments;
   await mail.save();
 
   // if still draft, just save and return

@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edit Label"
+        android:text="@string/edit_label"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
@@ -19,7 +19,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Label name:"
+        android:text="@string/the_label_name"
         android:textSize="14sp"
         android:textColor="@color/text_secondary"
         android:layout_marginBottom="8dp" />
@@ -34,7 +34,7 @@
             android:id="@+id/et_label_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter label name"
+            android:hint="@string/enter_label_name"
             android:inputType="text"
             android:maxLength="50" />
 
@@ -44,7 +44,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Label color:"
+        android:text="@string/label_color"
         android:textSize="14sp"
         android:textColor="@color/text_secondary"
         android:layout_marginBottom="8dp" />
@@ -68,7 +68,7 @@
             android:id="@+id/btn_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:textColor="@color/text_secondary"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_marginEnd="12dp" />
@@ -77,7 +77,7 @@
             android:id="@+id/btn_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save"
+            android:text="@string/save"
             android:textColor="@android:color/white"
             android:backgroundTint="@color/primary" />
 

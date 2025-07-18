@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -335,11 +336,27 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
 
         private void loadAvatar(Mail mail, ImageView avatarView) {
             Context context = avatarView.getContext();
-            
-            // Generate avatar URL based on the person we want to show
+
+            String imageUrl = mail.getFromPicture();
+
+            if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                if (!imageUrl.startsWith("http")) {
+                    // Prepend your base URL
+                    imageUrl = ApiClient.getInstance().getBaseUrl()
+                            + (imageUrl.startsWith("/") ? imageUrl.substring(1) : imageUrl);
+                }
+                Log.d("MailAdapter", "Loading avatar: " + imageUrl);
+                Glide.with(context)
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_account_circle)
+                        .error(R.drawable.ic_account_circle)
+                        .circleCrop()
+                        .into(avatarView);
+                return;
+            }
+
             String name;
             if (currentFolder == MailFolder.SENT) {
-                // In Sent folder, show recipient's avatar
                 name = mail.getToName();
                 if (name == null || name.trim().isEmpty()) {
                     name = mail.getTo();
@@ -348,7 +365,6 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
                     }
                 }
             } else {
-                // In other folders, show sender's avatar
                 name = mail.getFromName();
                 if (name == null || name.trim().isEmpty()) {
                     name = mail.getFrom();
@@ -357,21 +373,21 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
                     }
                 }
             }
-            
             if (name == null || name.trim().isEmpty()) {
                 name = "User";
             }
 
-            // Create avatar URL using UI Avatars service
-            String avatarUrl = "https://ui-avatars.com/api/?name=" + 
-                               name.replace(" ", "+") + 
-                               "&background=f69fd5&color=fff&size=80";
+            String avatarUrl = "https://ui-avatars.com/api/?name=" +
+                    name.replace(" ", "+") +
+                    "&background=f69fd5&color=fff&size=80";
 
             Glide.with(context)
-                .load(avatarUrl)
-                .placeholder(R.drawable.ic_account_circle)
-                .error(R.drawable.ic_account_circle)
-                .into(avatarView);
+                    .load(avatarUrl)
+                    .placeholder(R.drawable.ic_account_circle)
+                    .error(R.drawable.ic_account_circle)
+                    .circleCrop()
+                    .into(avatarView);
         }
+
     }
 } 
