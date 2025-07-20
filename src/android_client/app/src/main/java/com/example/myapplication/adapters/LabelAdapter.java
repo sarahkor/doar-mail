@@ -16,6 +16,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.models.Label;
 
 import java.util.List;
+import android.view.View;
 
 public class LabelAdapter extends RecyclerView.Adapter<LabelAdapter.LabelViewHolder> {
     
@@ -25,7 +26,7 @@ public class LabelAdapter extends RecyclerView.Adapter<LabelAdapter.LabelViewHol
     private OnLabelEditClickListener editClickListener;
 
     public interface OnLabelClickListener {
-        void onLabelClick(Label label);
+        void onLabelClick(Label label, View itemView);
     }
 
     public interface OnLabelEditClickListener {
@@ -95,7 +96,7 @@ public class LabelAdapter extends RecyclerView.Adapter<LabelAdapter.LabelViewHol
             // Set click listeners
             itemView.setOnClickListener(v -> {
                 if (clickListener != null) {
-                    clickListener.onLabelClick(label);
+                    clickListener.onLabelClick(label, v);
                 }
             });
 

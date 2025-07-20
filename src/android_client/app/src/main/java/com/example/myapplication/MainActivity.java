@@ -316,7 +316,27 @@ public class MainActivity extends AppCompatActivity {
             labelsRecyclerView.setAdapter(labelAdapter);
 
             // Set up label click listeners
-            labelAdapter.setOnLabelClickListener(this::onLabelClick);
+            labelAdapter.setOnLabelClickListener((label, view) -> {
+                // Clear previous highlight
+                if (currentSelectedNavItem != null) {
+                    currentSelectedNavItem.setBackgroundResource(android.R.color.transparent);
+                }
+                //Highlight this one
+                view.setBackgroundResource(R.drawable.nav_item_selected);
+                currentSelectedNavItem = view;
+
+                // Filter mails for this label
+                filteredMails.clear();
+                for (Mail mail : allMails) {
+                    if (mail.getLabelIds() != null && mail.getLabelIds().contains(label.getId())) {
+                        filteredMails.add(mail);
+                    }
+                }
+                mailAdapter.notifyDataSetChanged();
+                // Update title & close drawer
+                setTitle(label.getName());
+                drawerLayout.closeDrawer(Gravity.START);
+            });
             labelAdapter.setOnLabelEditClickListener(this::onLabelEditClick);
         }
 
