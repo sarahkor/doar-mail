@@ -3,9 +3,8 @@ const sessions = require('../models/sessions');
 const net = require('net');
 const MailUserView = require('../models/mailUserView');
 
-//const IP = 'server-container';
-const IP = '127.0.0.1';
-const PORT = 12345;
+const IP = process.env.CPP_SERVER_IP || '127.0.0.1';
+const PORT = parseInt(process.env.CPP_SERVER_PORT, 10) || 12345;
 
 // Sends a request to add a URL to the blacklist on the C++ server
 const sendRequest = (command, url, port = PORT) => {

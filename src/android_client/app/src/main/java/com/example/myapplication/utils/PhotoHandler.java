@@ -163,4 +163,4 @@ public class PhotoHandler {
         return bitmap;
     }
 
-} 
+}

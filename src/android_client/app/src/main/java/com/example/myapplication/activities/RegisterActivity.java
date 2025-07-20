@@ -3,7 +3,6 @@ package com.example.myapplication.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -17,15 +16,17 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
 import com.example.myapplication.api.ApiClient;
 import com.example.myapplication.api.ApiService;
-import com.example.myapplication.utils.FileUtils;
 import com.example.myapplication.utils.PhotoHandler;
 import com.example.myapplication.viewModel.RegisterViewModel;
 
@@ -33,12 +34,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import android.graphics.Bitmap;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -102,17 +97,17 @@ public class RegisterActivity extends AppCompatActivity {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 this,
                 R.array.gender_options,
-                android.R.layout.simple_spinner_item
-        );
+                android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerGender.setAdapter(adapter);
         spinnerGender.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String[] genderValues = {"female", "male", "prefer_not_to_say"};
+                String[] genderValues = { "female", "male", "prefer_not_to_say" };
                 selectedGender = genderValues[position];
                 validateFields();
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 selectedGender = "";
@@ -199,14 +194,24 @@ public class RegisterActivity extends AppCompatActivity {
             String photoMimeType = null;
             if (selectedImageUri != null) {
                 try {
-                    photoFilePath = com.example.myapplication.utils.FileUtils.getPath(this, selectedImageUri);
+                    // copy the content URI into a temp file in cache
+                    File tmp = new File(getCacheDir(), "upload.jpg");
+                    try (InputStream in = getContentResolver().openInputStream(selectedImageUri);
+                            FileOutputStream out = new FileOutputStream(tmp)) {
+                        byte[] buf = new byte[4096];
+                        int len;
+                        while ((len = in.read(buf)) > 0)
+                            out.write(buf, 0, len);
+                    }
+                    photoFilePath = tmp.getAbsolutePath();
                     photoMimeType = getContentResolver().getType(selectedImageUri);
-                } catch (Exception e) {
+                } catch (IOException e) {
                     showError("Failed to process selected photo");
                     return;
                 }
             }
-            registerViewModel.register(firstName, lastName, username, password, birthDate, gender, photoFilePath, photoMimeType);
+            registerViewModel.register(firstName, lastName, username, password, birthDate, gender, photoFilePath,
+                    photoMimeType);
         });
         tvBackToLogin.setOnClickListener(v -> navigateToLogin());
     }
@@ -214,13 +219,17 @@ public class RegisterActivity extends AppCompatActivity {
     private void setupFieldValidation() {
         TextWatcher watcher = new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 validateFields();
             }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         };
         etFirstName.addTextChangedListener(watcher);
         etLastName.addTextChangedListener(watcher);
@@ -269,12 +278,15 @@ public class RegisterActivity extends AppCompatActivity {
     private void observeViewModel() {
         registerViewModel.getLoading().observe(this, isLoading -> setLoadingState(isLoading != null && isLoading));
         registerViewModel.getErrorMessage().observe(this, error -> {
-            if (error != null && !error.isEmpty()) showError(error);
-            else clearError();
+            if (error != null && !error.isEmpty())
+                showError(error);
+            else
+                clearError();
         });
         registerViewModel.getRegisterSuccess().observe(this, success -> {
             if (success != null && success) {
-                Toast.makeText(RegisterActivity.this, "Registration successful! Please login.", Toast.LENGTH_LONG).show();
+                Toast.makeText(RegisterActivity.this, "Registration successful! Please login.", Toast.LENGTH_LONG)
+                        .show();
                 navigateToLogin();
             }
         });
@@ -312,7 +324,7 @@ public class RegisterActivity extends AppCompatActivity {
         // Show a dialog to choose between camera and gallery
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
         builder.setTitle("Select Profile Photo")
-                .setItems(new CharSequence[]{"Camera", "Gallery"}, (dialog, which) -> {
+                .setItems(new CharSequence[] { "Camera", "Gallery" }, (dialog, which) -> {
                     if (which == 0) {
                         photoHandler.askCameraPermissions();
                     } else {
@@ -330,11 +342,11 @@ public class RegisterActivity extends AppCompatActivity {
         android.app.DatePickerDialog datePickerDialog = new android.app.DatePickerDialog(
                 this,
                 (view, selectedYear, selectedMonth, selectedDay) -> {
-                    String date = String.format(Locale.getDefault(), "%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay);
+                    String date = String.format(Locale.getDefault(), "%04d-%02d-%02d", selectedYear, selectedMonth + 1,
+                            selectedDay);
                     etBirthDate.setText(date);
                 },
-                year, month, day
-        );
+                year, month, day);
         datePickerDialog.show();
     }
 
@@ -357,13 +369,18 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Password validation: min 8 chars, upper, lower, number, special
     private boolean isValidPassword(String password) {
-        if (password.length() < 8) return false;
+        if (password.length() < 8)
+            return false;
         boolean hasUpper = false, hasLower = false, hasDigit = false, hasSpecial = false;
         for (char c : password.toCharArray()) {
-            if (Character.isUpperCase(c)) hasUpper = true;
-            else if (Character.isLowerCase(c)) hasLower = true;
-            else if (Character.isDigit(c)) hasDigit = true;
-            else hasSpecial = true;
+            if (Character.isUpperCase(c))
+                hasUpper = true;
+            else if (Character.isLowerCase(c))
+                hasLower = true;
+            else if (Character.isDigit(c))
+                hasDigit = true;
+            else
+                hasSpecial = true;
         }
         return hasUpper && hasLower && hasDigit && hasSpecial;
     }
@@ -379,4 +396,4 @@ public class RegisterActivity extends AppCompatActivity {
             return false;
         }
     }
-} 
+}

@@ -21,6 +21,7 @@ function Navbar({ onComposeClick, onSearch, searchResults, isSearching, onClearS
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [user, setUser] = useState(null);
     const [userLoading, setUserLoading] = useState(true);
+    const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:8080';
 
     useEffect(() => {
         const savedTheme = sessionStorage.getItem('theme');
@@ -44,7 +45,7 @@ function Navbar({ onComposeClick, onSearch, searchResults, isSearching, onClearS
                     setUserLoading(false);
                     return;
                 }
-                const response = await fetch('http://localhost:8080/api/users/me', {
+                const response = await fetch(`${API_BASE}/api/users/me`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -100,7 +101,7 @@ function Navbar({ onComposeClick, onSearch, searchResults, isSearching, onClearS
 
     const getProfileImageUrl = (user) => {
         if (user && user.picture && user.picture.startsWith('/uploads/')) {
-            return `http://localhost:8080${user.picture}`;
+            return `${API_BASE}${user.picture}`;
         }
         if (user && user.firstName) {
             return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.firstName || '')}+${encodeURIComponent(user.lastName || '')}&background=f69fd5&color=fff&size=32`;

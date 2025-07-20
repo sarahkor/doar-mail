@@ -13,7 +13,7 @@ import './ProfileMenu.css';
 function ProfileMenu({ user, isLoading, onClose }) {
     const navigate = useNavigate();
     const [showProfileDetails, setShowProfileDetails] = useState(false);
-    const API_BASE = 'http://localhost:8080';
+    const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 
     const handleLogout = () => {
         sessionStorage.removeItem('token');

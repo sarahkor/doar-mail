@@ -24,38 +24,38 @@ public class AuthManager {
     }
 
     public void saveAuthToken(String token) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(KEY_AUTH_TOKEN, token);
-        editor.putBoolean(KEY_IS_LOGGED_IN, true);
-        editor.apply();
+        prefs.edit()
+                .putString(KEY_AUTH_TOKEN, token)
+                .putBoolean(KEY_IS_LOGGED_IN, true)
+                .apply();
     }
 
     public void saveUsername(String username) {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(KEY_USERNAME, username);
-        editor.apply();
+        prefs.edit()
+                .putString(KEY_USERNAME, username)
+                .apply();
     }
 
     public String getAuthToken() {
         return prefs.getString(KEY_AUTH_TOKEN, null);
     }
 
+
     public String getUsername() {
         return prefs.getString(KEY_USERNAME, null);
     }
 
     public boolean isLoggedIn() {
-        return prefs.getBoolean(KEY_IS_LOGGED_IN, false);
+        return prefs.getBoolean(KEY_IS_LOGGED_IN, false)
+                && getAuthToken() != null;
     }
 
     public void logout() {
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.clear();
-        editor.apply();
+        prefs.edit().clear().apply();
     }
 
     public String getBearerToken() {
         String token = getAuthToken();
         return token != null ? "Bearer " + token : null;
     }
-} 
+}
