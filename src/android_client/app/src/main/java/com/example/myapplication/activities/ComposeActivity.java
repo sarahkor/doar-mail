@@ -50,7 +50,6 @@ public class ComposeActivity extends AppCompatActivity {
 
         // Initialize icon buttons
         btnSend = findViewById(R.id.btn_send);
-        ImageButton btnAttach = findViewById(R.id.btn_attach);
         ImageButton btnDelete = findViewById(R.id.btn_delete);
         ImageButton btnClose = findViewById(R.id.btn_close);
         
@@ -71,10 +70,6 @@ public class ComposeActivity extends AppCompatActivity {
 
         // Handle send icon
         btnSend.setOnClickListener(v -> sendMail());
-
-        btnAttach.setOnClickListener(v ->
-                Toast.makeText(this, "Attach clicked (not implemented)", Toast.LENGTH_SHORT).show()
-        );
 
         btnDelete.setOnClickListener(v -> {
             etTo.setText("");

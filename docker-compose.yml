@@ -1,4 +1,30 @@
 services:
+  mongo:
+    image: mongo:7
+    command: ["mongod", "--quiet"]
+    container_name: mongo
+    restart: always
+    networks:
+      - urlnet
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+
+  cpp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: server-container
+    networks:
+      - urlnet
+    volumes:
+      - urldata:/server/data
+    stdin_open: true
+    tty: true
+    command: ["./build/server", "12345", "8", "1", "2"]
+
+
   web-server:
     build:
       context: .
@@ -13,6 +39,7 @@ services:
       - .env
     depends_on:
       - cpp-server
+      - mongo
     volumes:
       - ./uploads:/app/uploads
 
@@ -29,21 +56,9 @@ services:
     depends_on:
       - web-server
 
-  cpp-server:
-    build:
-      context: .
-      dockerfile: Dockerfile.server
-    container_name: server-container
-    networks:
-      - urlnet
-    volumes:
-      - urldata:/server/data
-    stdin_open: true
-    tty: true
-    command: ["./build/server", "12345", "8", "1", "2"]
-
 volumes:
   urldata:
+  mongodata:
 
 networks:
   urlnet:

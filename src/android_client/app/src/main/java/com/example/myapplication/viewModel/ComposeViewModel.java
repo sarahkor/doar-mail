@@ -155,7 +155,7 @@ public class ComposeViewModel extends ViewModel {
     private void handleSendError(int responseCode) {
         String errorMsg = "Failed to send mail. Please try again.";
         if (responseCode == 400) {
-            errorMsg = "Invalid mail data.";
+            errorMsg = "Recipient does not exist.";
         } else if (responseCode == 401) {
             errorMsg = "Unauthorized. Please log in again.";
         } else if (responseCode == 500) {

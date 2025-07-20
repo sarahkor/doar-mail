@@ -15,7 +15,7 @@ export default function MailDetail({ onCompose }) {
   // Extract folder and mailId from URL parameters
   const { folder, mailId } = useParams();
   const navigate = useNavigate();
-  const API_BASE = 'http://localhost:8080';
+  const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   // Component state

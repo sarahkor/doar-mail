@@ -11,7 +11,7 @@ import './ProfileDetails.css';
  */
 function ProfileDetails({ user, isOpen, onClose }) {
   if (!isOpen || !user) return null;
-  const API_BASE = 'http://localhost:8080';
+  const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 
   const getProfileImageUrl = (user) => {
     if (user?.picture?.startsWith('/uploads/')) {

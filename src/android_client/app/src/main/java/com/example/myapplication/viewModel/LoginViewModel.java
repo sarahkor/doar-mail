@@ -66,7 +66,10 @@ public class LoginViewModel extends ViewModel {
                     }
                 } else {
                     String errorMsg = "Login failed. Please check your credentials.";
-                    if (response.code() == 401) {
+                    if (response.code() == 404) {
+                        errorMsg = "Invalid username or password";
+                    }
+                    else if (response.code() == 401) {
                         errorMsg = "Invalid username or password";
                     } else if (response.code() == 500) {
                         errorMsg = "Server error. Please try again later.";

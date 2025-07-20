@@ -17,6 +17,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.net.Uri;
+import android.text.TextUtils;
 
 import com.example.myapplication.activities.ComposeActivity;
 import com.example.myapplication.activities.LoginActivity;
@@ -57,6 +59,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import android.util.Log;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -569,24 +573,16 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     currentUser = response.body().getUser();
                 } else {
-                    showError("Failed to load user profile");
-                    // Set default user for demo
-                    currentUser = new User();
-                    currentUser.setFirstName("Demo");
-                    currentUser.setLastName("User");
-                    currentUser.setUsername("demo@doar.com");
+                    authManager.logout();
+                    navigateToLogin();
+                    return;
                 }
             }
 
             @Override
             public void onFailure(Call<ApiService.UserResponse> call, Throwable t) {
-                showLoading(false);
-                showError("Network error: " + t.getMessage());
-                // Set default user for demo
-                currentUser = new User();
-                currentUser.setFirstName("Demo");
-                currentUser.setLastName("User");
-                currentUser.setUsername("demo@doar.com");
+                authManager.logout();
+                navigateToLogin();
             }
         });
     }
@@ -724,6 +720,7 @@ public class MainActivity extends AppCompatActivity {
         updateEmptyState();
     }
 
+
     private void showProfileMenu() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_profile_menu);
@@ -764,7 +761,28 @@ public class MainActivity extends AppCompatActivity {
                         .circleCrop()
                         .into(profilePicture);
             } else {
-                profilePicture.setImageResource(R.drawable.ic_account_circle);
+                String first = currentUser.getFirstName() != null ? currentUser.getFirstName() : "";
+                String last  = currentUser.getLastName()  != null ? currentUser.getLastName()  : "";
+                String initials;
+                if (!last.isEmpty()) {
+                    initials = first.charAt(0) + "" + last.charAt(0);
+                } else if (first.length() >= 2) {
+                    initials = first.substring(0,2);
+                } else {
+                    initials = first.isEmpty() ? "?" : first.substring(0,1);
+                }
+
+                String encoded = Uri.encode(initials);
+                String uiAvatarUrl = "https://ui-avatars.com/api/?name="
+                        + encoded
+                        + "&background=f69fd5&color=fff&size=96";
+
+                Glide.with(this)
+                        .load(uiAvatarUrl)
+                        .placeholder(R.drawable.ic_account_circle)
+                        .error(R.drawable.ic_account_circle)
+                        .circleCrop()
+                        .into(profilePicture);
             }
         }
 
@@ -803,7 +821,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (currentUser != null) {
             firstName.setText(currentUser.getFirstName() != null ? currentUser.getFirstName() : "Not provided");
-            lastName.setText(currentUser.getLastName() != null ? currentUser.getLastName() : "Not provided");
+            lastName.setText(
+                    !TextUtils.isEmpty(currentUser.getLastName())
+                            ? currentUser.getLastName()
+                            : getString(R.string.not_provided)
+            );
             email.setText(currentUser.getUsername() != null ? currentUser.getUsername() : "Not provided");
             phone.setText(formatPhone(currentUser.getPhone()));
             birthday.setText(formatDate(currentUser.getBirthday()));
@@ -823,7 +845,27 @@ public class MainActivity extends AppCompatActivity {
                         .circleCrop()
                         .into(profilePicture);
             } else {
-                profilePicture.setImageResource(R.drawable.ic_account_circle);
+                String first = currentUser.getFirstName() != null ? currentUser.getFirstName() : "";
+                String last  = currentUser.getLastName()  != null ? currentUser.getLastName()  : "";
+                String initials;
+                if (!last.isEmpty()) {
+                    initials = first.charAt(0) + "" + last.charAt(0);
+                } else if (first.length() >= 2) {
+                    initials = first.substring(0,2);
+                } else {
+                    initials = first.isEmpty() ? "?" : first.substring(0,1);
+                }
+                String encoded = Uri.encode(initials);
+                String uiAvatarUrl = "https://ui-avatars.com/api/?name="
+                        + encoded
+                        + "&background=f69fd5&color=fff&size=96";
+
+                Glide.with(this)
+                        .load(uiAvatarUrl)
+                        .placeholder(R.drawable.ic_account_circle)
+                        .error(R.drawable.ic_account_circle)
+                        .circleCrop()
+                        .into(profilePicture);
             }
         }
 

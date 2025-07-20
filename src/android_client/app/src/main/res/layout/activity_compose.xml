@@ -38,14 +38,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/btn_attach"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_attach"
-                android:contentDescription="@string/attach_file"
-                app:tint="@color/text_primary" />
 
             <ImageButton
                 android:id="@+id/btn_delete"

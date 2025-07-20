@@ -70,7 +70,7 @@ This is **Exercise 4** in the Advanced Programming Systems course at Bar-Ilan Un
 ### User Features
 
 - **User Registration & Login**:
-  - Sign up with required details: first name, last name, username, password, birthdate, gender, and profile picture.
+  - Sign up with required details: first name, last name, username, password, birthdate, phone number, gender, and profile picture.
   - Password must meet security rules: minimum length, uppercase, lowercase, digit, and special character.
   - Login using username and password.
   - Profile picture and name are displayed on the main screen after login.
@@ -156,13 +156,22 @@ This will:
 
 - react-client (React via Nginx)
 
+
 **Launch**:
 
-C++ server with ./build/server 12345 8 1 2
+- C++ server with ./build/server 12345 8 1 2
+- Web server container, running node src/web_server/app.js on port 8080
+- React client container  serving the doar app on port 3000
+- MongoDB container (image mongo), with its data stored in a named volume (mongodata)
+- the cpp url server data stored in the urldata volume
+
+All containers are connected to the custom Docker network urlnet, which allows them to communicate via container names (e.g., server-container, mongo, web-container).
 
 ### Step 3 - Accessing the Application:
 
 Once the Docker containers are running:
+
+**access the web app**
 
 Backend (Node.js Server) is available at http://localhost:8080
 
@@ -170,6 +179,10 @@ Frontend (React Client) is available at http://localhost:3000
 
 ✅ You can browse the app from either port — both serve the same client interface.
 Port 3000 runs the React development server, while port 8080 runs the Node.js backend server with the same interface.
+
+**access the android app**
+
+Open the /src/android_client folder in Android Studio and run the Android client on an emulator.
 
 ### Step 4 – Access Containers (Optional):
 To manually access a container (for debugging or inspection):
@@ -216,6 +229,7 @@ docker compose down -v
 
 - All blacklisted urls are stored in a Docker volume named `urldata`.
 - This volume ensures that data remains even after containers are stopped or rebuilt.
+- all the mails, labels and users are persiste in a mongo database named mongodata
 
 ---
 

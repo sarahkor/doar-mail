@@ -30,7 +30,7 @@ function ComposeDialog({ onClose, refreshInbox, to = '', draft = null }) {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState({ to: '' });
   const [existingAttachments, setExistingAttachments] = useState(draft?.attachments || []);
-  const API_BASE = 'http://localhost:8080';
+  const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8080";
 
   useEffect(() => {
     if (draft) {
