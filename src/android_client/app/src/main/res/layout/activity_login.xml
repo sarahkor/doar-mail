@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center"
-    android:background="@color/white">
+    android:background="@color/background">
 
     <!-- Logo/App Name -->
     <LinearLayout
@@ -29,7 +29,7 @@
             android:text="@string/doar_mail"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="@color/black"
+            android:textColor="@color/text_primary"
             android:layout_marginBottom="8dp" />
 
         <TextView
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:text="@string/sign_in_to_account"
             android:textSize="16sp"
-            android:textColor="@color/gray" />
+            android:textColor="@color/text_secondary" />
 
     </LinearLayout>
 
@@ -135,7 +135,7 @@
             android:layout_height="wrap_content"
             android:text="@string/dont_have_account"
             android:textSize="14sp"
-            android:textColor="@color/gray" />
+            android:textColor="@color/text_secondary" />
 
         <TextView
             android:id="@+id/tv_create_account"
