@@ -6,27 +6,29 @@ The priject was built in 2025 for Bar-Ilan University’s **Advanced Programming
 
 ## 📖 Wiki Overview
 
-For more information about this project please visit the [wiki](https://github.com/meshybb/Create-our-Gmail/Wiki).
+For more information about this project please visit the [wiki](https://github.com/meshybb/Create-our-Gmail/wiki/).
 
 | Page name                                      | Description                            |
 | ---------------------------------------------- | -------------------------------------- |
-| [Getting Started](Getting-Started)             | Docker setup & project structure, in this page you can find a detailed guide on how to run the project using docker |
-| [System Architecture](System-Architecture)     | Services, networking & data flow       |
-| [Backend API](Backend-API)                     | All REST endpoints accesible in the backend|
-| [Frontend Features](Frontend-Features)         | Web & Android UX walkthrough with relveant scrennshots |
-| [Data Persistence](Data-Persistence)           | MongoDB & URL-blacklist volumes        |
-| [Security & Validation](Security-&-Validation) | JWT, input rules & best practices      |
-| [Wiki Home](Home)                              | The Doar project overview page                  |
+| [Getting Started](https://github.com/meshybb/Create-our-Gmail/wiki/Getting-Started)             | Docker setup & project structure, in this page you can find a detailed guide on how to run the project using docker |
+| [System Architecture](https://github.com/meshybb/Create-our-Gmail/wiki/System-Architecture)     | Services, networking & data flow       |
+| [Backend API](https://github.com/meshybb/Create-our-Gmail/wiki/Backend-API)                     | All REST endpoints accesible in the backend|
+| [Frontend Features](https://github.com/meshybb/Create-our-Gmail/wiki/Frontend-Features)         | Web & Android UX walkthrough with relveant scrennshots |
+| [Data Persistence](https://github.com/meshybb/Create-our-Gmail/wiki/Data-Persistence)           | MongoDB & URL-blacklist volumes        |
+| [Security & Validation](https://github.com/meshybb/Create-our-Gmail/wiki/Security-&-Validation) | JWT, input rules & best practices      |
+| [Wiki Home](https://github.com/meshybb/Create-our-Gmail/wiki/Home)                              | The Doar project overview page                  |
 
 
 ## Pick branch
-- Go to main for Exercise 5
-- Go to ex-4 for Exercise 4
-- Go to ex-3 for Exercise 3
-- Go to ex-2 for Exercise 2
-- Go to ex-1 for Exercise 1
+- Go to [main](https://github.com/meshybb/Create-our-Gmail) for Exercise 5
+- Go to [ex-4](https://github.com/meshybb/Create-our-Gmail/tree/ex-4) for Exercise 4
+- Go to [ex-3](https://github.com/meshybb/Create-our-Gmail/tree/ex-3) for Exercise 3
+- Go to [ex-2](https://github.com/meshybb/Create-our-Gmail/tree/ex-2) for Exercise 2
+- Go to [ex-1](https://github.com/meshybb/Create-our-Gmail/tree/ex-1) for Exercise 1
 
 ## Run the project using docker
+
+For a more inforamtive set up please go to [Getting Started](https://github.com/meshybb/Create-our-Gmail/wiki/Getting-Started)
 
 ### step one - before creating new containers delete all (running or stopped) containers (this step is optinal):
 
@@ -53,12 +55,12 @@ docker compose up --build
   - Sign up with required details: first name, last name, username, password, birthdate, phone number, gender, and profile picture.
   - Password must meet security rules: minimum length, uppercase, lowercase, digit, and special character.
   - Login using username and password.
-  - Profile picture and name are displayed on the main screen after login.
+  - Profile picture and name are displayed on the main screen after login (in profile menu and profile details_.
   - JWT is issued on login and used for all protected requests.
 
 - **Inbox & Mail Management**:
-  - View inbox, sent, drafts, trash, starred , and All mails.
-  - Open full mail content with subject, body, and sender/recipient details.
+  - View inbox, sent, drafts, trash, starred, spam and All mails.
+  - Open full mail content with subject, body, attachments, and sender/recipient and time details.
   - Delete mails (moved to trash).
   - Delete mails from trash (deleted permanently).
   - Restore mails from trash.
@@ -67,6 +69,7 @@ docker compose up --build
   - Edit and resend saved drafts.
   - Mark mail as starred
   - Unmark mail as starred
+  - Label a mail
 
 - **Mail Composition**:
   - Compose and send new mails to registered users by clicking the send button. 
@@ -74,6 +77,7 @@ docker compose up --build
   - Discard mails by clicking the trash icon
   - Add attachment to mails by clicking the attachment icon.
   - Links in mails are validated using a blacklist service.
+  - attach a file to a mail using the attachment icon
 
 - **Search Functionality**:
   - Search mails by keyword (in subject or body).
@@ -86,17 +90,12 @@ docker compose up --build
 
 - **Dark/Light Mode**:
   - Switch between light and dark themes using a toggle button in the top navigation.
- 
-  
-## Screenshots
-to see screenshots of the web and android apps and a usage guide plesae visit the [Frontend Features](Frontend-Features) wiki page
 
 ## Technology Stack
 
 ### Frontend
 - React: Building a dynamic UI with reusable components.
-- React Router: Client-side routing for navigation between views.
-- Bootstrap (via CDN): For responsive and styled components.
+- Android: building a dynamic UI for android users
 - JWT Authentication: Used to handle login, protect routes, and attach tokens to requests.
 - File Upload (Multer): Profile pictures uploaded via form using multipart/form-data.
 
