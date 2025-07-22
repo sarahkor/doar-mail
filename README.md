@@ -2,11 +2,13 @@
 
 ## **Welcome to Doar! 📩**
 Doar is a fullstack Gmail-inspired mail system built with **React**  and **Android** (Frontend), **Node.js** (Backend), and **C++** (URL filtering microservice via sockets).
-The priject was built in 2025 for Bar-Ilan University’s **Advanced Programming Systems** course.
+The project was built in 2025 for Bar-Ilan University’s **Advanced Programming Systems** course.
 
 ## 📖 Wiki Overview
 
-For more information about this project please visit the [wiki](https://github.com/meshybb/Create-our-Gmail/wiki/).
+For more information about this project please visit the [wiki](https://github.com/meshybb/Create-our-Gmail/wiki/)*.
+
+*if you cannot see the wiki there is a wiki folder in the project in create-our-gmail/wiki that contains the same wiki pages*
 
 | Page name                                      | Description                            |
 | ---------------------------------------------- | -------------------------------------- |
@@ -18,6 +20,7 @@ For more information about this project please visit the [wiki](https://github.c
 | [Security & Validation](https://github.com/meshybb/Create-our-Gmail/wiki/Security-&-Validation) | JWT, input rules & best practices      |
 | [Wiki Home](https://github.com/meshybb/Create-our-Gmail/wiki/Home)                              | The Doar project overview page                  |
 
+*if you cannot see the wiki, there is a wiki folder in the project in create-our-gmail/wiki that contains the same wiki pages
 
 ## Pick branch
 - Go to [main](https://github.com/meshybb/Create-our-Gmail) for Exercise 5
