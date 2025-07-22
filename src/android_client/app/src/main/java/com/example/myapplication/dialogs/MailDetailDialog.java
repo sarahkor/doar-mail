@@ -1,14 +1,13 @@
 package com.example.myapplication.dialogs;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,10 +22,7 @@ import com.example.myapplication.api.ApiClient;
 import com.example.myapplication.api.ApiService;
 import com.example.myapplication.models.Mail;
 import com.example.myapplication.utils.AuthManager;
-
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -209,19 +205,26 @@ public class MailDetailDialog extends DialogFragment {
         // Load attachments if any
         loadAttachments();
     }
-    
+
     private void formatAndSetDate() {
-        try {
-            if (currentMail.getTimestamp() > 0) {
-                Date date = new Date(currentMail.getTimestamp());
-                SimpleDateFormat formatter = new SimpleDateFormat("MMM d, yyyy 'at' h:mm a", Locale.getDefault());
-                tvDate.setText(formatter.format(date));
-            } else if (currentMail.getDate() != null && currentMail.getTime() != null) {
-                tvDate.setText(currentMail.getDate() + " at " + currentMail.getTime());
-            } else {
-                tvDate.setText("Date not available");
-            }
-        } catch (Exception e) {
+        if (currentMail == null) return;
+
+        if (currentMail.getTimestamp() > 0) {
+            Date date = new Date(currentMail.getTimestamp());
+            Context ctx = requireContext();
+            // Gets e.g. “Jul 21, 2025” in the user’s locale:
+            java.text.DateFormat dateFmt = android.text.format.DateFormat.getDateFormat(ctx);
+            // Gets time in 12h or 24h based on the system settings:
+            java.text.DateFormat timeFmt = android.text.format.DateFormat.getTimeFormat(ctx);
+
+            tvDate.setText(
+                    dateFmt.format(date)
+                            + " at "
+                            + timeFmt.format(date)
+            );
+        } else if (currentMail.getDate() != null && currentMail.getTime() != null) {
+            tvDate.setText(currentMail.getDate() + " at " + currentMail.getTime());
+        } else {
             tvDate.setText("Date not available");
         }
     }

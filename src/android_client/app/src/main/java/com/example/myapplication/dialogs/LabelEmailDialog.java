@@ -34,11 +34,11 @@ import retrofit2.Response;
 import android.util.Log;
 
 public class LabelEmailDialog extends DialogFragment {
-    
+
     private static final String ARG_MAIL_IDS = "mail_ids";
     private static final String ARG_IS_SINGLE_MAIL = "is_single_mail";
     private static final String ARG_MAIL_SUBJECT = "mail_subject";
-    
+
     private RadioGroup labelsContainer;
     private MaterialButton btnCancel, btnApply;
     private TextView titleText;
@@ -46,7 +46,7 @@ public class LabelEmailDialog extends DialogFragment {
     private OnLabelsAppliedListener listener;
     private ApiService apiService;
     private AuthManager authManager;
-    
+
     private List<Label> allLabels = new ArrayList<>();
     private Set<String> mailIds = new HashSet<>();
     private boolean isSingleMail;
@@ -81,9 +81,9 @@ public class LabelEmailDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
-        
+
         View view = inflater.inflate(R.layout.dialog_label_email, null);
-        
+
         // Get arguments
         Bundle args = getArguments();
         if (args != null) {
@@ -94,12 +94,12 @@ public class LabelEmailDialog extends DialogFragment {
             isSingleMail = args.getBoolean(ARG_IS_SINGLE_MAIL, true);
             mailSubject = args.getString(ARG_MAIL_SUBJECT, "Email");
         }
-        
+
         initViews(view);
         setupAPI();
         setupClickListeners();
         loadLabels();
-        
+
         builder.setView(view);
         return builder.create();
     }
@@ -125,7 +125,7 @@ public class LabelEmailDialog extends DialogFragment {
 
     private void setupClickListeners() {
         btnCancel.setOnClickListener(v -> dismiss());
-        
+
         btnApply.setOnClickListener(v -> {
             applyLabelChanges();
         });
@@ -189,7 +189,7 @@ public class LabelEmailDialog extends DialogFragment {
 
     private void applyLabelChanges() {
         int selectedRadioButtonId = labelsContainer.getCheckedRadioButtonId();
-        
+
         if (selectedRadioButtonId == -1) {
             showError("Please select a label");
             return;
@@ -212,7 +212,7 @@ public class LabelEmailDialog extends DialogFragment {
     private void applyLabelsToEmails(List<String> labelIds) {
         int totalOperations = mailIds.size() * labelIds.size();
         int[] completedOperations = {0};
-        
+
         for (String mailId : mailIds) {
             for (String labelId : labelIds) {
                 java.util.Map<String, String> body = new java.util.HashMap<>();
@@ -269,4 +269,4 @@ public class LabelEmailDialog extends DialogFragment {
     private void showSuccess(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
-} 
+}
