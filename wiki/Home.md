@@ -1,17 +1,17 @@
 # Welcome to Doar! 
 Doar is a fullstack Gmail-inspired mail system developed as part of the Advanced Programming Systems course at Bar-Ilan University (2025). It features a full user-facing mail application built with React (web frontend) android (android frontend),  Node.js backend web server, and a C++ blacklist URL filtering server, all connected via Docker.
 
-This is Exercise 4 in the course, and follows Exercises 1 through 3:
+This is Exercise 5 in the course, and follows Exercises 1 through 4:
 
-- Exercise 1: ex-1 branch
+- Exercise 1: [ex-1](https://github.com/meshybb/Create-our-Gmail/tree/ex-1) branch
 
-- Exercise 2: ex-2 branch
+- Exercise 2: [ex-2](https://github.com/meshybb/Create-our-Gmail/tree/ex-2) branch
 
-- Exercise 3: ex-3 branch
+- Exercise 3: [ex-3](https://github.com/meshybb/Create-our-Gmail/tree/ex-3) branch
 
-- Exercise 4: ex-4 branch
+- Exercise 4: [ex-4](https://github.com/meshybb/Create-our-Gmail/tree/ex-4) branch
 
-- Exercise 5: main branch
+- Exercise 5: [main](https://github.com/meshybb/Create-our-Gmail/) branch
 
 ## 🔎 What is Doar?
 

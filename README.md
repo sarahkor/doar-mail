@@ -8,8 +8,6 @@ The project was built in 2025 for Bar-Ilan University’s **Advanced Programming
 
 For more information about this project please visit the [wiki](https://github.com/meshybb/Create-our-Gmail/wiki/)*.
 
-*if you cannot see the wiki there is a wiki folder in the project in create-our-gmail/wiki that contains the same wiki pages*
-
 | Page name                                      | Description                            |
 | ---------------------------------------------- | -------------------------------------- |
 | [Getting Started](https://github.com/meshybb/Create-our-Gmail/wiki/Getting-Started)             | Docker setup & project structure, in this page you can find a detailed guide on how to run the project using docker |
@@ -20,7 +18,7 @@ For more information about this project please visit the [wiki](https://github.c
 | [Security & Validation](https://github.com/meshybb/Create-our-Gmail/wiki/Security-&-Validation) | JWT, input rules & best practices      |
 | [Wiki Home](https://github.com/meshybb/Create-our-Gmail/wiki/Home)                              | The Doar project overview page                  |
 
-*if you cannot see the wiki, there is a wiki folder in the project in create-our-gmail/wiki that contains the same wiki pages
+*if you cannot see the wiki, there is a wiki folder under the project root (create-our-gmail/wiki) that contains the same wiki pages
 
 ## Pick branch
 - Go to [main](https://github.com/meshybb/Create-our-Gmail) for Exercise 5
@@ -33,7 +31,7 @@ For more information about this project please visit the [wiki](https://github.c
 
 For a more inforamtive set up please go to [Getting Started](https://github.com/meshybb/Create-our-Gmail/wiki/Getting-Started)
 
-### step one - before creating new containers delete all (running or stopped) containers (this step is optinal):
+### step 1 - before creating new containers delete all (running or stopped) containers (this step is optinal):
 
 ``` bash
 docker rm -f $(docker ps -aq) 2>/dev/null || true
@@ -48,9 +46,11 @@ docker compose down -v --remove-orphans
 docker compose up --build
 ```
 ### step 3 - Browse:
-- go to http://localhost:8080 or http://localhost:3000 to browes the web app 
-- open /src/android_client folder in android stodiu and run on an emulator to run the android app
+- To browes the web app go to http://localhost:8080 or http://localhost:3000 
+- To browes the android app open /src/android_client folder in android studio and run on an emulator
 
+## Screenshots
+please visit [Frontend Features](https://github.com/meshybb/Create-our-Gmail/wiki/Frontend-Features) in wiki (or Frontend-Features.md under create-our-gmail/wiki) to see full usage guide and screenshots of the web and android app.
 
 ## Key Features 
 
