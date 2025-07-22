@@ -83,7 +83,12 @@ function MailItem({ mail, folder = 'inbox', onClick, onStarToggle, onTrash, onRe
   // Compute display time or date
   const mailDate = new Date(mail.timestamp);
   const isToday = mailDate.toDateString() === new Date().toDateString();
-  const timeOrDate = isToday ? mail.time : mail.date;
+  const formattedTime = mailDate.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  const formattedDate = mailDate.toLocaleDateString();
+  const timeOrDate = isToday ? formattedTime : formattedDate;
 
   // Helpers to render addresses
   const renderFromLine = () => {

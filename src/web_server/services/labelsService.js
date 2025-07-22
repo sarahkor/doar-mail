@@ -189,21 +189,29 @@ const labelNameExists = async (username, name, excludeId = null) => {
 };
 
 const removeMailFromLabel = async (username, labelId, mailId) => {
-  if (!mongoose.Types.ObjectId.isValid(labelId) ||
-    !mongoose.Types.ObjectId.isValid(mailId)) {
+  // 1) Validate inputs
+  if (!mongoose.isValidObjectId(labelId) ||
+    !mongoose.isValidObjectId(mailId)) {
     return false;
   }
-  const lid = mongoose.Types.ObjectId(labelId);
-  const mid = mongoose.Types.ObjectId(mailId);
 
-  // Pull the mailId from the label's mailIds array
+  // 2) Pull the mailId out of the label's mailIds array
   const result = await Label.updateOne(
-    { username, _id: lid, mailIds: mid },
-    { $pull: { mailIds: mid } }
+    { username, _id: labelId, mailIds: mailId },
+    { $pull: { mailIds: mailId } }
   );
 
-  // result.nModified > 0 means something was pulled out
-  return result.nModified > 0;
+  // 3) If we actually removed something, keep Mail.labelIds in sync
+  if (result.modifiedCount > 0) {
+    await Mail.updateOne(
+      { _id: mailId },
+      { $pull: { labelIds: labelId } }
+    );
+    return true;
+  }
+
+  // 4) Nothing was removed → either wrong IDs or it wasn’t in that label
+  return false;
 };
 
 

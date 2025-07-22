@@ -3,6 +3,7 @@ const router = express.Router();
 const labelController = require('../controllers/labels');
 const authenticateToken = require('../utils/authMiddleware');
 
+router.delete('/:labelId/:mailId', authenticateToken, labelController.removeFromLabel);
 router.route('/')
   .get(authenticateToken, labelController.listLabels)
   .post(authenticateToken, labelController.createLabel);
@@ -14,6 +15,6 @@ router.route('/:id')
 
 router.post('/:id/addMail', authenticateToken, labelController.addMailToLabel);
 router.post('/:id/mails', authenticateToken, labelController.addMailToLabel);
-router.delete('/:labelId/:mailId', authenticateToken, labelController.removeFromLabel);
+
 
 module.exports = router;

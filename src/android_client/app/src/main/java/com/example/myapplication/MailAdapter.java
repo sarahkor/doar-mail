@@ -17,6 +17,7 @@ import com.example.myapplication.api.ApiClient;
 import com.example.myapplication.models.Mail;
 import com.example.myapplication.models.Label;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -222,8 +223,12 @@ public class MailAdapter extends RecyclerView.Adapter<MailAdapter.MailViewHolder
             senderName.setText(displayName);
 
             // Set time
-            if (mail.getTime() != null) {
-                time.setText(mail.getTime());
+            long ts = mail.getTimestamp();
+            if (ts > 0) {
+                Date d = new Date(ts);
+                // this will respect the user’s 12-/24-hour setting:
+                java.text.DateFormat tf = android.text.format.DateFormat.getTimeFormat(itemView.getContext());
+                time.setText(tf.format(d));
             } else {
                 time.setText("");
             }

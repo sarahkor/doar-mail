@@ -87,7 +87,6 @@ function LabelEmailDialog({ mail, onClose, onSuccess }) {
                                 <div
                                     key={label._id}
                                     className={`label-option ${mailLabels.includes(label._id) ? 'selected' : ''}`}
-                                    onClick={() => handleLabelToggle(label._id)}
                                 >
                                     <div className="label-checkbox">
                                         <input

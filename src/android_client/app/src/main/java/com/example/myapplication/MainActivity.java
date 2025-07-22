@@ -24,6 +24,7 @@ import com.example.myapplication.activities.ComposeActivity;
 import com.example.myapplication.activities.LoginActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -235,10 +236,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupNavigationButtons() {
         binding.btnMenu.setOnClickListener(v -> {
-            if (drawerLayout.isDrawerOpen(Gravity.START)) {
-                drawerLayout.closeDrawer(Gravity.START);
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START);
             } else {
-                drawerLayout.openDrawer(Gravity.START);
+                drawerLayout.openDrawer(GravityCompat.START);
             }
         });
 
@@ -277,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
         if (item != null) {
             item.setOnClickListener(v -> {
                 selectNavigationItem(v, folder);
-                drawerLayout.closeDrawer(Gravity.START);
+                drawerLayout.closeDrawer(GravityCompat.START);
             });
         }
     }
@@ -335,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
                 mailAdapter.notifyDataSetChanged();
                 // Update title & close drawer
                 setTitle(label.getName());
-                drawerLayout.closeDrawer(Gravity.START);
+                drawerLayout.closeDrawer(GravityCompat.START);
             });
             labelAdapter.setOnLabelEditClickListener(this::onLabelEditClick);
         }
@@ -414,7 +415,7 @@ public class MainActivity extends AppCompatActivity {
             mailAdapter.notifyDataSetChanged();
         }
         setTitle(label.getName()); // Update action bar title
-        drawerLayout.closeDrawer(Gravity.START);
+        drawerLayout.closeDrawer(GravityCompat.START);
     }
 
     private void onLabelEditClick(Label label) {
@@ -1273,8 +1274,8 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (isSelectionMode) {
             exitSelectionMode();
-        } else if (drawerLayout.isDrawerOpen(Gravity.START)) {
-            drawerLayout.closeDrawer(Gravity.START);
+        } else if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }
