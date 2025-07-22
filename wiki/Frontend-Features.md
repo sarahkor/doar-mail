@@ -345,6 +345,4 @@ when pressing the see profile details button in the profile menu all the user de
 
 <img width="295" height="545" alt="image" src="https://github.com/user-attachments/assets/da79fb95-712e-49b3-bd3a-34b9db4a3976" />
 
-
-
-
+Done browsing the app? Let’s explore the [Data Persistence](./Data-Persistence.md) →
