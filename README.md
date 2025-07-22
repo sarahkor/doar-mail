@@ -18,7 +18,7 @@ For more information about this project please visit the [wiki](https://github.c
 | [Security & Validation](https://github.com/meshybb/Create-our-Gmail/wiki/Security-&-Validation) | JWT, input rules & best practices      |
 | [Wiki Home](https://github.com/meshybb/Create-our-Gmail/wiki/Home)                              | The Doar project overview page                  |
 
-*if you cannot see the wiki, there is a wiki folder under the project root (create-our-gmail/wiki) that contains the same wiki pages
+*if you can not see the wiki, there is a wiki folder under the project root ([create-our-gmail/wiki](./wiki/Home.md)) that contains the same wiki pages.
 
 ## Pick branch
 - Go to [main](https://github.com/meshybb/Create-our-Gmail) for Exercise 5
@@ -114,8 +114,6 @@ please visit [Frontend Features](https://github.com/meshybb/Create-our-Gmail/wik
  Bar-Ilan University
  
  "Advanced Programming Systems" course
- 
-Assignment 5 — Fullstack Multi-Service Mail System using React, Node.js, and C++
 
-Year: 2025
+ Year: 2025
 

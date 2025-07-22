@@ -149,4 +149,4 @@ To delete all volumes and reset data:
 docker compose down -v
 ```
 
-Ready? Let’s explore how to use the system in the [Usage Guide](Frontend-Features) →
+Ready? Let’s explore how to use the system in the [Usage Guide](./Frontend-Features.md) →

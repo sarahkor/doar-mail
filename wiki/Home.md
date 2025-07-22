@@ -13,6 +13,22 @@ This is Exercise 5 in the course, and follows Exercises 1 through 4:
 
 - Exercise 5: [main](https://github.com/meshybb/Create-our-Gmail/) branch
 
+## 🔍 Explore the Wiki
+
+This wiki is organized into dedicated sections:
+
+- [Getting Started](./Getting-Started.md) – How to run the project with Docker
+
+- [System Architecture](./System-Architecture.md) – Service overview and communication
+
+- [Backend API](./Backend-API.md) – Complete reference for API endpoints
+
+- [Frontend Features](./Frontend-Features.md) – UI functionality for android and web and example photos
+
+- [Data Persistence](./Data-Persistence.md) – How mail and blacklist data is stored
+
+- [Security & Validation](./Security-&-Validation.md) – JWT usage and input validation
+
 ## 🔎 What is Doar?
 
 Doar is a complete web-based email client that replicates the key features of Gmail:
@@ -32,6 +48,7 @@ Doar is a complete web-based email client that replicates the key features of Gm
 - Spam and blacklist handling via an external C++ service
 
 It also includes an optional Android client that connects to the same backend.
+
 
 ## Key Features 
 
@@ -90,32 +107,6 @@ It also includes an optional Android client that connects to the same backend.
 - Custom Validation: Server-side password and input validation for secure registration.
 - C++ Socket Server: External service used for validating outgoing mail URLs (blacklist).
 
-## 🎓 Course Information
-
-University: Bar-Ilan University
-
-Course: Advanced Programming Systems
-
-Assignment: Exercise 4 - Fullstack Multi-Service Mail System
-
-Year: 2025
-
-## 🔍 Explore the Wiki
-
-- This wiki is organized into dedicated sections:
-
-- [Getting Started](Getting-Started) – How to run the project with Docker
-
-- [System Architecture](System-Architecture) – Service overview and communication
-
-- [Backend API](Backend-API) – Complete reference for API endpoints
-
-- [Frontend Features](Frontend-Features) – UI functionality for android and web and example photos
-
-- [Data Persistence](Data-Persistence) – How mail and blacklist data is stored
-
-- [Security & Validation](Security-&-Validation) – JWT usage and input validation
-
 ## Quick Highlights
 
 - Built with React, Node.js, MongoDB, android, C++, and Docker
@@ -128,4 +119,14 @@ Year: 2025
 
 - Clean and responsive UI inspired by Gmail
 
-Continue with [Getting Started](Getting-Started) →
+## 🎓 Course Information
+
+University: Bar-Ilan University
+
+Course: Advanced Programming Systems
+
+Assignment: Exercise 5
+
+Year: 2025
+
+Continue with [Getting Started](./Getting-Started.md) →
