@@ -1,7 +1,7 @@
 # **Project Overview: Fullstack Mail Web App**
 
 ## **Welcome to Doar! 📩**
-Doar is a fullstack Gmail-inspired mail system built with **React**  and **Android** (Frontend), **Node.js** (Backend), and **C++** (URL filtering microservice via sockets).
+Doar is a fullstack Gmail-inspired mail system built with **React**  and **Android** (Frontend), **Node.js** (Backend),**C++** (URL filtering microservice via sockets), and MongoDB.
 The project was built in 2025 for Bar-Ilan University’s **Advanced Programming Systems** course.
 
 ## 📖 Wiki Overview
